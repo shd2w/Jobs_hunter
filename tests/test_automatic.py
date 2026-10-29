@@ -13,6 +13,13 @@ from jobhunter_app.web import make_server
 from tests.test_local_store import PROFILE
 from tests.test_web_local import request, token
 
+@pytest.fixture(autouse=True)
+def original_starter_scope(monkeypatch):
+    # Isolate the original three-feed scheduler contract; expanded sources have
+    # their own tests. Offline tests must never invoke a real JobSpy request.
+    monkeypatch.setattr('jobhunter_app.automatic.STARTERS',
+        (('jobicy', 'remote'), ('arbeitnow', 'de'), ('remotive', 'remote')))
+
 @pytest.fixture
 def store(tmp_path): return Store(tmp_path/'app.db')
 

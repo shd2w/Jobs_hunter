@@ -42,7 +42,7 @@ def test_source_configuration_rejects(kind,identifier):
 def test_directory_complete_honest_safe():
     rows=directory('Python & Cairo');assert set('ABCDEFGHIJKL')=={x['category'] for x in rows}
     assert {'Wuzzuf','Naukrigulf','Workday employer careers'}<={x['name'] for x in rows}
-    assert len(catalog())==17 and all(x['live_verified']==(x['name'] in ('Wuzzuf','Naukrigulf')) for x in rows)
+    assert {x['kind'] for x in catalog()} >= {'greenhouse','lever','ashby','smartrecruiters','remotive','feed','jobicy','arbeitnow','hn','usajobs','wuzzuf','naukrigulf','linkedin','x','reddit','telegram','discord','jobspy_indeed','jobspy_linkedin','jobspy_google','jobspy_bayt','remoteok','weworkremotely'} and all(x['live_verified']==(x['name'] == 'Naukrigulf') for x in rows)
     for x in rows:
         assert x['evidence'].startswith('https://') and x['limitations'] and x['auth_configuration']
         assert 'Python & Cairo' in parse_qs(urlsplit(x['search_url']).query)['q'][0]

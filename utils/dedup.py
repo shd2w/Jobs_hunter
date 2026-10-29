@@ -18,6 +18,13 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 
+def _url_key(url):
+    from utils.queue_exporter import canonicalize_url
+    try: return canonicalize_url(url)
+    except (ValueError, TypeError): return url
+
+
+
 class DeduplicatorStore:
     """Manages seen URLs and company+role pairs for deduplication.
     
@@ -29,6 +36,7 @@ class DeduplicatorStore:
         self.data_dir = Path(data_dir)
         self._seen_urls: set[str] = set()
         self._seen_company_roles: set[str] = set()
+        self._seen_location_roles: set[str] = set()
         self._lock = threading.Lock()
         self._load()
 
@@ -62,7 +70,7 @@ class DeduplicatorStore:
                     if status.startswith("skipped_"):
                         continue
                 if parts and parts[0]:
-                    self._seen_urls.add(parts[0])
+                    self._seen_urls.add(_url_key(parts[0]))
 
     def _load_pipeline(self):
         """Load URLs from pipeline.md checkbox lines."""
@@ -71,7 +79,7 @@ class DeduplicatorStore:
             return
         text = path.read_text(encoding="utf-8")
         for match in re.finditer(r"- \[[ x/]\] (https?://\S+)", text):
-            self._seen_urls.add(match.group(1))
+            self._seen_urls.add(_url_key(match.group(1)))
 
     def _load_applications(self):
         """Load company+role pairs from applications.md table."""
@@ -88,7 +96,7 @@ class DeduplicatorStore:
 
         # Also extract any inline URLs
         for match in re.finditer(r"https?://[^\s|)]+", text):
-            self._seen_urls.add(match.group(0))
+            self._seen_urls.add(_url_key(match.group(0)))
 
     def is_duplicate(self, job: dict) -> tuple[bool, str]:
         """Check if a job is a duplicate.
@@ -99,7 +107,7 @@ class DeduplicatorStore:
         Returns:
             Tuple of (is_dup: bool, reason: str)
         """
-        url = job.get("url", "")
+        url = _url_key(job.get("url", ""))
         company = job.get("company", "").lower()
         title = job.get("title", "").lower()
 
@@ -110,7 +118,9 @@ class DeduplicatorStore:
 
             # Check company + role
             key = f"{company}::{title}"
-            if company and title and key in self._seen_company_roles:
+            location = job.get("location", "").strip().lower()
+            if company and title and (key in self._seen_company_roles or
+                    (location and f"{key}::{location}" in self._seen_location_roles)):
                 return True, "company_role_seen"
 
             return False, ""
@@ -118,14 +128,18 @@ class DeduplicatorStore:
     def mark_seen(self, job: dict):
         """Mark a job as seen (for intra-scan dedup)."""
         with self._lock:
-            url = job.get("url", "")
+            url = _url_key(job.get("url", ""))
             if url:
                 self._seen_urls.add(url)
 
             company = job.get("company", "").lower()
             title = job.get("title", "").lower()
             if company and title:
-                self._seen_company_roles.add(f"{company}::{title}")
+                location = job.get("location", "").strip().lower()
+                if location:
+                    self._seen_location_roles.add(f"{company}::{title}::{location}")
+                else:
+                    self._seen_company_roles.add(f"{company}::{title}")
 
     @property
     def stats(self) -> dict:
