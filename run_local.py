@@ -1,4 +1,4 @@
-"""Manual local JobHunter CLI. No cloud account needed for core workflows."""
+"""Private JobHunter CLI with automatic discovery on server startup. No cloud account needed for core workflows."""
 from __future__ import annotations
 import argparse
 import json
@@ -76,7 +76,7 @@ def main(argv=None):
     p = sub.add_parser('export-uaa'); p.add_argument('file', type=Path); p.add_argument('--threshold', type=float, default=3.5); p.add_argument('--candidate-profile', type=Path)
     p = sub.add_parser('restore'); p.add_argument('backup', type=Path); p.add_argument('destination', type=Path)
     p = sub.add_parser('backup'); p.add_argument('file', type=Path)
-    p = sub.add_parser('serve'); p.add_argument('--port', type=int, default=8765)
+    p = sub.add_parser('serve'); p.add_argument('--port', type=int, default=8765); p.add_argument('--manual-discovery', action='store_true', help='Disable automatic discovery for offline/testing sessions')
     args = parser.parse_args(argv)
     try:
         if args.command == 'semantic-status':
@@ -249,7 +249,7 @@ def main(argv=None):
             result = {'backup': store.backup(args.file)}
         elif args.command == 'serve':
             from jobhunter_app.web import serve
-            serve(store, args.port, pid)
+            serve(store, args.port, pid, automatic=not args.manual_discovery)
             return 0
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0

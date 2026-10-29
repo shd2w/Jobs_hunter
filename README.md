@@ -1,17 +1,28 @@
 # JobHunter
 
-A private, single-user job-search workspace: deliberate discovery, transparent lexical matching, unchanged original CVs, evidence-backed preparation, and manually recorded progress.
+A private, single-user job-search workspace that starts finding jobs automatically. Open the app, browse public-feed results, and add a profile only if you want personalization. Original CVs stay unchanged; applying stays in your hands.
 
-**Current source:** Phase 6h integrated preparation/learning acceptance + GitHub launch support. This repository is a sanitized source release, not a backup of anyone's private workspace.
+**Current source:** 0.4.0 — automatic-first discovery + GitHub launch support. This repository is a sanitized source release, not a backup of anyone's private workspace.
 
 ## Open with GitHub
 
 - [GitHub Pages launch page](https://shd2w.github.io/Jobs_hunter/) — static launcher; availability depends on the Pages deployment succeeding.
 - [Create a private Codespace](https://codespaces.new/shd2w/Jobs_hunter?quickstart=1) — runs the full Python app, not just a static demo. GitHub sign-in and your explicit workspace creation are required. Compute/storage may incur charges; check your plan and stop unused workspaces.
 
-After setup, open forwarded port **8765** and keep its visibility **Private**. The devcontainer installs the pinned core dependencies and starts the dashboard. If it stops, run `bash .devcontainer/start.sh` in the Codespace terminal. Troubleshooting: [hosting guide](docs/GITHUB_HOSTING.md).
+After setup, open forwarded port **8765** and keep its visibility **Private**. The devcontainer installs the pinned core dependencies and starts the dashboard. Starter feeds scan automatically as soon as the Python server starts. No profile or source entry is needed. If it stops, run `bash .devcontainer/start.sh` in the Codespace terminal. Troubleshooting: [hosting guide](docs/GITHUB_HOSTING.md).
 
 **GitHub Pages cannot execute Python or store a SQLite backend.** It serves only `site/`. A Codespace holds your data on GitHub infrastructure, not solely on your own computer. The backend has no account login and is not intended for a public port or shared/multi-user deployment.
+
+## Already have a Codespace open?
+
+Update the code **and restart the Python server**:
+
+```sh
+git pull --ff-only
+bash .devcontainer/start.sh --restart
+```
+
+Open **Ports → 8765 → Open in Browser**, keep visibility **Private**, and reload. No profile setup is required. If Git refuses because of local changes, preserve those changes first; do not force-reset your work.
 
 ## Run locally
 
@@ -26,7 +37,7 @@ python run_local.py serve --port 8765
 
 Open `http://127.0.0.1:8765`. On Windows PowerShell, activate with `.venv\Scripts\Activate.ps1` instead of the POSIX activation command. The Windows instructions have not been verified on a Windows machine for this publication.
 
-The server creates an empty SQLite workspace under ignored `data/`. Nothing scans or applies merely because you open it. Review source permissions before explicitly requesting collection; some providers require additional setup, access approval, credentials or optional dependencies. A source adapter existing is not a claim that current live access succeeds.
+The server creates a private SQLite workspace under ignored `data/` and starts the preconfigured Jobicy, Arbeitnow and Remotive public feeds. Results arrive automatically; a failed feed does not block the rest. No name, CV, skills or API key is required. Pause/resume is persistent. Scans respect provider cooldowns and run only while the server is running. Additional channels may still require setup or fail access checks. Nothing applies on your behalf. See [automatic discovery and coverage](docs/AUTOMATIC_DISCOVERY.md).
 
 Optional spreadsheet support: install `requirements-local-excel.txt`. Optional browser-source support has its own `requirements-local-browser.txt` and setup guide. Core usage does not require cloud AI keys. Optional AI/real-model validation remains deferred, not passed.
 
@@ -39,7 +50,8 @@ Optional spreadsheet support: install `requirements-local-excel.txt`. Optional b
 
 ## Features and scope
 
-- Approved, bounded source scans and supported platform-post intake; ambiguous posts remain reviewable.
+- Zero-input startup: automatic bounded public-feed scans, progressive inbox updates, source status, and persistent pause/resume. Additional approved sources join when due.
+- Supported platform-post intake; ambiguous posts remain reviewable and account-dependent platforms still need authorized configuration.
 - Lexical skill/context evidence, explicit exclusion settings and human eligibility review — not an AI suitability or legal-eligibility decision.
 - Versioned preparation packs, exact source-backed quotes and explicit evidence-to-listing mappings. No CV rewriting, automatic applications or invented candidate facts.
 - Personal follow-ups, manual digests, private calendar snapshots, saved searches and aggregate progress reporting.

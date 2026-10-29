@@ -7,7 +7,7 @@ GitHub Pages publishes only `site/`, a public launch/instructions page. The dash
 1. Sign in to GitHub and open the repository's Codespaces link.
 2. Review your GitHub plan, included usage and possible compute/storage charges before creating a workspace.
 3. Wait for the devcontainer setup and dashboard startup.
-4. Open port 8765 from the **Ports** panel. Keep visibility **Private**. Do not change it to Public or Organization.
+4. Public starter feeds now scan automatically without profile/source entry. Open port 8765 from the **Ports** panel. Keep visibility **Private**. Do not change it to Public or Organization.
 5. Close/stop the Codespace when finished. Deleting the workspace can delete private files; back them up first.
 
 The app does not provide its own account authentication. Private Codespaces access is the access boundary. Do not publish the backend on an unrestricted network interface, reverse proxy or shared deployment.
@@ -19,6 +19,15 @@ The container installs `requirements-local.lock`. `.devcontainer/start.sh` runs 
 ```sh
 bash .devcontainer/start.sh
 ```
+
+To load a new release in an existing Codespace, update and restart (reloading the browser alone does not load Python changes):
+
+```sh
+git pull --ff-only
+bash .devcontainer/start.sh --restart
+```
+
+Preserve local edits if Git refuses the update. Restart verifies the saved PID belongs to the dashboard before stopping it; an unrelated process is never killed. Existing private data and saved pause choices are retained.
 
 If startup fails, inspect `data/dashboard.log` privately. If a stale PID file prevents a restart, first verify the dashboard is stopped, then remove `data/dashboard.pid` and retry. Do not post private logs or database files in public issues.
 
