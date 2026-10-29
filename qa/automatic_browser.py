@@ -27,6 +27,8 @@ def run(output,chromium):
         return json.dumps(payload(url)).encode(),'application/json'
     with tempfile.TemporaryDirectory(prefix='jobhunter-auto-ui-') as d,pytest.MonkeyPatch.context() as patch:
         patch.setattr('jobhunter_app.network.get',get)
+        # Offline three-feed UI scenario; expanded registry has separate tests.
+        patch.setattr('jobhunter_app.automatic.STARTERS', (('jobicy','remote'),('arbeitnow','de'),('remotive','remote')))
         store=Store(Path(d)/'empty.db');server=make_server(store,0,automatic=True)
         thread=Thread(target=server.serve_forever,daemon=True);thread.start()
         base='http://127.0.0.1:'+str(server.server_port)

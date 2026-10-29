@@ -21,7 +21,11 @@ import yaml
 from dotenv import load_dotenv
 
 from run_scan import run_scan
-from run_evaluate import run_evaluate
+async def run_evaluate(*args, **kwargs):
+    # Scan-only must work with scanner dependencies, without cloud packages.
+    from run_evaluate import run_evaluate as evaluate
+    return await evaluate(*args, **kwargs)
+
 
 from utils.queue_exporter import export_queue
 from utils.utf8_logging import get_utf8_stream_handler
@@ -122,7 +126,7 @@ async def _run_pipeline(dry_run: bool = False, scan_only: bool = False, threshol
 async def run_pipeline(dry_run=False, scan_only=False, threshold_override=None, german_policy=None):
     from filelock import FileLock
     Path("data").mkdir(exist_ok=True)
-    with FileLock("data/.pipeline.lock", timeout=0):
+    with FileLock("data/.full-pipeline.lock", timeout=0):
         return await _run_pipeline(dry_run, scan_only, threshold_override, german_policy)
 
 

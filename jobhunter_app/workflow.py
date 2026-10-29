@@ -27,14 +27,14 @@ def settings(store,profile_id='default',value=None):
             prior=db.execute('SELECT data FROM workflow_settings WHERE profile_id=?',(profile_id,)).fetchone()
             stored=json.loads(prior[0]) if prior else {}
             payload={**config}
-            for namespace in ('saved_searches','learning_progress','automatic_discovery'):
+            for namespace in ('saved_searches','learning_progress','automatic_discovery','scraper_registry_revision'):
                 if namespace in stored:payload[namespace]=stored[namespace]
             db.execute('INSERT INTO workflow_settings VALUES(?,?,?) ON CONFLICT(profile_id) DO UPDATE SET data=excluded.data,updated_at=excluded.updated_at',(profile_id,dump(payload),now()))
             store.audit(db,'workflow_settings_saved',{'profile_id':profile_id})
             return config
         row=db.execute('SELECT data FROM workflow_settings WHERE profile_id=?',(profile_id,)).fetchone()
         stored=json.loads(row[0]) if row else {}
-        for namespace in ('saved_searches','learning_progress','automatic_discovery'):
+        for namespace in ('saved_searches','learning_progress','automatic_discovery','scraper_registry_revision'):
             stored.pop(namespace,None)
         return validate(stored)
 

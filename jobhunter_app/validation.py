@@ -36,7 +36,7 @@ def normalize_job(raw: dict) -> dict:
         raise ValueError('Job must be an object')
     out = {}
     limits = {'title': 300, 'company': 300, 'location': 500, 'description': 100000,
-              'source': 100, 'date_posted': 100, 'salary': 300, 'employment_type': 100,
+              'source': 100, 'date_posted': 100, 'salary': 300, 'employment_type': 1000,
               'language': 100, 'external_job_id': 300, 'attribution': 500,
               'source_notice': 1000}
     for field, limit in limits.items():
