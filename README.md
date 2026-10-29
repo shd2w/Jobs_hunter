@@ -25,6 +25,29 @@ bash .devcontainer/start.sh --restart
 
 Open **Ports → 8765 → Open in Browser**, keep visibility **Private**, and reload. No profile setup is required. If Git refuses because of local changes, preserve those changes first; do not force-reset your work.
 
+## All JobSpy platforms and optional Scrapling
+
+All eight requested platforms are wired into manual and automatic collection:
+LinkedIn, Indeed, Glassdoor, ZipRecruiter (`zip_recruiter`), Bayt, Naukri,
+BDJobs and HelloWork. The original Google Jobs route also remains. Original
+98 regional queries are retained; provider-specific scopes add 112 queries.
+Some providers are blocked from the verified environment; enabled does not mean accessible.
+See [all-platform implementation and live results](docs/JOBSPY_ALL_PLATFORMS.md).
+
+Scrapling is an optional extraction worker for the existing authorized Wuzzuf/
+Naukrigulf HTML routes, not an autonomous AI agent or a replacement scraper.
+The existing safe HTTP/browser transport, source approval and job intake remain.
+It does not bypass current blocked sources. Setup is explicit and optional:
+
+```sh
+python -m pip install -r requirements-scrapling.txt
+export JOBHUNTER_AUTHORIZED_BOARD_PARSER=scrapling
+bash .devcontainer/start.sh --restart
+```
+
+Use `JOBHUNTER_AUTHORIZED_BOARD_PARSER=stdlib` to return to the original parser.
+Only these two authorized HTML routes use this setting; JobSpy uses its own adapters.
+
 ## Run locally
 
 Use Python 3.13. These commands work in a POSIX shell:

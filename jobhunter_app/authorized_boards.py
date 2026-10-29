@@ -99,7 +99,11 @@ def structured_salary(value):
 
 def parse(kind, body, page_url):
     from .sources import plain, POLICIES
-    p=Page();p.feed(body.decode('utf-8-sig'))
+    from .scrapling_parser import parser_mode, parse_page
+    if parser_mode() == 'scrapling':
+        p = parse_page(body)
+    else:
+        p=Page();p.feed(body.decode('utf-8-sig'))
     # Challenges must never be mistaken for empty listings.
     visible=plain(body.decode('utf-8-sig')).lower()
     if any(x in visible for x in ('verify you are human','checking your browser','access denied','just a moment','captcha')):

@@ -162,3 +162,34 @@ jobspy_searches:
   distance_km: 100
 
 # Bounded automatic scans rotate through this existing registry; manual full scans remain available.
+
+# Additive provider-specific scopes; original 98 regional searches above remain.
+# Remote is a source flag, never proof of worldwide work authorization.
+jobspy_providers:
+  glassdoor:
+    locations: ["Germany", "Austria", "Switzerland", "Remote"]
+    pages: 2
+  zip_recruiter:
+    locations: ["USA"]
+    country_indeed: "USA"
+    is_remote: true
+    scope_notice: "US/Canada remote; verify country eligibility"
+    pages: 2
+  naukri:
+    locations: ["India"]
+    country_indeed: "India"
+    is_remote: true
+    scope_notice: "India-focused remote; not Naukrigulf"
+    pages: 2
+  bdjobs:
+    locations: ["Bangladesh"]
+    country_indeed: "USA"  # JobSpy country enum lacks Bangladesh; provider fixes its own country.
+    is_remote: true
+    scope_notice: "Bangladesh work-from-home; verify country eligibility"
+    pages: 2
+  hellowork:
+    locations: ["France"]
+    country_indeed: "France"
+    is_remote: true
+    scope_notice: "France full remote; verify country eligibility"
+    pages: 2

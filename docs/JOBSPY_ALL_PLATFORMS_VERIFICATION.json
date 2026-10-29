@@ -1,0 +1,244 @@
+{
+  "scope": "One bounded live query/provider, limit 3, maximum three concurrent providers; aggregate-only evidence. Raw results normalized, not inserted into a production workspace.",
+  "results": [
+    {
+      "site": "linkedin",
+      "query": {
+        "term": "Software Engineer",
+        "location": "Germany",
+        "sites": [
+          "linkedin"
+        ],
+        "results_wanted": 3,
+        "distance_km": 100,
+        "offset": 0
+      },
+      "checked_at": "2026-10-29T23:39:53Z",
+      "received": 3,
+      "valid": 3,
+      "invalid": 0,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 0,
+        "employment_type": 3,
+        "url": 3,
+        "date_posted": 3
+      },
+      "errors": {},
+      "warnings": {},
+      "exit_code": 0,
+      "seconds": 5.18
+    },
+    {
+      "site": "indeed",
+      "query": {
+        "term": "Software Engineer",
+        "location": "Germany",
+        "sites": [
+          "indeed"
+        ],
+        "results_wanted": 3,
+        "distance_km": 100,
+        "offset": 0
+      },
+      "checked_at": "2026-10-29T23:39:53Z",
+      "received": 3,
+      "valid": 3,
+      "invalid": 0,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 0,
+        "employment_type": 2,
+        "url": 3,
+        "date_posted": 3
+      },
+      "errors": {},
+      "warnings": {},
+      "exit_code": 0,
+      "seconds": 2.33
+    },
+    {
+      "site": "google",
+      "query": {
+        "term": "Software Engineer",
+        "location": "Germany",
+        "sites": [
+          "google"
+        ],
+        "results_wanted": 3,
+        "distance_km": 100,
+        "offset": 0
+      },
+      "checked_at": "2026-10-29T23:39:53Z",
+      "failure": "provider_error",
+      "detail": "scanners.jobspy_scanner.ProviderFailure: JobSpy provider failure: google: no job data returned",
+      "exit_code": 1,
+      "seconds": 1.98
+    },
+    {
+      "site": "bayt",
+      "query": {
+        "term": "Software Engineer",
+        "location": "Oman",
+        "sites": [
+          "bayt"
+        ],
+        "results_wanted": 3,
+        "distance_km": 100,
+        "offset": 0
+      },
+      "checked_at": "2026-10-29T23:39:55Z",
+      "failure": "provider_error",
+      "detail": "scanners.jobspy_scanner.ProviderFailure: JobSpy provider failure: bayt: response status code 403 (blocked; no bypass attempted)",
+      "exit_code": 1,
+      "seconds": 1.46
+    },
+    {
+      "site": "glassdoor",
+      "query": {
+        "term": "Software Engineer",
+        "location": "Germany",
+        "sites": [
+          "glassdoor"
+        ],
+        "results_wanted": 3,
+        "pages": 2,
+        "offset": 0
+      },
+      "checked_at": "2026-10-29T23:39:56Z",
+      "failure": "provider_error",
+      "detail": "scanners.jobspy_scanner.ProviderFailure: JobSpy provider failure: glassdoor: response status code 403 (blocked; no bypass attempted)",
+      "exit_code": 1,
+      "seconds": 1.37
+    },
+    {
+      "site": "zip_recruiter",
+      "query": {
+        "term": "Software Engineer",
+        "location": "USA",
+        "sites": [
+          "zip_recruiter"
+        ],
+        "results_wanted": 3,
+        "pages": 2,
+        "country_indeed": "USA",
+        "is_remote": true,
+        "scope_notice": "US/Canada remote; verify country eligibility",
+        "offset": 0
+      },
+      "checked_at": "2026-10-29T23:39:57Z",
+      "failure": "provider_error",
+      "detail": "scanners.jobspy_scanner.ProviderFailure: JobSpy provider failure: zip_recruiter: response status code 403 (blocked; no bypass attempted)",
+      "exit_code": 1,
+      "seconds": 1.43
+    },
+    {
+      "site": "naukri",
+      "query": {
+        "term": "Software Engineer",
+        "location": "India",
+        "sites": [
+          "naukri"
+        ],
+        "results_wanted": 3,
+        "pages": 2,
+        "country_indeed": "India",
+        "is_remote": true,
+        "scope_notice": "India-focused remote; not Naukrigulf",
+        "offset": 0
+      },
+      "checked_at": "2026-10-29T23:39:57Z",
+      "received": 3,
+      "valid": 3,
+      "invalid": 0,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 1,
+        "employment_type": 3,
+        "url": 3,
+        "date_posted": 3
+      },
+      "errors": {},
+      "warnings": {},
+      "exit_code": 0,
+      "seconds": 3.3
+    },
+    {
+      "site": "bdjobs",
+      "query": {
+        "term": "Software Engineer",
+        "location": "Bangladesh",
+        "sites": [
+          "bdjobs"
+        ],
+        "results_wanted": 3,
+        "pages": 2,
+        "country_indeed": "USA",
+        "is_remote": true,
+        "scope_notice": "Bangladesh work-from-home; verify country eligibility",
+        "offset": 0
+      },
+      "checked_at": "2026-10-29T23:39:58Z",
+      "received": 3,
+      "valid": 3,
+      "invalid": 0,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 0,
+        "employment_type": 3,
+        "url": 3,
+        "date_posted": 3
+      },
+      "errors": {},
+      "warnings": {},
+      "exit_code": 0,
+      "seconds": 3.52
+    },
+    {
+      "site": "hellowork",
+      "query": {
+        "term": "Software Engineer",
+        "location": "France",
+        "sites": [
+          "hellowork"
+        ],
+        "results_wanted": 3,
+        "pages": 2,
+        "country_indeed": "France",
+        "is_remote": true,
+        "scope_notice": "France full remote; verify country eligibility",
+        "offset": 0
+      },
+      "checked_at": "2026-10-29T23:39:59Z",
+      "received": 3,
+      "valid": 3,
+      "invalid": 0,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 0,
+        "employment_type": 3,
+        "url": 3,
+        "date_posted": 3
+      },
+      "errors": {},
+      "warnings": {},
+      "exit_code": 0,
+      "seconds": 3.19
+    }
+  ]
+}
