@@ -1,0 +1,63 @@
+"""Manual health reports, reset and batch orchestration. Never schedules a worker."""
+from datetime import datetime, timezone, timedelta
+from email.utils import parsedate_to_datetime
+import json
+from filelock import FileLock, Timeout
+from .store import now, dump
+
+def retry_gate(db,kind,value,cooldown):
+    value=str(value).strip()
+    current=datetime.now(timezone.utc);until=current+timedelta(seconds=cooldown)
+    try:
+        candidate=current+timedelta(seconds=int(value)) if str(value).isdigit() else parsedate_to_datetime(value)
+        if candidate.tzinfo is None: candidate=candidate.replace(tzinfo=timezone.utc)
+        until=max(until,candidate)
+    except (ValueError,TypeError,OverflowError): pass
+    prior=db.execute('SELECT not_before FROM provider_gates WHERE kind=?',(kind,)).fetchone()
+    if prior: until=max(until,datetime.fromisoformat(prior[0]))
+    db.execute('INSERT INTO provider_gates VALUES(?,?) ON CONFLICT(kind) DO UPDATE SET not_before=excluded.not_before',(kind,until.isoformat()))
+
+def health(store):
+    from .sources import POLICIES, POST_PLATFORMS
+    result=[]
+    with store.connect() as db:
+        for row in db.execute('SELECT * FROM sources ORDER BY id'):
+            item=dict(row)
+            if row['kind'] in POST_PLATFORMS:
+                from .platform_posts import setup
+                item['platform_setup']=setup(row['kind'])
+            last=db.execute('SELECT * FROM runs WHERE source=? ORDER BY id DESC LIMIT 1',(row['id'],)).fetchone()
+            success=db.execute("SELECT finished_at FROM runs WHERE source=? AND status IN ('success','partial') ORDER BY id DESC LIMIT 1",(row['id'],)).fetchone()
+            gate=db.execute('SELECT not_before FROM provider_gates WHERE kind=?',(row['kind'],)).fetchone()
+            due=datetime.fromisoformat(row['last_run'])+timedelta(seconds=POLICIES[row['kind']]['cooldown']) if row['last_run'] else datetime.min.replace(tzinfo=timezone.utc)
+            if row['kind'] in ('jobicy','arbeitnow','hn','usajobs','wuzzuf','naukrigulf')+POST_PLATFORMS:
+                latest=db.execute('SELECT MAX(last_run) FROM sources WHERE kind=?',(row['kind'],)).fetchone()[0]
+                if latest: due=max(due,datetime.fromisoformat(latest)+timedelta(seconds=POLICIES[row['kind']]['cooldown']))
+            if gate: due=max(due,datetime.fromisoformat(gate[0]))
+            checkpoint=db.execute('SELECT updated_at FROM source_checkpoints WHERE source_id=?',(row['id'],)).fetchone()
+            item.update(last_completed_at=success[0] if success else None,next_allowed_at=due.isoformat() if due!=datetime.min.replace(tzinfo=timezone.utc) else None,checkpoint_saved_at=checkpoint[0] if checkpoint else None,last_metrics=json.loads(last['metrics']) if last else {},coverage_warning='Observed snapshots only. Absence is not evidence of vacancy closure. Discovery does not score relevance.')
+            item['observations_older_than_30_days']=db.execute("SELECT COUNT(*) FROM sightings WHERE source=? AND datetime(last_seen)<datetime('now','-30 days')",(row['id'],)).fetchone()[0]
+            item['manual_priority_hint']='Review failures/permissions first' if row['health'] in ('failed','rate_limited','interrupted','access_blocked') else 'Resume incomplete pass when due' if item['last_metrics'].get('bounded_selection') else 'Compare unique contribution before another manual pass'
+            result.append(item)
+    return result
+
+def reset(store,source_id):
+    try:
+        with FileLock(str(store.path)+'.scan.lock',timeout=0),store.connect() as db:
+            if not db.execute('SELECT 1 FROM sources WHERE id=?',(source_id,)).fetchone(): raise ValueError('Unknown source')
+            db.execute('DELETE FROM source_checkpoints WHERE source_id=?',(source_id,));store.audit(db,'source_checkpoint_reset',{'source':source_id})
+    except Timeout as exc: raise ValueError('Another source scan is active') from exc
+    return {'reset':source_id,'notice':'Checkpoint only; approvals, provider gates, cooldowns and stored jobs are unchanged.'}
+
+def batch(store,source_ids,cancel_event=None,transport=None,profile_id='default'):
+    from .sources import _scan_locked,fetch
+    if not isinstance(source_ids,list) or not 1<=len(source_ids)<=10 or any(not isinstance(x,str) for x in source_ids) or len(set(source_ids))!=len(source_ids): raise ValueError('Supply 1–10 distinct source IDs')
+    results=[]
+    try:
+        with FileLock(str(store.path)+'.scan.lock',timeout=0):
+            for identity in source_ids:
+                if cancel_event and cancel_event.is_set(): break
+                try: results.append({'source':identity,'result':_scan_locked(store,identity,transport or fetch,cancel_event,profile_id)})
+                except ValueError as exc: results.append({'source':identity,'error':str(exc)})
+    except Timeout as exc: raise ValueError('Another source scan is active') from exc
+    return {'results':results,'cancelled':bool(cancel_event and cancel_event.is_set()),'manual':True}
