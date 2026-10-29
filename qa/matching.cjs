@@ -1,0 +1,26 @@
+// Synthetic loopback fixture only. Never target a real database.
+const {chromium}=require('playwright'),fs=require('fs'),path=require('path');
+const out=process.env.QA_OUTPUT||'/data/phase4-matching-ui';fs.mkdirSync(out,{recursive:true});
+(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
+const p=await b.newPage({viewport:{width:1440,height:1100}}),errors=[],checks=[];p.on('pageerror',e=>errors.push(e.message));
+const snap=async name=>{await p.screenshot({path:path.join(out,name+'.png'),fullPage:true});checks.push({name,...await p.evaluate(()=>({width:innerWidth,actual:document.documentElement.scrollWidth}))});};
+await p.goto(process.env.QA_BASE_URL||'http://127.0.0.1:8772');await p.waitForFunction(()=>document.querySelector('#total').textContent==='2');
+if(!(await p.locator('#job-list').textContent()).includes('Excluded by your settings'))throw Error('Exclusion missing');
+if(!(await p.locator('#job-list').textContent()).includes('weighted lexical preferences'))throw Error('Ranking missing');await snap('ranking-desktop');
+await p.getByRole('button',{name:'Review opportunity',exact:true}).first().click();await p.waitForSelector('#job-dialog[open]');
+const detail=await p.locator('#detail-match').textContent();if(!detail.includes('required')||!detail.includes('Constraint checks:')||!detail.includes('Python'))throw Error('Missing contextual evidence');await snap('explanation-desktop');
+await p.setViewportSize({width:390,height:844});await snap('explanation-mobile');await p.locator('#close-dialog').click();
+await p.getByRole('button',{name:'Your evidence',exact:true}).click();await p.locator('#matching-settings').evaluate(e=>e.closest('details').open=true);
+let config=JSON.parse(await p.locator('#matching-settings').inputValue());if(config.skill_weights.Python!==3)throw Error('Settings not loaded');
+await snap('settings-mobile');
+await p.locator('#matching-settings').fill('{"weights":{"skills":0}}');await p.getByRole('button',{name:'Save evidence',exact:true}).click();
+await p.waitForFunction(()=>document.querySelector('#message').textContent.includes('finite positive'));await snap('settings-validation-mobile');
+config.preferred_title_terms=['Lead'];await p.locator('#matching-settings').fill(JSON.stringify(config,null,2));await p.getByRole('button',{name:'Save evidence',exact:true}).click();
+await p.waitForFunction(()=>document.querySelector('#matched').textContent==='0');await p.reload();await p.waitForFunction(()=>document.querySelector('#matching-settings').value.includes('Lead'));
+const roundtrip=JSON.parse(await p.locator('#matching-settings').inputValue());if(roundtrip.skill_weights.Python!==3||roundtrip.excluded_companies[0]!=='Blocked Fixture')throw Error('Lost settings');
+await p.getByRole('button',{name:'Refresh matches',exact:true}).click();await p.waitForFunction(()=>document.querySelector('#matched').textContent==='2');
+await p.getByRole('button',{name:'Your evidence',exact:true}).click();await p.locator('#matching-settings').evaluate(e=>e.closest('details').open=true);await p.emulateMedia({colorScheme:'dark'});await snap('settings-roundtrip-dark-mobile');
+if(errors.length||checks.some(x=>x.actual>x.width))throw Error(JSON.stringify({errors,checks}));
+fs.writeFileSync(path.join(out,'browser-qa.json'),JSON.stringify({status:'passed',errors,checks,data:'Synthetic loopback fixture only; no provider/model calls'},null,2));
+console.log('Phase 4 matching UI passed; '+checks.length+' states');await b.close();process.exit(0);
+})().catch(e=>{console.error(e);process.exit(1)});

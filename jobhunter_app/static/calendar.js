@@ -1,0 +1,16 @@
+'use strict';
+(()=>{let snapshot=null,generation=0;
+const options=()=>new URLSearchParams({start:$('calendar-start').value,days:$('calendar-days').value,past_days:$('calendar-past').value,details:$('calendar-details').checked?'1':'0'});
+window.initializeCalendarDay=day=>{if(!$('calendar-start').value)$('calendar-start').value=day;};
+window.invalidateCalendarPreview=()=>{generation++;snapshot=null;$('calendar-download').disabled=true;$('calendar-sample').replaceChildren();$('calendar-scope').textContent='Preview the current date window before downloading. Changed dates, details or reminder data require a new preview.';};
+$('calendar-form').oninput=window.invalidateCalendarPreview;
+$('calendar-form').onsubmit=safe(async e=>{e.preventDefault();window.invalidateCalendarPreview();const requestGeneration=generation,query=options(),data=await api('/api/calendar-preview?'+query);if(generation!==requestGeneration)return;snapshot={query,fingerprint:data.fingerprint};
+$('calendar-scope').textContent=data.events_in_window+' events from '+data.from+' through '+data.through+' (inclusive). '+data.outside_window_omitted+' outside this window; '+data.invalid_dates_omitted+' invalid stored dates omitted. '+(data.can_export?'Ready for local download. ':'Cannot export: '+(data.events_in_window>data.max_events?'more than '+data.max_events+' events; narrow the date window. ':data.output_limit_exceeded?'the file exceeds 8 MiB; narrow the date window. ':'an all-day end date would exceed year 9999. '))+data.notice;
+const sample=$('calendar-sample');sample.replaceChildren();sample.append(node('p',(data.sample_is_complete?'All event previews':'Sample: first '+data.sample.length+' events only')+'. Generic summaries unless job details were explicitly enabled.','muted'));
+for(const item of data.sample){const card=node('article',undefined,'job'),body=node('div',undefined,'job-main');body.append(node('h3',item.summary),node('p',item.due+' · '+item.kind),node('p',item.description));card.append(body);sample.append(card);}
+$('calendar-download').disabled=!data.can_export;});
+$('calendar-download').onclick=safe(async()=>{if(!snapshot)throw Error('Preview the current calendar first.');const expected=snapshot,query=new URLSearchParams(expected.query);query.set('fingerprint',expected.fingerprint);$('calendar-download').disabled=true;
+try{const response=await fetch('/api/calendar-export?'+query);if(!response.ok){const result=await response.json();window.invalidateCalendarPreview();throw Error(result.error||'Calendar export failed; preview again.');}if(!(response.headers.get('Content-Type')||'').startsWith('text/calendar'))throw Error('Unexpected calendar response; no file downloaded.');
+const blob=await response.blob();if(snapshot!==expected)throw Error('Calendar options changed during export; preview again.');const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='jobhunter-reminders.ics';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message('Calendar snapshot downloaded. No account was connected, message sent or reminder marked complete. Review it before importing into a synced calendar.');}
+finally{$('calendar-download').disabled=snapshot!==expected;}});
+})();
