@@ -1,4 +1,4 @@
-"""Loopback-only, manually launched local dashboard. No startup or external assets."""
+"""Private loopback dashboard; CLI startup enables bounded automatic discovery."""
 from __future__ import annotations
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -29,7 +29,9 @@ def codespaces_host(port):
     return f'{name}-{port}.{domain}'
 
 
-def make_server(store, port=8765, profile_id='default'):
+def make_server(store, port=8765, profile_id='default', automatic=False):
+    from .automatic import AutomaticDiscovery
+    coordinator = AutomaticDiscovery(store, profile_id) if automatic else None
     token = secrets.token_urlsafe(32)
     task_lock = Lock()
     task = {'running': False, 'result': None, 'error': None}
@@ -73,7 +75,7 @@ def make_server(store, port=8765, profile_id='default'):
                 if path == '/':
                     html = (ASSETS / 'index.html').read_text(encoding='utf-8').replace('__CSRF__', token)
                     return self.send(200, html.encode(), 'text/html; charset=utf-8')
-                if path in ('/app.js', '/discovery.js', '/workflow.js', '/calendar.js', '/searches.js', '/outcomes.js', '/packs.js', '/learning.js', '/learning-progress.js', '/evidence-mapping.js', '/style.css'):
+                if path in ('/app.js', '/discovery.js', '/workflow.js', '/calendar.js', '/searches.js', '/outcomes.js', '/packs.js', '/learning.js', '/learning-progress.js', '/evidence-mapping.js', '/automatic.js', '/style.css'):
                     return self.send(200, (ASSETS / path[1:]).read_bytes(), 'application/javascript' if path.endswith('.js') else 'text/css')
                 if path in ('/api/packs','/api/pack-inspect'):
                     from .pack_management import list_packs, inspect_pack
@@ -151,6 +153,8 @@ def make_server(store, port=8765, profile_id='default'):
                     return self.send(200,listing(store,profile_id))
                 if path == '/api/learning':
                     return self.send(200, store.learning(profile_id))
+                if path == '/api/automatic':
+                    return self.send(200, coordinator.status() if coordinator else {'available': False, 'enabled': False, 'sources': [], 'phase': 'manual'})
                 if path == '/api/task':
                     with task_lock:
                         return self.send(200, dict(task))
@@ -225,7 +229,16 @@ def make_server(store, port=8765, profile_id='default'):
                     if prior.get('original_cv'):
                         profile['original_cv'] = prior['original_cv']
                     store.save_profile(profile, profile_id)
+                    if coordinator: coordinator.check()
                     result = {'saved': True}
+                elif path == '/api/automatic':
+                    if not coordinator: raise ValueError('Automatic discovery is disabled in this server mode')
+                    if set(data) != {'enabled'} or type(data['enabled']) is not bool: raise ValueError('Use an explicit true or false discovery choice')
+                    result = coordinator.choice(data['enabled'])
+                elif path == '/api/automatic-check':
+                    if data: raise ValueError('No options are accepted; cooldowns cannot be overridden')
+                    if not coordinator: raise ValueError('Automatic discovery is disabled in this server mode')
+                    result = coordinator.check()
                 elif path == '/api/learning-save':
                     from .learning_progress import create
                     result=create(store,data.get('skill'),data.get('preview_fingerprint'),profile_id)
@@ -320,17 +333,32 @@ def make_server(store, port=8765, profile_id='default'):
 
     server = ThreadingHTTPServer(('127.0.0.1', port), Handler)
     server.daemon_threads = True
+    server.automatic = coordinator
+    if coordinator:
+        close = server.server_close
+        def stop_and_close():
+            coordinator.stop(); close()
+        server.server_close = stop_and_close
+        coordinator.start()
     return server
 
 
-def serve(store, port=8765, profile_id='default'):
+def serve(store, port=8765, profile_id='default', automatic=False):
     if not store.profile(profile_id):
         store.save_profile({'name': '', 'skills': [], 'facts': []}, profile_id)
-    server = make_server(store, port, profile_id)
-    print(f'JobHunter dashboard: http://127.0.0.1:{server.server_port} (manual session; Ctrl+C to stop)')
+    server = make_server(store, port, profile_id, automatic=automatic)
+    print(f'JobHunter dashboard: http://127.0.0.1:{server.server_port} ({'automatic discovery enabled' if automatic else 'manual discovery'}; Ctrl+C to stop)')
+    import signal
+    from threading import current_thread, main_thread
+    prior = None
+    if current_thread() is main_thread():
+        prior = signal.getsignal(signal.SIGTERM)
+        def terminate(signum, frame): raise KeyboardInterrupt
+        signal.signal(signal.SIGTERM, terminate)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
         server.server_close()
+        if prior is not None: signal.signal(signal.SIGTERM, prior)
