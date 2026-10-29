@@ -1,0 +1,791 @@
+{
+  "schema_version": 1,
+  "version": "free-reading-practice-1",
+  "reviewed_on": "2026-10-29",
+  "review_due_days": 90,
+  "verification_scope": "Dated public-reading/topic checks, not course completion, independent pedagogy review, downstream link testing or a guarantee of ongoing availability. No runtime checks or personal data are sent to publishers.",
+  "exercise_authorship": "All exercises authored for JobHunter; self-check rubrics are not qualifications, publisher assignments or verified candidate facts.",
+  "resources": [
+    {
+      "skill": "Python",
+      "id": "python-tutorial",
+      "title": "The Python Tutorial",
+      "publisher": "Python Software Foundation",
+      "url": "https://docs.python.org/3/tutorial/index.html",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "data structures",
+        "functions",
+        "exceptions"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. Some prior programming is assumed. No certificate is included.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "The Python interpreter and the extensive standard library are freely available",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "python-tutorial-practice-v1",
+        "title": "Validate a synthetic task list",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "Basic programming concepts",
+          "Local Python interpreter (free)"
+        ],
+        "suggested_minutes": 60,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise functions, dictionaries and explicit input errors.",
+        "steps": [
+          "Create six synthetic task dictionaries, including one duplicate ID and one missing title.",
+          "Write a function returning valid unique tasks plus separate error messages; never overwrite the input.",
+          "Add assertions for empty input, duplicates and missing fields, then document your decisions."
+        ],
+        "deliverable": "A small Python script, assertions and a README explaining rejected rows.",
+        "self_checks": [
+          "Six input rows yield four accepted tasks and two errors.",
+          "The original list is unchanged.",
+          "An empty list yields an empty result and no errors."
+        ],
+        "setup_and_cost": "Use local Python only; no services, packages or personal job records required.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "SQL",
+      "id": "postgresql-tutorial",
+      "title": "PostgreSQL Tutorial",
+      "publisher": "PostgreSQL Global Development Group",
+      "url": "https://www.postgresql.org/docs/current/tutorial.html",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "relational concepts",
+        "SQL",
+        "queries"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. The tutorial uses PostgreSQL; SQL dialects differ.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "an introduction to PostgreSQL, relational database concepts, and the SQL language",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "postgresql-tutorial-practice-v1",
+        "title": "Query a tiny synthetic application log",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "Basic tables/rows concepts",
+          "Local PostgreSQL, or SQLite for the stated portable subset"
+        ],
+        "suggested_minutes": 60,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise joins, grouping and missing values without inferring hiring outcomes.",
+        "steps": [
+          "Create employers (1 Alpha, 2 Beta, 3 Gamma) and applications (1 to Alpha saved, 2 to Alpha applied, 3 to Beta saved).",
+          "Write a LEFT JOIN and GROUP BY query that includes employers with zero applications; use COUNT(application_id).",
+          "Write a separate query for saved applications and explain why counting joined rows with COUNT(*) is wrong for Gamma."
+        ],
+        "deliverable": "A schema/seed/query .sql file and expected output text.",
+        "self_checks": [
+          "Employer totals are Alpha=2, Beta=1, Gamma=0.",
+          "Saved applications total two.",
+          "Re-running against a fresh disposable database gives the same result."
+        ],
+        "setup_and_cost": "Use a disposable local database. SQLite is free and supports this subset; PostgreSQL-specific lessons need free local PostgreSQL. Never connect to the JobHunter database.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "JavaScript",
+      "id": "mdn-javascript-guide",
+      "title": "JavaScript Guide",
+      "publisher": "MDN Web Docs / Mozilla contributors",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "functions",
+        "arrays",
+        "error handling"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. ",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "The JavaScript Guide shows you how to use JavaScript and gives an overview of the language.",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "mdn-javascript-guide-practice-v1",
+        "title": "Build a safe synthetic list filter",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "Basic HTML and programming concepts",
+          "Browser console or local Node.js"
+        ],
+        "suggested_minutes": 60,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise pure functions and text-only rendering.",
+        "steps": [
+          "Define three synthetic tasks: two open and one closed; include a title containing literal <b> markup.",
+          "Write a pure function to filter by state without modifying the source array.",
+          "Render matches with textContent, not innerHTML, and add assertions for open, closed and unknown filters."
+        ],
+        "deliverable": "An HTML/JS demo or local JS script with assertions and a short safety note.",
+        "self_checks": [
+          "Open returns two tasks; closed returns one; unknown returns zero.",
+          "Source records are unchanged.",
+          "Markup is displayed as text, not interpreted as HTML."
+        ],
+        "setup_and_cost": "Use a browser or free local Node.js; no remote dependencies, trackers or private records.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "TypeScript",
+      "id": "typescript-handbook",
+      "title": "The TypeScript Handbook",
+      "publisher": "TypeScript / Microsoft",
+      "url": "https://www.typescriptlang.org/docs/handbook/intro.html",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "types",
+        "narrowing",
+        "functions"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. JavaScript basics are recommended first.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "The goal of TypeScript is to be a static typechecker for JavaScript programs",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "typescript-handbook-practice-v1",
+        "title": "Model a task result with a discriminated union",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "JavaScript basics",
+          "Free local TypeScript compiler if executing"
+        ],
+        "suggested_minutes": 60,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Distinguish compile-time types from runtime input validation.",
+        "steps": [
+          "Define Task and a Result union with ok:true/value versus ok:false/error.",
+          "Write a parser taking unknown input and checking ID/title types before returning a Result.",
+          "Use exhaustive narrowing; add compile-fail examples separately from valid examples."
+        ],
+        "deliverable": "A .ts file, sample runtime inputs and a note explaining static versus runtime validation.",
+        "self_checks": [
+          "A well-shaped task succeeds; missing title and numeric title fail at runtime.",
+          "Accessing value without narrowing fails type checking.",
+          "Normal examples compile in strict mode without any escapes."
+        ],
+        "setup_and_cost": "Read freely; use a local free compiler after manual installation. A paper code review is a no-install alternative; it does not prove the code compiles.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "Machine learning",
+      "id": "sklearn-started",
+      "title": "Getting Started",
+      "publisher": "scikit-learn developers",
+      "url": "https://scikit-learn.org/stable/getting_started.html",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "pipelines",
+        "evaluation",
+        "cross-validation"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. Assumes basic machine-learning knowledge; not a complete beginner course.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "Fitting a model to some data does not entail that it will predict well on unseen data.",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "sklearn-started-practice-v1",
+        "title": "Compare a toy model with a baseline",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "Python basics",
+          "Basic train/test split and metric concepts"
+        ],
+        "suggested_minutes": 90,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise reproducible evaluation and avoid preprocessing leakage.",
+        "steps": [
+          "Use make_classification with 200 synthetic samples, a fixed random_state and no external dataset.",
+          "Reserve a test split; compare a DummyClassifier with a StandardScaler/LogisticRegression pipeline using cross-validation on training data only.",
+          "Evaluate the chosen fixed pipeline once on the held-out test data and explain uncertainty."
+        ],
+        "deliverable": "A script/notebook, split/seed record, baseline and model metrics, and a limitations note.",
+        "self_checks": [
+          "No test rows enter fitting or model selection.",
+          "Preprocessing sits inside the cross-validated pipeline.",
+          "Do not require the model to beat the baseline or claim real hiring predictive value."
+        ],
+        "setup_and_cost": "Manual optional installation of free scikit-learn in a separate environment; no GPU, model downloads, cloud or real candidate data required.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "Data analysis",
+      "id": "pandas-tutorials",
+      "title": "Getting started tutorials",
+      "publisher": "pandas development team",
+      "url": "https://pandas.pydata.org/docs/getting_started/intro_tutorials/index.html",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "tabular data",
+        "selection",
+        "summary statistics"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. ",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "How to calculate summary statistics",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "pandas-tutorials-practice-v1",
+        "title": "Audit a synthetic sales table",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "Python basics",
+          "Basic missing-data and grouping concepts"
+        ],
+        "suggested_minutes": 60,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise explicit cleaning and denominator reporting.",
+        "steps": [
+          "Create rows: (A,10), (A,20), (B,5), (B,missing), with unique row IDs.",
+          "Preserve raw rows; group by category and compute valid-value count and sum without silently replacing missing values.",
+          "Write a short report distinguishing row count from valid-value count and explaining the missing row."
+        ],
+        "deliverable": "A script/notebook, raw four-row fixture and a small text report.",
+        "self_checks": [
+          "A has count 2 and sum 30; B has valid count 1 and sum 5.",
+          "Overall raw row count is 4, valid amount count is 3.",
+          "Cleaning does not alter the original fixture."
+        ],
+        "setup_and_cost": "Use free local pandas after manual installation, or work through the same table on paper; no proprietary data or remote service.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "Communication",
+      "id": "openlearn-communication",
+      "title": "Effective communication in the workplace",
+      "publisher": "The Open University / OpenLearn",
+      "url": "https://www.open.edu/openlearn/mod/oucontent/view.php?id=97118",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "workplace communication",
+        "reflection",
+        "audience"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. OpenLearn offers free learning; enrollment, badges or saved course records can require an account. No enrollment was tested.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "recognise the skills required for effective communication",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "openlearn-communication-practice-v1",
+        "title": "Rewrite an ambiguous handover",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "A fictional workplace scenario",
+          "Text editor or paper"
+        ],
+        "suggested_minutes": 45,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise audience, action, owner and timing clarity.",
+        "steps": [
+          "Invent a neutral scenario: a test build failed and a teammate needs a handover; use no real employee details.",
+          "Write an initial 100-word message, then revise it for a new teammate with one clear requested action, owner and date.",
+          "Add two clarifying questions and compare the versions using the rubric."
+        ],
+        "deliverable": "Two drafts and a short reflection, kept locally.",
+        "self_checks": [
+          "The reader can identify what happened and what is unknown.",
+          "Requested action, owner and timing are explicit.",
+          "The revision avoids blame and distinguishes observation from assumption."
+        ],
+        "setup_and_cost": "Paper or a free local text editor; no course account, outreach or real messages required.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "Project management",
+      "id": "openlearn-projects",
+      "title": "Project management: the start of the project journey",
+      "publisher": "The Open University / OpenLearn",
+      "url": "https://www.open.edu/openlearn/money-business/leadership-management/project-management-the-start-the-project-journey/content-section-0?intro=1",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "feasibility",
+        "project lifecycle",
+        "planning"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. Advanced course; selected introductory reading is not a whole qualification. Enrollment/recognition may require a free account.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "This free course introduces projects: what they are and how they come about",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "openlearn-projects-practice-v1",
+        "title": "Plan a small fictional release",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "Basic project vocabulary",
+          "A fictional five-day project"
+        ],
+        "suggested_minutes": 75,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise scope, dependencies and feasibility trade-offs.",
+        "steps": [
+          "Choose a fictional three-feature release and write in-scope/out-of-scope and acceptance criteria.",
+          "Break it into five tasks with owners, estimated durations and explicit dependencies; show a five-day sequence.",
+          "Add three risks with mitigations and explain what you would remove if one day were lost."
+        ],
+        "deliverable": "A one-page plan, dependency list and risk/change note.",
+        "self_checks": [
+          "Every task has an owner and an observable result.",
+          "No dependent task begins before its prerequisites.",
+          "The lost-day response changes scope or dates explicitly rather than promising impossible work."
+        ],
+        "setup_and_cost": "Paper or a free text editor is sufficient; no paid planning tool or account.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "Docker",
+      "id": "docker-container-basics",
+      "title": "What is a container?",
+      "publisher": "Docker",
+      "url": "https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "containers",
+        "images",
+        "isolation"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. Linked hands-on steps can need Docker installation, image downloads or accounts. Docker Desktop license conditions vary; this exercise requires none of those.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "A container is simply an isolated process with all of the files it needs to run.",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "docker-container-basics-practice-v1",
+        "title": "Review a container design without deploying",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "Basic processes/files concepts",
+          "Text editor or paper"
+        ],
+        "suggested_minutes": 60,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise container boundaries and configuration safety.",
+        "steps": [
+          "Sketch a tiny local Python HTTP service, separating application code, image, running container and persistent data.",
+          "Draft a Dockerfile using a chosen Python base image, a non-root user and a minimal entrypoint; include a .dockerignore excluding secrets and candidate files.",
+          "Describe loopback-only port binding, what happens when the container is removed, and a manual cleanup plan."
+        ],
+        "deliverable": "Dockerfile draft, .dockerignore and a design/cleanup note.",
+        "self_checks": [
+          "Image and container roles are distinguished.",
+          "No secrets or JobHunter data enter the build context.",
+          "Data persistence, non-root execution and loopback exposure are explained; design review is not a successful container run."
+        ],
+        "setup_and_cost": "No-cost paper/text design, no Docker daemon required. Any later execution is optional, requires reviewing installation/license/download costs, and is not run by JobHunter.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "AWS",
+      "id": "aws-cloud-essentials",
+      "title": "AWS Cloud Essentials",
+      "publisher": "Amazon Web Services",
+      "url": "https://aws.amazon.com/getting-started/cloud-essentials/",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "cloud models",
+        "service selection",
+        "shared responsibility"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. Actual services/labs can require accounts, credit cards and billable usage. Free Tier is not a guarantee of zero cost.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "on-demand, available in seconds, with pay-as-you-go pricing",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "aws-cloud-essentials-practice-v1",
+        "title": "Design a cloud option without creating resources",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "Basic compute/storage/networking concepts"
+        ],
+        "suggested_minutes": 60,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise service trade-offs and cost/privacy boundaries.",
+        "steps": [
+          "Sketch a fictional static information site and list required compute, storage and access controls.",
+          "Compare a local-only design with an AWS design on paper; identify customer versus provider responsibilities.",
+          "List possible billable components, a no-deployment decision and questions to resolve before any paid use."
+        ],
+        "deliverable": "An architecture sketch and a cost/risk checklist with no credentials.",
+        "self_checks": [
+          "No AWS account, key, console resource or payment is created.",
+          "At least three potential cost drivers and responsibility boundaries are identified.",
+          "The design makes no claim of a free deployment or production readiness."
+        ],
+        "setup_and_cost": "Paper or local text editor only. Do not follow launch/signup links for this exercise. No cloud access or paid service is required.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "Git",
+      "id": "pro-git",
+      "title": "Pro Git, second edition",
+      "publisher": "Git project / Scott Chacon and Ben Straub",
+      "url": "https://git-scm.com/book/en/v2",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "commits",
+        "branches",
+        "merging"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. Online reading is free; print editions may cost money.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "The entire Pro Git book, written by Scott Chacon and Ben Straub and published by Apress, is available here.",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "pro-git-practice-v1",
+        "title": "Preserve work through a local branch merge",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "Local free Git installation",
+          "A disposable directory, not the JobHunter repository"
+        ],
+        "suggested_minutes": 60,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise inspectable history without publishing private files.",
+        "steps": [
+          "Initialize a disposable local repository with a synthetic README and make one commit.",
+          "Create two branches that change the same README line; merge and resolve the intentional conflict.",
+          "Inspect git log and git diff; record how you verified both intended ideas survived."
+        ],
+        "deliverable": "A local repository and a merge-resolution explanation; no remote push.",
+        "self_checks": [
+          "There are two branch histories and a resolved merge.",
+          "The final text retains the chosen intended content with no conflict markers.",
+          "No personal documents, tokens or production project files are committed."
+        ],
+        "setup_and_cost": "Free local Git, no hosting account or remote repository. Never run reset/clean experiments in the working JobHunter folder.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "Excel",
+      "id": "excel-formulas",
+      "title": "Overview of formulas in Excel",
+      "publisher": "Microsoft Support",
+      "url": "https://support.microsoft.com/en-us/excel/get-started/overview-of-formulas-in-excel",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "formulas",
+        "relative references",
+        "absolute references"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. Excel software is separate and may require a license/account; article access does not include it.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "A formula can also contain any or all of the following elements: functions, references, operators, and constants.",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "excel-formulas-practice-v1",
+        "title": "Trace relative and absolute references",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "Basic cells/rows concepts",
+          "Paper, or a spreadsheet tool you already have permission to use"
+        ],
+        "suggested_minutes": 45,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise formula reasoning without paid software.",
+        "steps": [
+          "On paper draw A1:B4: A1=Rate, B1=0.1; A2=10, A3=20, A4=30.",
+          "Write formulas B2=A2*$B$1 through B4, then a separate total using SUM(B2:B4).",
+          "Show what would go wrong if the reference to B1 were relative and copied down; optionally check in your existing tool."
+        ],
+        "deliverable": "A formula table and expected values; optional locally saved workbook, never uploaded.",
+        "self_checks": [
+          "B2:B4 should be 1, 2 and 3; the total is 6.",
+          "The rate reference stays $B$1 while A2 changes by row.",
+          "The written explanation distinguishes a paper check from tested Excel execution."
+        ],
+        "setup_and_cost": "Paper is the no-cost default. Existing licensed Excel is optional; compatible free tools can differ from Excel. No account, workbook download or purchase is needed.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "React",
+      "id": "react-quick-start",
+      "title": "React Quick Start",
+      "publisher": "React documentation team",
+      "url": "https://react.dev/learn",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "components",
+        "state",
+        "events"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. Online examples may use third-party sandboxes; prefer synthetic data and a local setup if executing.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "How to respond to events and update the screen",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "react-quick-start-practice-v1",
+        "title": "Share state in a synthetic checklist",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "JavaScript functions/arrays",
+          "Basic HTML; optional local React setup"
+        ],
+        "suggested_minutes": 75,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise components, stable keys and predictable updates.",
+        "steps": [
+          "Design three synthetic checklist items with stable IDs and a parent-owned completed-ID set.",
+          "Implement two views sharing that state: item toggles and a completed count; keep input records immutable.",
+          "Describe or manually test toggling twice, an empty list and a literal markup title."
+        ],
+        "deliverable": "Component source plus a manual test checklist, or a clearly labeled code-only design.",
+        "self_checks": [
+          "Two toggles restore the original count.",
+          "Both views update from one state source.",
+          "Titles render as text and keys use stable IDs; code-only review does not prove browser behavior."
+        ],
+        "setup_and_cost": "Free reading; optional free local React/Node setup needs manual package downloads. No cloud sandbox, private records or account required.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "Java",
+      "id": "java-tutorials",
+      "title": "General Tutorials / Learn Java",
+      "publisher": "Dev.java / Oracle Java team",
+      "url": "https://dev.java/learn/",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "language basics",
+        "classes",
+        "exceptions"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. Use a JDK distribution with terms suitable for your use; this reading page does not grant a software license.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "Your First Steps in Java",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "java-tutorials-practice-v1",
+        "title": "Validate a small immutable task record",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "Basic programming concepts",
+          "Free local OpenJDK distribution if executing"
+        ],
+        "suggested_minutes": 60,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise data modeling and explicit invalid input.",
+        "steps": [
+          "Define a Task record or immutable class with ID, title and done fields.",
+          "Reject blank IDs/titles and parse a tiny set of synthetic inputs without swallowing errors.",
+          "Write checks for a valid task, blank title and duplicate IDs in a collection."
+        ],
+        "deliverable": "A .java file, self-check output and a note on validation decisions.",
+        "self_checks": [
+          "Invalid values are rejected explicitly.",
+          "The caller can distinguish success from errors.",
+          "Earlier accepted objects do not change while later rows are processed."
+        ],
+        "setup_and_cost": "Use a free local OpenJDK with reviewed terms, or do a labeled paper code review. No cloud or account.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "C++",
+      "id": "modern-cpp",
+      "title": "Welcome back to C++ — Modern C++",
+      "publisher": "Microsoft Learn",
+      "url": "https://learn.microsoft.com/en-us/cpp/cpp/welcome-back-to-cpp-modern-cpp?view=msvc-170",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "RAII",
+        "standard containers",
+        "resource ownership"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. Examples discuss modern C++ and MSVC but standard features can be practised with a free local compiler.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "Instead of raw arrays, use vector as a sequential container in C++.",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "modern-cpp-practice-v1",
+        "title": "Keep task ownership explicit with standard containers",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "Basic C++ syntax",
+          "Free local C++17 compiler if executing"
+        ],
+        "suggested_minutes": 60,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise std::vector, immutable input and scope-based cleanup.",
+        "steps": [
+          "Represent synthetic tasks with a struct and a vector; write a function returning completed tasks without mutating the input.",
+          "Use standard containers and values rather than owning raw new/delete pointers.",
+          "Add assertions for empty input, all done and none done, and explain RAII ownership."
+        ],
+        "deliverable": "A C++ source file, assertions and an ownership note.",
+        "self_checks": [
+          "Output contains only completed tasks in input order.",
+          "Input contents and size remain unchanged.",
+          "No owning raw allocation or manual deletion is needed."
+        ],
+        "setup_and_cost": "Optional free local GCC/Clang C++17 compiler, no paid IDE required; code review on paper is a no-install alternative.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "RAG",
+      "id": "learn-rag",
+      "title": "Understand retrieval-augmented generation",
+      "publisher": "Microsoft Learn",
+      "url": "https://learn.microsoft.com/en-us/training/modules/rag-fundamentals/2-understand-rag",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "retrieval",
+        "grounding",
+        "citations"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. Related cloud labs/models may cost money; this reading and retrieval-only design do not require them.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "it supplies relevant knowledge at run time",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "learn-rag-practice-v1",
+        "title": "Build a retrieval-only grounding prototype",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "Basic search/token matching concepts",
+          "Optional Python basics"
+        ],
+        "suggested_minutes": 75,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise source traceability and unknown answers, not real LLM generation.",
+        "steps": [
+          "Write three short fictional policy paragraphs with IDs and prepare three answerable questions plus one unsupported question.",
+          "Implement or hand-work a token-overlap retriever returning paragraph IDs and exact source spans; specify a refusal rule when no source supports an answer.",
+          "Write a prompt template with quoted source boundaries and a rule to ignore instructions inside retrieved text; manually audit one misleading paragraph."
+        ],
+        "deliverable": "A tiny retriever or paper trace, question/source table and prompt-design note.",
+        "self_checks": [
+          "Every proposed answer cites a supporting paragraph or says unknown.",
+          "Unsupported questions are not answered by invention.",
+          "Clearly label this retrieval/grounding practice only: no LLM, embeddings or generation quality was tested."
+        ],
+        "setup_and_cost": "Local text/Python only; no AI key, model download, GPU, cloud, account or private documents.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    },
+    {
+      "skill": "Leadership",
+      "id": "openlearn-leadership",
+      "title": "Leadership and followership",
+      "publisher": "The Open University / OpenLearn",
+      "url": "https://www.open.edu/openlearn/mod/oucontent/view.php?id=147525",
+      "language": "en",
+      "kind": "public reading",
+      "topics": [
+        "leadership styles",
+        "followership",
+        "reflection"
+      ],
+      "access_notes": "Free public reading; no account was supplied for the page check. Reading is free; enrollment, saved progress and badges may require a free account. No enrollment was tested.",
+      "verified_on": "2026-10-29",
+      "verification": {
+        "method": "public web page extracted and topic reviewed during development; not an end-to-end course test",
+        "observed_excerpt": "reflect on personal experience, start a leadership journal and devise an appropriate plan of action",
+        "scope": "Target reading page was readable without providing credentials. No enrollment, certificate, downstream link, tool installation or lab was tested."
+      },
+      "exercise": {
+        "id": "openlearn-leadership-practice-v1",
+        "title": "Compare two responses to a fictional team conflict",
+        "authorship": "JobHunter authored practice; not assigned or endorsed by the resource publisher",
+        "prerequisites": [
+          "A fictional team scenario",
+          "Text editor or paper"
+        ],
+        "suggested_minutes": 60,
+        "estimate_notice": "Author estimate, not measured study time or a deadline",
+        "objective": "Practise perspective taking and accountable follow-up.",
+        "steps": [
+          "Invent a neutral scenario where two teammates disagree on a deadline; separate known facts from assumptions.",
+          "Write two possible leader responses and explain the trade-offs for followers, inclusion and delivery.",
+          "Choose one response and draft a private reflection with a measurable follow-up question, not a message to real people."
+        ],
+        "deliverable": "A scenario, two response drafts and a reflection/rubric review.",
+        "self_checks": [
+          "Both viewpoints are represented without invented motives.",
+          "The chosen response states an owner, next step and review time.",
+          "The reflection admits uncertainty; completing it is not evidence of workplace leadership experience."
+        ],
+        "setup_and_cost": "Paper or local text editor; no account, badge purchase, real colleague contact or personal data.",
+        "execution": "Manual only. Nothing is installed, run, uploaded or marked complete by JobHunter."
+      }
+    }
+  ]
+}
