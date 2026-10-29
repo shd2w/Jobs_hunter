@@ -2,7 +2,7 @@
 
 A private, single-user job-search workspace: deliberate discovery, transparent lexical matching, unchanged original CVs, evidence-backed preparation, and manually recorded progress.
 
-**Current source:** Phase 6g + GitHub launch support. This repository is a sanitized source release, not a backup of anyone's private workspace.
+**Current source:** Phase 6h integrated preparation/learning acceptance + GitHub launch support. This repository is a sanitized source release, not a backup of anyone's private workspace.
 
 ## Open with GitHub
 
@@ -45,6 +45,8 @@ Optional spreadsheet support: install `requirements-local-excel.txt`. Optional b
 - Personal follow-ups, manual digests, private calendar snapshots, saved searches and aggregate progress reporting.
 - Contextual learning guidance, optional reading/practice and private self-recorded practice progress — not verified qualifications.
 
+Integrated checkpoint: [preparation and learning acceptance](docs/PHASE6_ACCEPTANCE.md).
+
 Selected guides: [mapping](docs/EVIDENCE_MAPPING.md), [pack versions](docs/PACK_VERSIONS.md), [cover validation](docs/COVER_VALIDATION.md), [learning progress](docs/LEARNING_PROGRESS.md), [learning resources](docs/LEARNING_RESOURCES.md), [contextual learning](docs/CONTEXTUAL_LEARNING.md), [posts](docs/PLATFORM_POSTS.md), [browser sources](docs/BROWSER_SOURCES.md), [calendar](docs/CALENDAR_PHASE5B.md).
 
 ## Test and publish
@@ -56,4 +58,4 @@ python -m pytest -q
 
 CI runs the synthetic test suite on Python 3.13. The Pages workflow publishes only the static launch directory. See [release policy](docs/RELEASE_POLICY.md) for the standing instruction to push verified releases to this repository and preserve GitHub launchability.
 
-Local simulated-host tests are not an end-to-end Codespaces run. Live provider access, Windows execution, representative performance and the next integrated preparation/learning acceptance task remain unverified/pending unless separately recorded.
+Local simulated-host tests are not an end-to-end Codespaces run. Live provider access, Windows execution, representative performance remain unverified/pending unless separately recorded. The integrated local preparation/learning acceptance checkpoint is documented separately; it does not close those deployment checks.

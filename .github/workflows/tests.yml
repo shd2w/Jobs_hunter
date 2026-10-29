@@ -16,3 +16,5 @@ jobs:
           cache: pip
       - run: python -m pip install -r requirements-dev.txt
       - run: python -m pytest -q
+      - name: Integrated preparation and learning smoke
+        run: python qa/phase6h_smoke.py .

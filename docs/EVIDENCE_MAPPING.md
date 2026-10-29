@@ -60,4 +60,4 @@ Existing packs/history/CVs remain untouched. Prior validator/template reports ma
 
 ## Next checkpoint
 
-Scoped P6-REL-001 is addressed by exact explicit mappings and removal of automatic zero-overlap fill, not by a claim of universal semantic relevance intelligence. Next: integrated Phase 6 preparation/learning acceptance review. Phase 6 is still active. Optional AI/model work remains deferred, not passed and not a blocker. Full original-spec, live platform/product, Windows and representative performance checks remain unverified.
+Scoped P6-REL-001 is addressed by exact explicit mappings and removal of automatic zero-overlap fill, not by a claim of universal semantic relevance intelligence. Integrated preparation/learning acceptance is now covered by [Phase 6h](PHASE6_ACCEPTANCE.md). Phase 6 is still active. Optional AI/model work remains deferred, not passed and not a blocker. Full original-spec, live platform/product, Windows and representative performance checks remain unverified.

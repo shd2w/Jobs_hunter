@@ -11,4 +11,4 @@ Before each push:
 5. Check Actions/Pages results and the deployed page when access permits. Distinguish source pushed, static page deployed, and full Python runtime verified.
 6. Do not start billable infrastructure or a Codespace without explicit permission. A public launcher may offer the user that choice with cost/privacy disclosure.
 
-The present baseline is Phase 6g with GitHub launch support. Next product work remains integrated preparation/learning acceptance. Optional AI/real-model checks are deferred rather than completed. Unverified live providers, Windows and representative performance must not be described as passed.
+The present baseline is Phase 6h with GitHub launch support. Integrated synthetic preparation/learning acceptance is covered by `docs/PHASE6_ACCEPTANCE.md`; remote runtime and representative-environment checks remain open. Optional AI/real-model checks are deferred rather than completed. Unverified live providers, Windows and representative performance must not be described as passed.
