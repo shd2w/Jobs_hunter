@@ -1,0 +1,2 @@
+# Optional client only. Uses existing dedicated Chrome/Edge; no browser download.
+playwright==1.58.0
