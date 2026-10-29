@@ -17,16 +17,24 @@ KEY = 'automatic_discovery'
 STARTERS = (('jobicy', 'remote'), ('arbeitnow', 'de'), ('remotive', 'remote'),
             ('remoteok', 'remote'), ('weworkremotely', 'remote'),
             ('jobspy_linkedin', 'configured'), ('jobspy_indeed', 'configured'),
-            ('jobspy_bayt', 'configured'), ('jobspy_google', 'configured'))
+            ('jobspy_bayt', 'configured'), ('jobspy_google', 'configured'),
+            ('jobspy_glassdoor', 'configured'), ('jobspy_zip_recruiter', 'configured'),
+            ('jobspy_naukri', 'configured'), ('jobspy_bdjobs', 'configured'),
+            ('jobspy_hellowork', 'configured'))
 SEED_KEY = 'scraper_registry_revision'
-SEED_REVISION = 1
+SEED_REVISION = 2
 LABELS = {'jobicy:remote': 'Jobicy · worldwide remote', 'arbeitnow:de': 'Arbeitnow · Germany',
           'remotive:remote': 'Remotive · worldwide remote',
           'remoteok:remote': 'Remote OK · remote', 'weworkremotely:remote': 'We Work Remotely · remote',
           'jobspy_indeed:configured': 'Indeed · original regional searches',
           'jobspy_linkedin:configured': 'LinkedIn jobs · original regional searches',
           'jobspy_bayt:configured': 'Bayt · regional searches',
-          'jobspy_google:configured': 'Google Jobs · upstream unavailable'}
+          'jobspy_google:configured': 'Google Jobs · upstream unavailable',
+          'jobspy_glassdoor:configured': 'Glassdoor · DE/AT/CH and remote',
+          'jobspy_zip_recruiter:configured': 'ZipRecruiter · US/Canada remote',
+          'jobspy_naukri:configured': 'Naukri · India remote',
+          'jobspy_bdjobs:configured': 'BDJobs · Bangladesh work-from-home',
+          'jobspy_hellowork:configured': 'HelloWork · France remote'}
 
 
 def _read(db, profile_id):

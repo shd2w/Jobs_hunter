@@ -7,7 +7,8 @@ import json
 from pathlib import Path
 from .collection import Collection, text
 
-JOBSPY = ('jobspy_linkedin', 'jobspy_indeed', 'jobspy_google', 'jobspy_bayt')
+from scanners.jobspy_registry import SITES
+JOBSPY = tuple('jobspy_' + site for site in SITES)
 PUBLIC = ('remoteok', 'weworkremotely')
 CONFIG = Path(__file__).resolve().parents[1] / 'config' / 'portals.yml'
 
@@ -46,7 +47,7 @@ def collect(source, checkpoint=None, cancel_event=None):
                       'page': page + 1 if more else 0, 'complete': False}
         return Collection(rows, next_state, {'raw_received': raw_count,
             'rejected_title': len(filtered['rejected_title']), 'rejected_location': len(filtered['rejected_location']), 'query': search['term'], 'location_query': search.get('location', ''),
-            'page': page + 1, 'configured_queries': len(searches), 'bounded_selection': True,
+            'scope_notice': search.get('scope_notice', ''), 'page': page + 1, 'configured_queries': len(searches), 'bounded_selection': True,
             'coverage_complete': False, 'provider_errors': scanner.last_errors,
             'provider_warnings': scanner.last_warnings,
             'request_unit': 'One provider search page plus provider-managed description requests; not one HTTP request'})
