@@ -17,14 +17,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from jobhunter_app.store import Store
 from jobhunter_app.sources import register, scan
 from jobhunter_app.validation import normalize_job
+from scanners.jobspy_registry import SITES
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source',action='append',default=[])
     parser.add_argument('--output',required=True,type=Path)
-    parser.add_argument('--jobspy-site',choices=['indeed','linkedin','google','bayt'])
-    parser.add_argument('--location',default='Germany')
+    parser.add_argument('--jobspy-site',choices=SITES)
+    parser.add_argument('--location',default=None)
     parser.add_argument('--term',default='Software Engineer')
     parser.add_argument('--limit',type=int,default=3)
     args=parser.parse_args()
@@ -35,10 +36,12 @@ def main():
         report={'source':label,'checked_at':datetime.now(timezone.utc).isoformat()}
         try:
             if label.startswith('jobspy-'):
-                from scanners.jobspy_scanner import JobSpyScanner
+                from scanners.jobspy_scanner import JobSpyScanner, bounded_search
+                from jobhunter_app.expanded_sources import config
+                selected=bounded_search(config(),args.jobspy_site,args.term,args.location,max(1,min(30,args.limit)))
+                report['query']=selected
                 scanner=JobSpyScanner({})
-                rows=[j.to_dict() for j in scanner._run_search({'sites':[args.jobspy_site],
-                    'location':args.location,'term':args.term,'results_wanted':max(1,min(30,args.limit))})]
+                rows=[j.to_dict() for j in scanner._run_search(selected)]
                 report['metrics']={'provider_errors':scanner.last_errors,'provider_warnings':scanner.last_warnings}
                 report['intake']=store.ingest(rows,source='live-jobspy')
             else:

@@ -31,9 +31,12 @@ POLICIES.update({
  'usajobs': {'cooldown':600,'requests':1,'docs':'https://developer.usajobs.gov/Guides/Authentication','notice':'Optional API key required: USAJOBS_API_KEY and USAJOBS_USER_AGENT in environment only. Identifier is a keyword query. One page (50 results) per scan. Public announcement does not establish citizenship or eligibility. Ten-minute local cooldown.'},
 })
 from .expanded_sources import JOBSPY, PUBLIC as EXPANDED_PUBLIC
+from scanners.jobspy_registry import SCOPES
 for _site in JOBSPY:
     POLICIES[_site] = {'cooldown': 86400 if _site == 'jobspy_google' else 300, 'requests': 1, 'docs': 'https://github.com/speedyapply/JobSpy',
         'notice': 'Original configured JobSpy searches, one provider/query/page per scan (five-minute local cooldown; Google daily while unavailable upstream); rotates through all configured regions and English/German terms. Description requests are additional. No proxy or challenge bypass. Google Jobs is currently unavailable upstream; failures are reported, not zero-result success. Install requirements-scanners.txt.'}
+for _site, _scope in SCOPES.items():
+    POLICIES['jobspy_' + _site]['notice'] += ' Provider scope: ' + _scope + '.'
 for _kind, _docs in [('remoteok', 'https://remoteok.com/api'), ('weworkremotely', 'https://weworkremotely.com/remote-job-rss-feed')]:
     POLICIES[_kind] = {'cooldown': 3600, 'requests': 1, 'docs': _docs,
         'notice': 'Public feed; retain publisher attribution and original listing backlink. One-hour conservative local cooldown. Current feed only, no whole-site completeness claim.'}
@@ -52,9 +55,10 @@ for _kind in POST_PLATFORMS:
 def catalog():
     from .authorized_boards import robots_mode
     from .board_browser import transport_mode
-    mode=robots_mode(); transport=transport_mode()
+    from .scrapling_parser import parser_mode
+    mode=robots_mode(); transport=transport_mode(); parser=parser_mode()
     from .platform_posts import setup
-    return [{"kind": k, **v, **(setup(k) if k in POST_PLATFORMS else {}), **({'robots_mode':mode,'transport':transport,'request_unit':'top-level navigations; browser assets make additional requests' if transport=='browser' else 'HTTP requests','requests':5 if mode=='skip' else 6} if k in ('wuzzuf','naukrigulf') else {})} for k, v in POLICIES.items()]
+    return [{"kind": k, **v, **(setup(k) if k in POST_PLATFORMS else {}), **({'robots_mode':mode,'transport':transport,'parser':parser,'request_unit':'top-level navigations; browser assets make additional requests' if transport=='browser' else 'HTTP requests','requests':5 if mode=='skip' else 6} if k in ('wuzzuf','naukrigulf') else {})} for k, v in POLICIES.items()]
 
 
 class Text(HTMLParser):

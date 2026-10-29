@@ -19,7 +19,8 @@ import yaml
 from dotenv import load_dotenv
 
 from scanners.workday import DirectAPIScanner
-from scanners.jobspy_scanner import JobSpyScanner
+from scanners.jobspy_scanner import JobSpyScanner, bounded_search
+from scanners.jobspy_registry import SITES
 from scanners.bridge import PipelineBridge
 from utils.utf8_logging import get_utf8_stream_handler
 
@@ -132,7 +133,7 @@ def main():
         "--dry-run", action="store_true",
         help="Show results without writing to pipeline.md"
     )
-    parser.add_argument('--site', choices=['linkedin', 'indeed', 'google', 'bayt'])
+    parser.add_argument('--site', choices=SITES)
     parser.add_argument('--term', help='Optional bounded query override; registry is not edited')
     parser.add_argument('--location', help='Optional bounded location override')
     parser.add_argument('--limit', type=int, default=10)
@@ -141,7 +142,13 @@ def main():
     config = None
     if args.site or args.term or args.location:
         config = load_config()
-        config['jobspy_searches'] = [{'term': args.term or 'Software Engineer',
+        if args.site:
+            selected = bounded_search(config, args.site, args.term or 'Software Engineer', args.location, args.limit)
+            config.pop('jobspy_providers', None)
+            config['jobspy_searches'] = [selected]
+        else:
+            config.pop('jobspy_providers', None)
+            config['jobspy_searches'] = [{'term': args.term or 'Software Engineer',
             'location': args.location or 'Germany', 'sites': [args.site] if args.site else ['linkedin', 'indeed', 'bayt'],
             'results_wanted': max(1, min(100, args.limit))}]
 
