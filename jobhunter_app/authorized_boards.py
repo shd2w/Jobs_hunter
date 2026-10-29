@@ -80,6 +80,23 @@ def nodes(value, depth=0):
             if isinstance(x,(list,dict)): yield from nodes(x,depth+1)
 
 
+def structured_salary(value):
+    """Preserve only publisher-declared amount/currency/period, no estimates."""
+    import math
+    if not isinstance(value, dict): return ''
+    amount = value.get('value')
+    currency = value.get('currency', '')
+    if not isinstance(currency, str): currency = ''
+    if isinstance(amount, dict):
+        candidates = [amount.get('minValue'), amount.get('maxValue')]
+        if all(x is None for x in candidates): candidates = [amount.get('value')]
+        period = amount.get('unitText', '')
+    else:
+        candidates = [amount]; period = ''
+    amounts = [str(x) for x in candidates if type(x) in (int, float) and math.isfinite(x)]
+    return ' '.join(x for x in (currency, '-'.join(amounts), period if isinstance(period, str) else '') if x) if amounts else ''
+
+
 def parse(kind, body, page_url):
     from .sources import plain, POLICIES
     p=Page();p.feed(body.decode('utf-8-sig'))
@@ -112,7 +129,9 @@ def parse(kind, body, page_url):
                 if not isinstance(item.get('title'),str) or not isinstance(org,dict) or not isinstance(org.get('name'),str) or not isinstance(item.get('description'),str):
                     raise ValueError('Missing structured job fields')
                 rows.append({'title':item['title'],'company':org['name'],'url':url,'location':'; '.join(locations),
-                             'description':plain(item['description']),'date_posted':item.get('datePosted','') if isinstance(item.get('datePosted',''),str) else '',
+                             'description':plain(item['description']),
+                             'employment_type': item.get('employmentType', '') if isinstance(item.get('employmentType', ''), str) else ', '.join(x for x in item.get('employmentType', []) if isinstance(x, str)) if isinstance(item.get('employmentType'), list) else '',
+                             'salary': structured_salary(item.get('baseSalary')), 'date_posted':item.get('datePosted','') if isinstance(item.get('datePosted',''),str) else '',
                              'attribution':'Wuzzuf' if kind=='wuzzuf' else 'Naukrigulf','source_notice':POLICIES[kind]['notice']})
             except (ValueError,TypeError,AttributeError): rows.append({})
     details=[]; next_urls=[]

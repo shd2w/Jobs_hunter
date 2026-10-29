@@ -79,7 +79,7 @@ def collect(source, checkpoint=None, cancel_event=None):
         page=1 if state.get('complete') else int(state.get('page',1))
         base='https://www.arbeitnow.co.uk' if source.identifier=='uk' else 'https://www.arbeitnow.com'
         root=read(base+'/api/job-board-api?'+urlencode({'page':page}))
-        if not isinstance(root,dict) or not isinstance(root.get('data'),list) or len(root['data'])>100: raise ValueError('Invalid Arbeitnow payload')
+        if not isinstance(root,dict) or not isinstance(root.get('data'),list) or len(root['data'])>1000: raise ValueError('Invalid Arbeitnow payload')
         nxt=(root.get('links') or {}).get('next')
         next_page=None
         if nxt:

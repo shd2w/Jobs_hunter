@@ -14,9 +14,19 @@ from .sources import Source, scan
 from .source_health import health
 
 KEY = 'automatic_discovery'
-STARTERS = (('jobicy', 'remote'), ('arbeitnow', 'de'), ('remotive', 'remote'))
+STARTERS = (('jobicy', 'remote'), ('arbeitnow', 'de'), ('remotive', 'remote'),
+            ('remoteok', 'remote'), ('weworkremotely', 'remote'),
+            ('jobspy_linkedin', 'configured'), ('jobspy_indeed', 'configured'),
+            ('jobspy_bayt', 'configured'), ('jobspy_google', 'configured'))
+SEED_KEY = 'scraper_registry_revision'
+SEED_REVISION = 1
 LABELS = {'jobicy:remote': 'Jobicy · worldwide remote', 'arbeitnow:de': 'Arbeitnow · Germany',
-          'remotive:remote': 'Remotive · worldwide remote'}
+          'remotive:remote': 'Remotive · worldwide remote',
+          'remoteok:remote': 'Remote OK · remote', 'weworkremotely:remote': 'We Work Remotely · remote',
+          'jobspy_indeed:configured': 'Indeed · original regional searches',
+          'jobspy_linkedin:configured': 'LinkedIn jobs · original regional searches',
+          'jobspy_bayt:configured': 'Bayt · regional searches',
+          'jobspy_google:configured': 'Google Jobs · upstream unavailable'}
 
 
 def _read(db, profile_id):
@@ -46,6 +56,16 @@ def configure(store, profile_id='default', enabled=None):
                 db.execute('INSERT OR IGNORE INTO sources(id,kind,identifier,approved) VALUES(?,?,?,1)',
                            (source.id, kind, identifier))
             value = {'version': 1, 'enabled': True}
+        if data.get(SEED_KEY) != SEED_REVISION:
+            # Add missing sources on upgrade, without overwriting any approval,
+            # pause, checkpoint, profile, existing job or unrelated setting.
+            for kind, identifier in STARTERS:
+                source = Source(kind, identifier)
+                db.execute('INSERT OR IGNORE INTO sources(id,kind,identifier,approved) VALUES(?,?,?,1)',
+                           (source.id, kind, identifier))
+            data[SEED_KEY] = SEED_REVISION
+            db.execute('INSERT INTO workflow_settings VALUES(?,?,?) ON CONFLICT(profile_id) DO UPDATE SET data=excluded.data,updated_at=excluded.updated_at',
+                       (profile_id, dump({**data, KEY: value}), now()))
         new = {**value, **({'enabled': enabled} if enabled is not None else {})}
         if data.get(KEY) != new:
             data[KEY] = new
@@ -70,6 +90,14 @@ class AutomaticDiscovery:
     def __init__(self, store, profile_id='default', interval=60):
         self.store, self.profile_id, self.interval = store, profile_id, max(1, interval)
         configure(store, profile_id)
+        self.legacy_restore = None
+        self.legacy_restore_error = ''
+        try:
+            from scanners.compat import restore_existing_legacy
+            self.legacy_restore = restore_existing_legacy(store, profile_id)
+        except (ValueError, OSError) as exc:
+            # Do not discard sources or jobs if an old file needs manual repair.
+            self.legacy_restore_error = type(exc).__name__ + ': legacy restoration needs review; files unchanged'
         self.cancel, self.wake, self.closed = Event(), Event(), Event()
         self.lock = Lock(); self.control = Lock(); self.thread = None
         self.state = {'phase': 'starting', 'current_source': '', 'revision': 0, 'last_cycle': None, 'error': ''}
@@ -117,9 +145,10 @@ class AutomaticDiscovery:
                             'last_completed_at': row['last_completed_at'], 'next_allowed_at': row['next_allowed_at'],
                             'new_jobs': metrics.get('new_unique_jobs', 0), 'invalid': metrics.get('invalid', 0)})
         return {'available': True, 'enabled': config['enabled'], **state, 'sources': sources,
+                'legacy_restore': self.legacy_restore, 'legacy_restore_error': self.legacy_restore_error,
                 'has_profile': bool(self.store.profile(self.profile_id).get('skills')),
                 'total_jobs': self.store.summary(self.profile_id)['total_jobs'],
-                'scope': 'Worldwide remote + Germany starter feeds. Approved custom sources join automatically. '
+                'scope': 'Original configured JobSpy searches: Egypt, Oman, UAE, Germany, Switzerland, Austria and remote; English/German. Public remote feeds also run automatically. Provider access may fail; see each source. Approved custom sources join automatically. '
                          'Account-dependent channels need setup; no paid access is added. Runs only while this server is running.'}
 
     def cycle(self):

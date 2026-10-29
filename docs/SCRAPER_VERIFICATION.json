@@ -1,0 +1,414 @@
+{
+  "date": "2026-10-29",
+  "scope": "Bounded live samples, not completeness or continuous availability. No private data or vacancy bodies included.",
+  "sources": [
+    {
+      "source": "jobicy:remote",
+      "received": 100,
+      "valid": 100,
+      "nonempty": {
+        "title": 100,
+        "company": 100,
+        "location": 100,
+        "description": 100,
+        "salary": 62,
+        "employment_type": 100,
+        "url": 100,
+        "date_posted": 100
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "remotive:remote",
+      "received": 12,
+      "valid": 12,
+      "nonempty": {
+        "title": 12,
+        "company": 12,
+        "location": 12,
+        "description": 12,
+        "salary": 7,
+        "employment_type": 12,
+        "url": 12,
+        "date_posted": 12
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "remoteok:remote",
+      "received": 99,
+      "valid": 99,
+      "nonempty": {
+        "title": 99,
+        "company": 99,
+        "location": 43,
+        "description": 99,
+        "salary": 23,
+        "employment_type": 0,
+        "url": 99,
+        "date_posted": 99
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "weworkremotely:remote",
+      "received": 96,
+      "valid": 96,
+      "nonempty": {
+        "title": 96,
+        "company": 96,
+        "location": 96,
+        "description": 96,
+        "salary": 0,
+        "employment_type": 96,
+        "url": 96,
+        "date_posted": 96
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "smartrecruiters:BoschGroup",
+      "received": 10,
+      "valid": 10,
+      "nonempty": {
+        "title": 10,
+        "company": 10,
+        "location": 10,
+        "description": 10,
+        "salary": 0,
+        "employment_type": 10,
+        "url": 10,
+        "date_posted": 10
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "jobspy-indeed:Egypt",
+      "received": 3,
+      "valid": 3,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 0,
+        "employment_type": 2,
+        "url": 3,
+        "date_posted": 3
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "jobspy-indeed:Oman",
+      "received": 3,
+      "valid": 3,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 0,
+        "employment_type": 2,
+        "url": 3,
+        "date_posted": 3
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "jobspy-indeed:United Arab Emirates",
+      "received": 3,
+      "valid": 3,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 2,
+        "employment_type": 2,
+        "url": 3,
+        "date_posted": 3
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "jobspy-indeed:Germany",
+      "received": 3,
+      "valid": 3,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 0,
+        "employment_type": 2,
+        "url": 3,
+        "date_posted": 3
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "jobspy-indeed:Remote",
+      "received": 3,
+      "valid": 3,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 2,
+        "employment_type": 2,
+        "url": 3,
+        "date_posted": 3
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "jobspy-linkedin:Egypt",
+      "received": 3,
+      "valid": 3,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 0,
+        "employment_type": 3,
+        "url": 3,
+        "date_posted": 3
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "jobspy-linkedin:Oman",
+      "received": 3,
+      "valid": 3,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 0,
+        "employment_type": 3,
+        "url": 3,
+        "date_posted": 3
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "jobspy-linkedin:United Arab Emirates",
+      "received": 3,
+      "valid": 3,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 0,
+        "employment_type": 3,
+        "url": 3,
+        "date_posted": 3
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "jobspy-linkedin:Germany",
+      "received": 3,
+      "valid": 3,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 0,
+        "employment_type": 3,
+        "url": 3,
+        "date_posted": 3
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "jobspy-linkedin:Remote",
+      "received": 3,
+      "valid": 3,
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 2,
+        "salary": 1,
+        "employment_type": 2,
+        "url": 3,
+        "date_posted": 3
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "greenhouse:stripe",
+      "received": 736,
+      "valid": 736,
+      "nonempty": {
+        "title": 736,
+        "company": 736,
+        "location": 736,
+        "description": 736,
+        "salary": 0,
+        "employment_type": 0,
+        "url": 736,
+        "date_posted": 0
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "arbeitnow",
+      "received": 300,
+      "valid": 300,
+      "nonempty": {
+        "title": 300,
+        "company": 300,
+        "location": 283,
+        "description": 300,
+        "salary": 0,
+        "employment_type": 195,
+        "url": 300,
+        "date_posted": 300
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "ashby",
+      "received": 813,
+      "valid": 813,
+      "nonempty": {
+        "title": 813,
+        "company": 813,
+        "location": 813,
+        "description": 813,
+        "salary": 646,
+        "employment_type": 813,
+        "url": 813,
+        "date_posted": 813
+      },
+      "checked_on": "2026-10-29"
+    },
+    {
+      "source": "lever",
+      "received": 302,
+      "valid": 302,
+      "nonempty": {
+        "title": 302,
+        "company": 302,
+        "location": 302,
+        "description": 302,
+        "salary": 0,
+        "employment_type": 302,
+        "url": 302,
+        "date_posted": 0
+      },
+      "checked_on": "2026-10-29"
+    }
+  ],
+  "automatic": {
+    "total_unique_jobs": 620,
+    "seconds": 21.33,
+    "sources": [
+      {
+        "id": "arbeitnow:de",
+        "health": "partial",
+        "new_jobs": 300,
+        "error": null
+      },
+      {
+        "id": "jobicy:remote",
+        "health": "partial",
+        "new_jobs": 100,
+        "error": null
+      },
+      {
+        "id": "jobspy_bayt:configured",
+        "health": "failed",
+        "new_jobs": 0,
+        "error": "JobSpy provider rejected or failed the request; inspect local scanner log. No proxy, login or challenge bypass."
+      },
+      {
+        "id": "jobspy_google:configured",
+        "health": "failed",
+        "new_jobs": 0,
+        "error": "JobSpy provider failed; no successful empty scan. Google Jobs is unavailable upstream."
+      },
+      {
+        "id": "jobspy_indeed:configured",
+        "health": "partial",
+        "new_jobs": 3,
+        "error": null
+      },
+      {
+        "id": "jobspy_linkedin:configured",
+        "health": "partial",
+        "new_jobs": 10,
+        "error": null
+      },
+      {
+        "id": "remoteok:remote",
+        "health": "success",
+        "new_jobs": 99,
+        "error": null
+      },
+      {
+        "id": "remotive:remote",
+        "health": "success",
+        "new_jobs": 12,
+        "error": null
+      },
+      {
+        "id": "weworkremotely:remote",
+        "health": "success",
+        "new_jobs": 96,
+        "error": null
+      }
+    ]
+  },
+  "migration": {
+    "unambiguous_jobs": 1107,
+    "historical_records": 6208,
+    "conflicting_rows": 22,
+    "conflicting_urls": 20,
+    "invalid_records": 0,
+    "file_errors": 0,
+    "unlinked_historical_recommendations": 220
+  },
+  "original_direct_scanner": {
+    "received": 2,
+    "errors": [],
+    "nonempty": {
+      "title": 2,
+      "company": 2,
+      "location": 2,
+      "description": 2,
+      "salary": 0,
+      "employment_type": 2,
+      "url": 2,
+      "date_posted": 2
+    }
+  },
+  "hn": {
+    "received": 10,
+    "auto_added": 0,
+    "needs_review": 10,
+    "requests": 11
+  },
+  "remaining": [
+    "Bayt: HTTP403 in all five regional samples; no bypass",
+    "Google Jobs: upstream no job data returned",
+    "Wuzzuf: direct HTTP and current ordinary-browser check blocked",
+    "Naukrigulf: direct HTTP timeout; ordinary browser collected four jobs",
+    "Workday: no tenant configured in original archive; offline fixture validated, not live tested",
+    "USAJOBS and platform post APIs: authorized configuration absent; no live verification"
+  ],
+  "generic_feed": {
+    "received": 96,
+    "staged": 42,
+    "auto_added": 0,
+    "invalid": 0,
+    "needs_review": 42
+  }
+}
