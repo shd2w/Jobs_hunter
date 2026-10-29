@@ -1,0 +1,56 @@
+# Environment
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+jobhunter_venv/
+
+# Data (user-specific, not shared)
+data/
+reports/
+output/
+logs/
+
+# Node (if using career-ops scan.mjs)
+node_modules/
+career-ops/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Browser QA fixtures and local candidates
+qa/screenshots/
+my-profile.json
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.lock
+!requirements-local.lock
+
+# Never publish personal inputs, private artifacts or credentials.
+*.zip
+*.pdf
+*.xlsx
+*.xls
+*.db
+*.db-*
+*.sqlite3-*
+config/*.private.*
+my-profile*.json
+private-*/
+preparation-packs/
+.env.*
+!.env.example
