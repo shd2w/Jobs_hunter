@@ -1,5 +1,5 @@
 """
-JobSpy scanner — wraps python-jobspy to search LinkedIn, Indeed, and Google Jobs.
+JobSpy scanner — wraps python-jobspy to search all pinned JobSpy providers.
 
 Returns normalized JobPosting objects from all configured search queries.
 Handles rate limits and errors per-site gracefully.
@@ -41,7 +41,7 @@ def clean(value):
 
 
 class JobSpyScanner(BaseScanner):
-    """Scanner using python-jobspy for LinkedIn, Indeed, Google Jobs."""
+    """Scanner using python-jobspy for all pinned JobSpy providers."""
 
     def __init__(self, config: dict):
         super().__init__(config, name="jobspy")
@@ -51,6 +51,22 @@ class JobSpyScanner(BaseScanner):
 
     @staticmethod
     def _load_searches(config: dict) -> list[dict]:
+        from .jobspy_registry import SITES
+        searches = JobSpyScanner._load_primary(config)
+        providers = config.get('jobspy_providers', {})
+        if not isinstance(providers, dict): raise ValueError('jobspy_providers must be a mapping')
+        primary = config.get('jobspy_searches', {})
+        terms = primary.get('terms', []) if isinstance(primary, dict) else []
+        for site, options in providers.items():
+            if site not in SITES or not isinstance(options, dict):
+                raise ValueError('Unsupported JobSpy provider configuration')
+            if not options.get('enabled', True): continue
+            raw = {'terms': terms, 'results_wanted': 30, **options, 'sites': [site]}
+            searches.extend(JobSpyScanner._load_primary({'jobspy_searches': raw}))
+        return searches
+
+    @staticmethod
+    def _load_primary(config: dict) -> list[dict]:
         """Load search configs, supporting both compact and legacy formats.
 
         Compact format (terms × locations cross-product):
@@ -94,7 +110,7 @@ class JobSpyScanner(BaseScanner):
                 }
                 if distance_km:
                     entry["distance_km"] = distance_km
-                for key in ("pages", "hours_old", "fetch_description"):
+                for key in ("pages", "hours_old", "fetch_description", "country_indeed", "is_remote", "scope_notice"):
                     if key in raw: entry[key] = raw[key]
                 searches.append(entry)
 
@@ -214,6 +230,9 @@ class JobSpyScanner(BaseScanner):
         if "google" in sites:
             kwargs["google_search_term"] = search_config.get("google_search_term", f"{term} jobs in {location}")
         self.last_errors = {}; self.last_warnings = {}
+        from .jobspy_registry import SITES
+        unknown = set(sites) - set(SITES)
+        if unknown: raise ValueError('Unsupported JobSpy sites: ' + ', '.join(sorted(unknown)))
         df = scrape_jobs(**kwargs)
         attrs = getattr(df, "attrs", {})
         self.last_errors = dict(attrs.get("errors") or {})
@@ -234,6 +253,10 @@ class JobSpyScanner(BaseScanner):
                     continue
                 company = clean(row.get("company"))
                 location_str = clean(row.get("location"))
+                # Only a provider-declared remote flag is a remote fact. Keep
+                # the original country: remote does not mean globally eligible.
+                if clean(row.get('is_remote')).lower() == 'true' and 'remote' not in location_str.lower():
+                    location_str = 'Remote' + (' · ' + location_str if location_str else '')
                 description = clean(row.get("description"))
                 date_posted = clean(row.get("date_posted"))
                 import math
@@ -267,3 +290,19 @@ class JobSpyScanner(BaseScanner):
             f"Got {len(jobs)} results for '{term}' in '{location}'"
         )
         return jobs
+
+
+def bounded_search(config, site, term=None, location=None, limit=10):
+    """Pick the provider's native configured scope for CLI verification."""
+    from .jobspy_registry import SITES
+    if site not in SITES: raise ValueError('Unsupported JobSpy provider')
+    matches = [s for s in JobSpyScanner(config).searches if site in s.get('sites', [])]
+    if not matches: raise ValueError('No searches configured for this provider')
+    preferred = next((s for s in matches if s.get('location') == 'Germany'), matches[0])
+    search = {**preferred, 'sites': [site], 'results_wanted': max(1, min(100, limit)), 'offset': 0}
+    if term: search['term'] = term
+    if location:
+        search['location'] = location
+        # An explicit override must not reuse a previous region's country.
+        search.pop('country_indeed', None)
+    return search

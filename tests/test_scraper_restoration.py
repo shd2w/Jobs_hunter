@@ -33,6 +33,8 @@ def install(monkeypatch, frame):
 def test_original_searches_not_replaced_and_german_added():
     from jobhunter_app.expanded_sources import config
     c=config();searches=JobSpyScanner(c).searches
+    assert len(searches)==210
+    searches = [s for s in searches if len(s['sites']) == 4]
     assert len(searches)==98
     assert {'Egypt','Oman','United Arab Emirates','Germany','Remote','Austria','Switzerland'} == {s['location'] for s in searches}
     assert all({'linkedin','indeed','google','bayt'}<=set(s['sites']) for s in searches)
@@ -75,7 +77,7 @@ def test_upgrade_keeps_existing_pause_jobs_profile_and_new_seed_once(tmp_path):
         assert not db.execute("SELECT approved FROM sources WHERE id='jobspy_indeed:configured'").fetchone()[0]
         value=json.loads(db.execute('SELECT data FROM workflow_settings').fetchone()[0])
     assert not value[KEY]['enabled'] and value['saved_searches']==[{'retain':True}]
-    assert value[SEED_KEY]==1 and store.summary()['total_jobs']==1 and store.profile()['name']=='Private'
+    assert value[SEED_KEY]==2 and store.summary()['total_jobs']==1 and store.profile()['name']=='Private'
 
 
 def test_jobspy_checkpoint_rotation_and_pagination(monkeypatch):
