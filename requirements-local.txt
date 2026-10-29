@@ -1,0 +1,5 @@
+# Core local dashboard, intake, registry, matching and packs. Python 3.12+.
+PyYAML>=6.0.1,<7
+filelock>=4.2.1,<5
+
+defusedxml>=0.7.1,<1

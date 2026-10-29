@@ -1,0 +1,16 @@
+{
+  "name": "Synthetic example — replace with your own evidence",
+  "skills": ["Python", "SQL"],
+  "languages": [],
+  "excluded_title_terms": ["Director"],
+  "facts": [],
+  "matching": {
+    "excluded_companies": [],
+    "excluded_location_terms": [],
+    "required_listing_terms": [],
+    "preferred_title_terms": ["Engineer", "Analyst"],
+    "preferred_location_terms": ["Cairo"],
+    "skill_weights": {"Python": 3, "SQL": 1},
+    "weights": {"skills": 60, "title": 25, "location": 15}
+  }
+}
