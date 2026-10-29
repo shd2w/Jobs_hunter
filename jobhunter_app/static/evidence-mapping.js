@@ -1,0 +1,23 @@
+'use strict';
+(()=>{
+ let current=null,preview=null,generation=0,dirty=false,editors=[];
+ const message=(text,error=false)=>{$('evidence-message').textContent=text;$('evidence-message').className=error?'error':'';};
+ const changed=()=>{dirty=true;$('evidence-confirmed').checked=false;};
+ const control=(tag,label)=>{const el=node(tag);const wrap=node('label',label);wrap.append(el);return [wrap,el];};
+ window.confirmEvidenceSwitch=()=>!dirty||confirm('Discard unsaved evidence connections and load a fresh preview?');
+ window.loadEvidenceMapping=async job=>{const g=++generation;current=job.id;preview=null;dirty=false;editors=[];$('evidence-links').replaceChildren();$('evidence-confirmed').checked=false;message('Loading current verified facts…');
+ try{const data=await api('/api/cover-evidence?id='+encodeURIComponent(job.id));if(g!==generation)return;preview=data;message(data.facts.length?'Select up to three facts and connect each to exact listing text.':'No valid source-backed verified facts. Configure Your evidence first.');
+ for(const fact of data.facts){const card=node('article',undefined,'evidence-link');const [chooseWrap,choose]=control('input','Use this verified fact');choose.type='checkbox';chooseWrap.className='checkbox';card.append(chooseWrap,node('p',fact.text),node('p','Source: '+fact.source,'muted'));const fields=node('div');fields.hidden=true;
+ const [fieldWrap,field]=control('select','Listing field');field.append(new Option('Description','description'),new Option('Title','title'));
+ const [quoteWrap,quote]=control('textarea','Exact listing excerpt (copy from the original above)');quote.rows=3;quote.maxLength=2000;
+ const [occWrap,occ]=control('select','Exact occurrence (Unicode offsets; first 200 matches)');
+ const [reasonWrap,reason]=control('textarea','Why this fact connects to the excerpt — your judgment');reason.rows=3;reason.maxLength=1000;
+ const find=()=>{const text=data.target[field.value],q=Array.from(quote.value),hits=[];if(q.length&&q.length<=1000){let from=0;while(hits.length<200){const found=text.indexOf(quote.value,from);if(found<0)break;hits.push(Array.from(text.slice(0,found)).length);from=found+1;}}occ.replaceChildren(new Option(hits.length?'Choose the intended occurrence':'No exact excerpt found',''));for(const start of hits)occ.append(new Option('['+start+':'+(start+q.length)+']',String(start)));if(hits.length===1)occ.value=String(hits[0]);changed();};
+ choose.onchange=()=>{fields.hidden=!choose.checked;changed();};field.onchange=find;quote.oninput=find;occ.onchange=changed;reason.oninput=changed;fields.append(fieldWrap,quoteWrap,occWrap,reasonWrap);card.append(fields);$('evidence-links').append(card);editors.push({fact,choose,field,quote,occ,reason});}
+ }catch(e){if(g===generation)message(e.message,true);}};
+ $('evidence-refresh').onclick=async()=>{if(!current||!window.confirmEvidenceSwitch())return;await window.loadEvidenceMapping({id:current});};
+ $('evidence-confirmed').onchange=()=>{dirty=true;};
+ window.collectEvidenceMapping=jobId=>{if(!preview||current!==jobId)throw Error('Refresh the current evidence preview before preparing');const selected=editors.filter(e=>e.choose.checked);if(selected.length<1||selected.length>3)throw Error('Select one to three verified facts');if(!$('evidence-confirmed').checked)throw Error('Confirm the evidence connections before preparing');const links=selected.map(e=>{if(e.occ.value===''||!e.reason.value.trim())throw Error('Each fact needs an exact excerpt occurrence and connection explanation');const start=Number(e.occ.value);return {fact_id:e.fact.id,field:e.field.value,start,end:start+Array.from(e.quote.value).length,quote:e.quote.value,reason:e.reason.value};});return {format:1,preview_fingerprint:preview.preview_fingerprint,confirmed:true,links};};
+ window.evidenceMappingSaved=()=>{dirty=false;};
+ window.renderEvidenceRelevance=data=>{const box=$('pack-relevance');box.replaceChildren();if(!data||!Array.isArray(data.links)||!['user_attested','lexical_cues_only'].includes(data.status)){box.append(node('p','Evidence connection unavailable; generate a current version.'));return;}box.append(node('h4',data.status==='user_attested'?'Your evidence-to-listing connections':'Lexical cues only — relevance not assessed'),node('p','Saved snapshot — inspect current version state above. '+data.notice,'muted'));for(const link of data.links){if(!link||typeof link!=='object')continue;if(data.status==='user_attested'){box.append(node('p',link.text+' — '+link.source),node('pre',link.field+' ['+link.start+':'+link.end+']\n'+link.quote,'description'),node('p','Your connection: '+link.reason));}else box.append(node('p','Recognized skill cues: '+(Array.isArray(link.skills)?link.skills.join(', '):'Unavailable')));}};
+})();
