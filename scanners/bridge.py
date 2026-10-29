@@ -33,7 +33,7 @@ class PipelineBridge:
         self.title_filter = TitleFilter(config)
         self.location_filter = LocationFilter(config)
         self.dedup = DeduplicatorStore(data_dir)
-        self.jd_cache = JDCache()
+        self.jd_cache = JDCache(str(self.data_dir / "jd_cache.json"))
 
         # Ensure pipeline.md exists
         self.pipeline_path = self.data_dir / "pipeline.md"

@@ -14,6 +14,8 @@ Supported providers:
 import asyncio
 import logging
 from dataclasses import dataclass
+from urllib.parse import urlsplit, urljoin
+import re
 
 import httpx
 
@@ -57,6 +59,7 @@ class DirectAPIScanner(BaseScanner):
     def __init__(self, config: dict):
         super().__init__(config, name="direct-api")
         self.companies = self._load_companies()
+        self.query_errors = []
 
     def _load_companies(self) -> list[APIEndpoint]:
         """Load companies with known API endpoints from config."""
@@ -70,6 +73,19 @@ class DirectAPIScanner(BaseScanner):
                 continue
 
             name_lower = company["name"].lower()
+            # Explicit public Workday tenant configuration; no credentials or
+            # inferred endpoints. Existing known-company configuration is kept.
+            if company.get("api_url") and company.get("base_url"):
+                api, base = company["api_url"], company["base_url"]
+                parsed = urlsplit(api); public = urlsplit(base)
+                if (parsed.scheme != "https" or public.scheme != "https"
+                    or parsed.username or parsed.password or parsed.query or parsed.fragment
+                    or public.username or public.password or public.hostname != parsed.hostname
+                    or not re.fullmatch(r"[a-zA-Z0-9-]+\.wd[0-9]+\.myworkdayjobs\.com", parsed.hostname or "")
+                    or not re.fullmatch(r"/wday/cxs/[A-Za-z0-9_-]+/[A-Za-z0-9_-]+/jobs", parsed.path)):
+                    raise ValueError("Configure an explicit public HTTPS Workday tenant/board jobs endpoint")
+                endpoints.append(APIEndpoint(company["name"], api, base, "workday"))
+                continue
 
             if name_lower in KNOWN_ENDPOINTS:
                 known = KNOWN_ENDPOINTS[name_lower]
@@ -91,6 +107,7 @@ class DirectAPIScanner(BaseScanner):
     async def scan(self) -> ScanResult:
         """Scan all companies with direct API access."""
         result = self._make_result()
+        self.query_errors = []
 
         for endpoint in self.companies:
             try:
@@ -101,6 +118,7 @@ class DirectAPIScanner(BaseScanner):
                 result.errors.append(error_msg)
                 self.logger.error(f"Error scanning {error_msg}")
 
+        result.errors.extend(self.query_errors)
         return self._finish_result(result)
 
     async def _scan_company(self, endpoint: APIEndpoint) -> list[JobPosting]:
@@ -123,18 +141,9 @@ class DirectAPIScanner(BaseScanner):
                     continue
 
                 all_jobs.extend(jobs)
-            except httpx.TimeoutException:
-                self.logger.warning(
-                    f"{endpoint.company_name}: timeout on '{search_term}'"
-                )
-            except httpx.ConnectError:
-                self.logger.warning(
-                    f"{endpoint.company_name}: connection failed (site may be geo-blocked)"
-                )
             except Exception as e:
-                self.logger.warning(
-                    f"{endpoint.company_name}: error on '{search_term}': {e}"
-                )
+                self.query_errors.append(f"{endpoint.company_name} / {search_term}: {type(e).__name__}: {e}")
+                self.logger.warning(self.query_errors[-1])
 
             await asyncio.sleep(1)  # Be polite between searches
 
@@ -165,12 +174,7 @@ class DirectAPIScanner(BaseScanner):
                     },
                 )
 
-                if resp.status_code != 200:
-                    self.logger.warning(
-                        f"{endpoint.company_name}: HTTP {resp.status_code} "
-                        f"(offset={offset})"
-                    )
-                    break
+                resp.raise_for_status()
 
                 data = resp.json()
                 total = data.get("total", 0)
@@ -179,20 +183,28 @@ class DirectAPIScanner(BaseScanner):
                 for p in postings:
                     title = p.get("title", "")
                     external_path = p.get("externalPath", "")
-                    url = f"{endpoint.base_url}{external_path}" if external_path else ""
+                    url = f"{endpoint.base_url.rstrip(chr(47))}{external_path}" if external_path else ""
 
-                    location = ""
-                    for bf in p.get("bulletFields", []):
-                        if bf and not bf.startswith("Posted"):
-                            location = bf
-                            break
+                    location = p.get("locationsText", "")
+                    detail = {}
+                    if external_path:
+                        detail_url = endpoint.api_url.rsplit("/jobs", 1)[0] + external_path
+                        try:
+                            detail_response = await client.get(detail_url)
+                            detail_response.raise_for_status()
+                            detail = detail_response.json().get("jobPostingInfo", {})
+                        except Exception as exc:
+                            self.query_errors.append(f"{endpoint.company_name}: detail failed ({type(exc).__name__}); listing retained without invented details")
+                    from jobhunter_app.sources import plain
 
                     all_jobs.append(JobPosting(
                         title=title,
                         url=url,
                         company=endpoint.company_name,
                         location=location,
-                        date_posted=p.get("postedOn", "")[:10] if p.get("postedOn") else "",
+                        date_posted=detail.get("startDate", ""),
+                        description=plain(detail.get("jobDescription", "")),
+                        employment_type=detail.get("timeType", ""),
                         source=f"workday-{endpoint.company_name.lower()}",
                     ))
 
@@ -206,41 +218,39 @@ class DirectAPIScanner(BaseScanner):
     async def _scan_smartrecruiters(self, endpoint: APIEndpoint, search_text: str) -> list[JobPosting]:
         """Scan SmartRecruiters API."""
         jobs = []
-
+        # Display names are not SmartRecruiters account IDs (BoschGroup != Bosch).
+        account = urlsplit(endpoint.api_url).path.rstrip("/").split("/")[-1]
+        if not re.fullmatch(r"[A-Za-z0-9_-]{1,80}", account):
+            raise ValueError("Invalid SmartRecruiters account")
+        from jobhunter_app.sources import Source, normalize
         async with httpx.AsyncClient(timeout=FETCH_TIMEOUT) as client:
-            resp = await client.get(
-                f"https://api.smartrecruiters.com/v1/companies/{endpoint.company_name}/postings",
-                params={"q": search_text, "limit": 50},
-                headers={
-                    "Accept": "application/json",
-                    "User-Agent": "Mozilla/5.0",
-                },
-            )
-
-            if resp.status_code != 200:
-                self.logger.warning(
-                    f"{endpoint.company_name} (SmartRecruiters): HTTP {resp.status_code}"
-                )
-                return []
-
-            data = resp.json()
-            for item in data.get("content", []):
-                loc_parts = []
-                loc = item.get("location", {})
-                if loc.get("city"):
-                    loc_parts.append(loc["city"])
-                if loc.get("country"):
-                    loc_parts.append(loc["country"])
-
-                jobs.append(JobPosting(
-                    title=item.get("name", ""),
-                    url=item.get("ref", ""),
-                    company=endpoint.company_name,
-                    location=", ".join(loc_parts),
-                    date_posted=item.get("releasedDate", "")[:10] if item.get("releasedDate") else "",
-                    source=f"smartrecruiters-{endpoint.company_name.lower()}",
-                ))
-
+            for page in range(MAX_PAGES):
+                response = await client.get(
+                    f"https://api.smartrecruiters.com/v1/companies/{account}/postings",
+                    params={"q": search_text, "limit": PAGE_SIZE, "offset": page * PAGE_SIZE})
+                response.raise_for_status()
+                data = response.json()
+                entries = data.get("content")
+                if not isinstance(entries, list): raise ValueError("Invalid SmartRecruiters list")
+                for item in entries:
+                    identity = str(item.get("id", ""))
+                    if not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", identity):
+                        raise ValueError("Invalid posting identity")
+                    await asyncio.sleep(0.6)
+                    try:
+                        detail = await client.get(f"https://api.smartrecruiters.com/v1/companies/{account}/postings/{identity}")
+                        detail.raise_for_status()
+                        detail_data = detail.json()
+                    except Exception as exc:
+                        self.query_errors.append(f"{endpoint.company_name}: detail {identity} failed ({type(exc).__name__}); other jobs retained")
+                        continue
+                    rows = normalize(Source("smartrecruiters", account), {"content": [detail_data]})
+                    for row in rows:
+                        jobs.append(JobPosting(**{key: row.get(key, "") for key in
+                            ("title", "url", "company", "location", "description", "date_posted", "salary", "employment_type")},
+                            source="smartrecruiters-" + account))
+                if not entries or (page + 1) * PAGE_SIZE >= data.get("totalFound", len(entries)): break
+                await asyncio.sleep(0.6)
         return jobs
 
     def _get_search_terms(self, company_name: str) -> list[str]:

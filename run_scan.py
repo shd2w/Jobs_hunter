@@ -52,10 +52,11 @@ def load_config() -> dict:
         return yaml.safe_load(f) or {}
 
 
-async def run_scan(dry_run: bool = False):
+async def run_scan(dry_run: bool = False, config_override=None, data_dir="data", only_jobspy=False):
     """Execute all scanners and merge results."""
     load_dotenv()
-    config = load_config()
+    config = config_override if config_override is not None else load_config()
+    Path(data_dir).mkdir(parents=True, exist_ok=True)
 
     logger.info("=" * 60)
     logger.info("Starting job scan...")
@@ -66,7 +67,7 @@ async def run_scan(dry_run: bool = False):
     # 1. Workday scanner (Siemens, Adidas, Puma, Bosch)
     try:
         workday = DirectAPIScanner(config)
-        result = await workday.scan()
+        result = await workday.scan() if not only_jobspy else workday._finish_result(workday._make_result())
         scan_results.append(result)
         logger.info(f"Workday: {result.job_count} jobs, {result.error_count} errors")
     except Exception as e:
@@ -82,8 +83,20 @@ async def run_scan(dry_run: bool = False):
         logger.error(f"JobSpy scanner failed entirely: {e}")
 
     # 3. Merge through bridge
-    bridge = PipelineBridge(config)
-    summary = bridge.process(scan_results, dry_run=dry_run)
+    bridge = PipelineBridge(config, data_dir)
+    from filelock import FileLock
+    with FileLock(str(Path(data_dir) / '.pipeline.lock'), timeout=30):
+        # Reload dedup/cache while holding the same lock as the dashboard mirror.
+        bridge = PipelineBridge(config, data_dir)
+        summary = bridge.process(scan_results, dry_run=dry_run)
+    if not dry_run:
+        from scanners.compat import mirror_to_inbox
+        # Include repeated sightings as updates so prior jobs gain richer fields.
+        from utils.filters import filter_jobs
+        rows = [job.to_dict() for result in scan_results for job in result.jobs]
+        accepted = filter_jobs(rows, bridge.title_filter, bridge.location_filter)['passed']
+        summary['inbox'] = mirror_to_inbox(accepted, data_dir)
+
 
     # 4. Print summary
     logger.info("=" * 60)
@@ -102,7 +115,7 @@ async def run_scan(dry_run: bool = False):
             logger.warning(f"    - {err}")
 
     if dry_run:
-        logger.info("(DRY RUN — nothing written to disk)")
+        logger.info("(DRY RUN — no job records written; empty legacy templates may be initialized)")
         if summary["new_jobs"]:
             logger.info("\nWould add these jobs:")
             for job in summary["new_jobs"][:10]:
@@ -119,10 +132,22 @@ def main():
         "--dry-run", action="store_true",
         help="Show results without writing to pipeline.md"
     )
+    parser.add_argument('--site', choices=['linkedin', 'indeed', 'google', 'bayt'])
+    parser.add_argument('--term', help='Optional bounded query override; registry is not edited')
+    parser.add_argument('--location', help='Optional bounded location override')
+    parser.add_argument('--limit', type=int, default=10)
+    parser.add_argument('--data-dir', default='data')
     args = parser.parse_args()
+    config = None
+    if args.site or args.term or args.location:
+        config = load_config()
+        config['jobspy_searches'] = [{'term': args.term or 'Software Engineer',
+            'location': args.location or 'Germany', 'sites': [args.site] if args.site else ['linkedin', 'indeed', 'bayt'],
+            'results_wanted': max(1, min(100, args.limit))}]
 
-    summary = asyncio.run(run_scan(dry_run=args.dry_run))
-    sys.exit(0 if summary["new_added"] >= 0 else 1)
+
+    summary = asyncio.run(run_scan(dry_run=args.dry_run, config_override=config, data_dir=args.data_dir, only_jobspy=config is not None))
+    sys.exit(1 if summary["errors"] and not summary["total_found"] else 0)
 
 
 if __name__ == "__main__":

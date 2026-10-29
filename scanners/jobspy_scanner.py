@@ -23,12 +23,31 @@ from .base import BaseScanner, JobPosting, ScanResult
 logger = logging.getLogger(__name__)
 
 
+class ProviderFailure(RuntimeError):
+    """Structured provider failure; no response body is persisted in source health."""
+    def __init__(self, errors):
+        import re
+        match = re.search(r'(?:status code|HTTP)\s*(401|403|429)', str(errors), re.I)
+        self.http_status = int(match[1]) if match else None
+        super().__init__('JobSpy provider failure: ' + '; '.join(f'{k}: {v}' for k, v in errors.items()))
+
+
+def clean(value):
+    """Do not invent fields or stringify pandas missing-value sentinels."""
+    if value is None: return ""
+    text = str(value)
+    return "" if text in ("nan", "NaN", "NaT", "None", "<NA>") else text
+
+
+
 class JobSpyScanner(BaseScanner):
     """Scanner using python-jobspy for LinkedIn, Indeed, Google Jobs."""
 
     def __init__(self, config: dict):
         super().__init__(config, name="jobspy")
         self.searches = self._load_searches(config)
+        self.last_errors = {}
+        self.last_warnings = {}
 
     @staticmethod
     def _load_searches(config: dict) -> list[dict]:
@@ -75,6 +94,8 @@ class JobSpyScanner(BaseScanner):
                 }
                 if distance_km:
                     entry["distance_km"] = distance_km
+                for key in ("pages", "hours_old", "fetch_description"):
+                    if key in raw: entry[key] = raw[key]
                 searches.append(entry)
 
         return searches
@@ -96,6 +117,7 @@ class JobSpyScanner(BaseScanner):
                         executor, self._run_search, search_config
                     )
                     result.jobs.extend(jobs)
+                    result.errors.extend(f"{site}: {message}" for site, message in self.last_errors.items())
                 except Exception as e:
                     error_msg = (
                         f"JobSpy search '{search_config.get('term', '?')}' "
@@ -182,7 +204,22 @@ class JobSpyScanner(BaseScanner):
         if distance_km:
             kwargs["distance"] = distance_km
 
+        # JobSpy preserves per-provider failures in DataFrame.attrs. An empty
+        # frame is not proof of a successful search.
+        kwargs.update(offset=int(search_config.get("offset", 0)),
+                      fetch_description=search_config.get("fetch_description", True),
+                      linkedin_fetch_description=search_config.get("fetch_description", True))
+        if search_config.get("hours_old") is not None:
+            kwargs["hours_old"] = int(search_config["hours_old"])
+        if "google" in sites:
+            kwargs["google_search_term"] = search_config.get("google_search_term", f"{term} jobs in {location}")
+        self.last_errors = {}; self.last_warnings = {}
         df = scrape_jobs(**kwargs)
+        attrs = getattr(df, "attrs", {})
+        self.last_errors = dict(attrs.get("errors") or {})
+        self.last_warnings = dict(attrs.get("warnings") or {})
+        if self.last_errors and (df is None or df.empty):
+            raise ProviderFailure(self.last_errors)
 
         if df is None or df.empty:
             self.logger.info(f"No results for '{term}' in '{location}'")
@@ -191,35 +228,22 @@ class JobSpyScanner(BaseScanner):
         jobs = []
         for _, row in df.iterrows():
             try:
-                # Normalize URL — jobspy sometimes returns NaN
-                url = str(row.get("job_url", "")) if row.get("job_url") is not None else ""
-                if not url or url == "nan":
+                url = clean(row.get("job_url"))
+                title = clean(row.get("title"))
+                if not url.startswith(("https://", "http://")) or not title:
                     continue
-
-                title = str(row.get("title", "")) if row.get("title") is not None else ""
-                # JobSpy uses "company" not "company_name"
-                company = str(row.get("company", "")) if row.get("company") is not None else ""
-                if company == "nan":
-                    company = ""
-                location_str = str(row.get("location", "")) if row.get("location") is not None else ""
-                description = str(row.get("description", "")) if row.get("description") is not None else ""
-                date_posted = str(row.get("date_posted", "")) if row.get("date_posted") is not None else ""
-                if date_posted == "NaT" or date_posted == "nan":
-                    date_posted = ""
-                salary = ""
-
-                # Try to get salary info — guard against numpy inf/NaN
-                try:
-                    import math
-                    min_sal = row.get("min_amount")
-                    max_sal = row.get("max_amount")
-                    if (min_sal is not None and max_sal is not None
-                            and not math.isnan(float(min_sal))
-                            and not math.isinf(float(min_sal))):
-                        currency = row.get("currency", "EUR")
-                        salary = f"{currency} {min_sal}-{max_sal}"
-                except (ValueError, TypeError, OverflowError):
-                    salary = ""
+                company = clean(row.get("company"))
+                location_str = clean(row.get("location"))
+                description = clean(row.get("description"))
+                date_posted = clean(row.get("date_posted"))
+                import math
+                amounts = []
+                for key in ("min_amount", "max_amount"):
+                    try:
+                        value = float(row.get(key))
+                        if math.isfinite(value): amounts.append(f"{value:g}")
+                    except (ValueError, TypeError, OverflowError): pass
+                salary = " ".join(x for x in (clean(row.get("currency")), "-".join(amounts), clean(row.get("interval"))) if x) if amounts else ""
 
                 # Determine source site
                 site = str(row.get("site", "jobspy"))
@@ -231,7 +255,8 @@ class JobSpyScanner(BaseScanner):
                     location=location_str,
                     date_posted=date_posted,
                     source=f"jobspy-{site}",
-                    description=description[:5000] if description else "",
+                    description=description,
+                    employment_type=clean(row.get("job_type")),
                     salary=salary,
                 ))
             except Exception as e:

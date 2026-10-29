@@ -24,6 +24,7 @@ class JobPosting:
     source: str = ""          # e.g. "workday", "jobspy-indeed", "jobspy-linkedin"
     description: str = ""     # Full JD text if available from scanner
     salary: str = ""
+    employment_type: str = ""
 
     def to_dict(self) -> dict:
         return {
@@ -35,6 +36,7 @@ class JobPosting:
             "source": self.source,
             "description": self.description,
             "salary": self.salary,
+            "employment_type": self.employment_type,
         }
 
 
