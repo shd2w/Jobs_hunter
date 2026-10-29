@@ -25,7 +25,7 @@ POLICIES = {
 }
 
 POLICIES.update({
- 'jobicy': {'cooldown':3600,'requests':1,'docs':'https://jobicy.com/jobs-rss-feed','notice':'Public free API only; never attaches a paid key. Jobicy credit/backlink retained. Seven-day feed delayed three hours. Cursor expires after 24 hours; incomplete passes need explicit reset if expired.'},
+ 'jobicy': {'cooldown':3600,'requests':1,'docs':'https://jobicy.com/jobs-rss-feed','notice':'Public free API only; never attaches a paid key. Jobicy credit/backlink retained. Seven-day feed delayed three hours. Cursor expires after 24 hours; expired incomplete passes need a checkpoint reset (automatic mode restarts a due pass without clearing gates).'},
  'arbeitnow': {'cooldown':3600,'requests':1,'docs':'https://www.arbeitnow.com/blog/job-board-api','notice':'Public DE/UK API; identifier de or uk. One page per manual scan. One-hour conservative local cooldown, not a published provider quota. Credit/backlink retained.'},
  'hn': {'cooldown':600,'requests':11,'docs':'https://github.com/HackerNews/API','notice':'Supply a Who is hiring story ID. At most 10 top-level comments per scan, no profiles or replies. Complete source-backed vacancies may be auto-added and evaluated, never human-verified; ambiguous comments remain for review. Ten-minute local cooldown; not a provider quota.'},
  'usajobs': {'cooldown':600,'requests':1,'docs':'https://developer.usajobs.gov/Guides/Authentication','notice':'Optional API key required: USAJOBS_API_KEY and USAJOBS_USER_AGENT in environment only. Identifier is a keyword query. One page (50 results) per scan. Public announcement does not establish citizenship or eligibility. Ten-minute local cooldown.'},
