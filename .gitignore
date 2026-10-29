@@ -54,3 +54,5 @@ private-*/
 preparation-packs/
 .env.*
 !.env.example
+
+!requirements-scanners.lock

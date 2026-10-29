@@ -14,7 +14,7 @@ The app does not provide its own account authentication. Private Codespaces acce
 
 ## Setup and troubleshooting
 
-The container installs `requirements-local.lock`. `.devcontainer/start.sh` runs `python run_local.py serve --port 8765`, writes a PID and log under ignored `data/`, and keeps the Python server bound to loopback. Start it again with:
+The container installs `requirements-scanners.lock`. `.devcontainer/start.sh` runs `python run_local.py serve --port 8765`, writes a PID and log under ignored `data/`, and keeps the Python server bound to loopback. Start it again with:
 
 ```sh
 bash .devcontainer/start.sh
@@ -24,6 +24,7 @@ To load a new release in an existing Codespace, update and restart (reloading th
 
 ```sh
 git pull --ff-only
+python -m pip install -r requirements-scanners.lock
 bash .devcontainer/start.sh --restart
 ```
 
@@ -34,7 +35,7 @@ If startup fails, inspect `data/dashboard.log` privately. If a stale PID file pr
 If dependencies failed to install:
 
 ```sh
-python -m pip install -r requirements-local.lock
+python -m pip install -r requirements-scanners.lock
 ```
 
 An HTTP 403 in the forwarded browser can indicate that the Codespaces hostname does not match the environment. Supported forwarding requires `CODESPACES=true`, a valid `CODESPACE_NAME`, and `GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN=app.github.dev`. Do not weaken the Host/Origin checks or expose the port to solve it. Open the port from the current workspace rather than reusing another workspace's URL.

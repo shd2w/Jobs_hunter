@@ -2,7 +2,7 @@
 
 A private, single-user job-search workspace that starts finding jobs automatically. Open the app, browse public-feed results, and add a profile only if you want personalization. Original CVs stay unchanged; applying stays in your hands.
 
-**Current source:** 0.4.0 — automatic-first discovery + GitHub launch support. This repository is a sanitized source release, not a backup of anyone's private workspace.
+**Current source:** 0.4.1 — automatic-first discovery + GitHub launch support. This repository is a sanitized source release, not a backup of anyone's private workspace.
 
 ## Open with GitHub
 
@@ -19,6 +19,7 @@ Update the code **and restart the Python server**:
 
 ```sh
 git pull --ff-only
+python -m pip install -r requirements-scanners.lock
 bash .devcontainer/start.sh --restart
 ```
 
@@ -31,15 +32,19 @@ Use Python 3.13. These commands work in a POSIX shell:
 ```sh
 python -m venv .venv
 . .venv/bin/activate
-python -m pip install -r requirements-local.lock
+python -m pip install -r requirements-scanners.lock
 python run_local.py serve --port 8765
 ```
 
 Open `http://127.0.0.1:8765`. On Windows PowerShell, activate with `.venv\Scripts\Activate.ps1` instead of the POSIX activation command. The Windows instructions have not been verified on a Windows machine for this publication.
 
-The server creates a private SQLite workspace under ignored `data/` and starts the preconfigured Jobicy, Arbeitnow and Remotive public feeds. Results arrive automatically; a failed feed does not block the rest. No name, CV, skills or API key is required. Pause/resume is persistent. Scans respect provider cooldowns and run only while the server is running. Additional channels may still require setup or fail access checks. Nothing applies on your behalf. See [automatic discovery and coverage](docs/AUTOMATIC_DISCOVERY.md).
+The original configured JobSpy searches (Indeed, LinkedIn, Google retained, plus Bayt) are reconnected, alongside Remote OK and We Work Remotely. Search access varies; Google currently fails upstream and Bayt returned 403 in testing. The server creates a private SQLite workspace under ignored `data/` and starts the preconfigured Jobicy, Arbeitnow and Remotive public feeds. Results arrive automatically; a failed feed does not block the rest. No name, CV, skills or API key is required. Pause/resume is persistent. Scans respect provider cooldowns and run only while the server is running. Additional channels may still require setup or fail access checks. Nothing applies on your behalf. See [automatic discovery and coverage](docs/AUTOMATIC_DISCOVERY.md).
 
 Optional spreadsheet support: install `requirements-local-excel.txt`. Optional browser-source support has its own `requirements-local-browser.txt` and setup guide. Core usage does not require cloud AI keys. Optional AI/real-model validation remains deferred, not passed.
+
+## Original scanner preserved and expanded
+
+See [regression investigation, changes and live source results](docs/SCRAPER_RESTORATION.md). `python run_scan.py` retains the original configured scan → filter → deduplicate → Markdown/history/cache workflow and now also fills the SQLite inbox. `python run_all.py --scan-only` remains available. Docker Compose again runs collection every six hours; do not simultaneously run both full-scan and dashboard schedulers against the same workspace. The dashboard uses bounded provider/query/page checkpoints. Existing legacy data is backed up and archived non-destructively on first startup; conflicting identities are reported, never overwritten.
 
 ## Private inputs and backups
 

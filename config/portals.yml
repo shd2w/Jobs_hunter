@@ -47,6 +47,10 @@ title_filter:
     - "Applied AI"
     - "Applied AI Engineer"
     - "Web Developer"
+    - "Softwareentwickler"
+    - "Datenanalyst"
+    - "Werkstudent"
+    - "KI Entwickler"
   negative:
     - "Senior"
     - "Lead"
@@ -141,6 +145,10 @@ jobspy_searches:
     - "Full Stack"
     - "AI Trainer"
     - "Technical Trainer"
+    - "Softwareentwickler"
+    - "Datenanalyst"
+    - "Werkstudent Informatik"
+    - "KI Entwickler"
   locations:
     - "Oman"
     - "Egypt"
@@ -149,6 +157,8 @@ jobspy_searches:
     - "Switzerland"
     - "Austria"
     - "Remote"
-  sites: ["linkedin", "indeed", "google"]
+  sites: ["linkedin", "indeed", "google", "bayt"]
   results_wanted: 30
   distance_km: 100
+
+# Bounded automatic scans rotate through this existing registry; manual full scans remain available.

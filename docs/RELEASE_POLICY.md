@@ -12,3 +12,7 @@ Before each push:
 6. Do not start billable infrastructure or a Codespace without explicit permission. A public launcher may offer the user that choice with cost/privacy disclosure.
 
 The present baseline is 0.4.0 automatic-first discovery with GitHub launch support. See `docs/AUTOMATIC_DISCOVERY.md` for the zero-input workflow and bounded live validation. Integrated synthetic preparation/learning acceptance is covered by `docs/PHASE6_ACCEPTANCE.md`; remote runtime and representative-environment checks remain open. Optional AI/real-model checks are deferred rather than completed. Unverified live providers, Windows and representative performance must not be described as passed.
+
+## Expansion invariants
+
+Current baseline: 0.4.1 restored original scraper plus additive sources. Preserve the original `run_scan.py` / `run_all.py --scan-only` entry points, registry, Markdown/history/cache and SQLite intake. Do not remove, disable or simplify a supported source/workflow without explicit authorization. Before changing a default entry point, validate dependencies, scheduling, data migration and at least one original collection-to-inbox path. Keep originals/backup bytes unchanged; test source errors as well as success. Source count or a three-feed UI pass is not legacy compatibility. See [investigation and live results](SCRAPER_RESTORATION.md).
