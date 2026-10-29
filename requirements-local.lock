@@ -1,0 +1,5 @@
+# Exact minimal runtime set used for final regression verification and audit.
+PyYAML==6.0.3
+filelock==4.2.4
+
+defusedxml==0.7.1

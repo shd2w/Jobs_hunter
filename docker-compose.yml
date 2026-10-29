@@ -1,0 +1,12 @@
+services:
+  job-search:
+    build: .
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./reports:/app/reports
+      - ./output:/app/output
+      - ./config:/app/config
+    restart: "no"
+    # Manual invocation only: docker compose run --rm job-search
+    command: ["python", "run_local.py", "init"]
