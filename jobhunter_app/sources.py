@@ -30,6 +30,13 @@ POLICIES.update({
  'hn': {'cooldown':600,'requests':11,'docs':'https://github.com/HackerNews/API','notice':'Supply a Who is hiring story ID. At most 10 top-level comments per scan, no profiles or replies. Complete source-backed vacancies may be auto-added and evaluated, never human-verified; ambiguous comments remain for review. Ten-minute local cooldown; not a provider quota.'},
  'usajobs': {'cooldown':600,'requests':1,'docs':'https://developer.usajobs.gov/Guides/Authentication','notice':'Optional API key required: USAJOBS_API_KEY and USAJOBS_USER_AGENT in environment only. Identifier is a keyword query. One page (50 results) per scan. Public announcement does not establish citizenship or eligibility. Ten-minute local cooldown.'},
 })
+from .expanded_sources import JOBSPY, PUBLIC as EXPANDED_PUBLIC
+for _site in JOBSPY:
+    POLICIES[_site] = {'cooldown': 86400 if _site == 'jobspy_google' else 300, 'requests': 1, 'docs': 'https://github.com/speedyapply/JobSpy',
+        'notice': 'Original configured JobSpy searches, one provider/query/page per scan (five-minute local cooldown; Google daily while unavailable upstream); rotates through all configured regions and English/German terms. Description requests are additional. No proxy or challenge bypass. Google Jobs is currently unavailable upstream; failures are reported, not zero-result success. Install requirements-scanners.txt.'}
+for _kind, _docs in [('remoteok', 'https://remoteok.com/api'), ('weworkremotely', 'https://weworkremotely.com/remote-job-rss-feed')]:
+    POLICIES[_kind] = {'cooldown': 3600, 'requests': 1, 'docs': _docs,
+        'notice': 'Public feed; retain publisher attribution and original listing backlink. One-hour conservative local cooldown. Current feed only, no whole-site completeness claim.'}
 PAGED = {'wuzzuf','naukrigulf','smartrecruiters','jobicy','arbeitnow','hn','usajobs'}
 
 for _kind, _docs in [('wuzzuf','https://wuzzuf.net/policies'),('naukrigulf','https://www.naukrigulf.com/terms-and-conditions')]:
@@ -93,6 +100,8 @@ class Source:
             if not isinstance(self.identifier,str) or not 1 <= len(self.identifier) <= 100 or any(ord(c)<32 for c in self.identifier): raise ValueError('Supply a keyword query of 1–100 characters')
         elif not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', self.identifier):
             raise ValueError('Use a simple public board identifier')
+        if self.kind in JOBSPY and self.identifier != 'configured': raise ValueError('JobSpy uses configured registry only')
+        if self.kind in EXPANDED_PUBLIC and self.identifier != 'remote': raise ValueError('Use remote for this public feed')
         if self.kind == 'remotive' and self.identifier != 'remote':
             raise ValueError('Remotive uses the single identifier remote to enforce its global cooldown')
 
@@ -131,6 +140,9 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 def fetch(source: Source, cancel_event=None, checkpoint=None):
+    if source.kind in JOBSPY + EXPANDED_PUBLIC:
+        from .expanded_sources import collect
+        return collect(source, checkpoint, cancel_event)
     if source.kind in POST_PLATFORMS:
         from .platform_posts import collect
         return collect(source, checkpoint, cancel_event)
@@ -147,7 +159,10 @@ def fetch(source: Source, cancel_event=None, checkpoint=None):
         from .collection import collect
         return collect(source, checkpoint, cancel_event)
     from .network import get
-    content, content_type = get(source.url, 'application/rss+xml, application/atom+xml, application/xml, text/xml' if source.kind == 'feed' else 'application/json')
+    accept = 'application/rss+xml, application/atom+xml, application/xml, text/xml' if source.kind == 'feed' else 'application/json'
+    # Large employer boards legitimately exceed 5 MiB. Keep a finite bound,
+    # scoped to these three static ATS adapters (not arbitrary feeds/URLs).
+    content, content_type = get(source.url, accept, max_bytes=32 * 1024 * 1024) if source.kind in ('greenhouse', 'lever', 'ashby') else get(source.url, accept)
     if source.kind == 'feed':
         if 'xml' not in content_type:
             raise ValueError('Feed source did not return XML')
@@ -159,7 +174,7 @@ def fetch(source: Source, cancel_event=None, checkpoint=None):
 
 
 def normalize(source: Source, data):
-    if source.kind in ('wuzzuf','naukrigulf'):
+    if source.kind in ('wuzzuf','naukrigulf') + JOBSPY + EXPANDED_PUBLIC:
         if not isinstance(data,list) or len(data)>10000: raise ValueError('Invalid normalized board rows')
         return data
     if source.kind in ('jobicy','arbeitnow','usajobs'):
@@ -184,7 +199,8 @@ def normalize(source: Source, data):
                     continue  # Never promote direct-link-only/unlisted roles.
                 rows.append({'title': item.get('title'), 'url': item.get('jobUrl'), 'company': source.identifier,
                              'location': item.get('location', ''), 'description': item.get('descriptionPlain') or plain(item.get('descriptionHtml', '')),
-                             'date_posted': item.get('publishedAt', ''), 'employment_type': item.get('employmentType', '')})
+                             'date_posted': item.get('publishedAt', ''), 'employment_type': item.get('employmentType', ''),
+                             'salary': (item.get('compensation') or {}).get('scrapeableCompensationSalarySummary') or (item.get('compensation') or {}).get('compensationTierSummary', '')})
             elif source.kind == 'remotive':
                 rows.append({'title': item.get('title'), 'url': item.get('url'), 'company': item.get('company_name'),
                              'location': item.get('candidate_required_location', ''), 'description': plain(item.get('description', '')),
@@ -200,7 +216,7 @@ def normalize(source: Source, data):
                 rows.append({'title': item.get('name'), 'url': item.get('applyUrl'),
                              'company': company.get('name', source.identifier) if isinstance(company, dict) else source.identifier,
                              'location': ', '.join(str(location.get(x, '')) for x in ('city','region','country') if location.get(x)) if isinstance(location, dict) else '',
-                             'description': description, 'date_posted': item.get('releasedDate', ''), 'external_job_id': str(item.get('id', ''))})
+                             'description': description, 'employment_type': (item.get('typeOfEmployment') or {}).get('label', ''), 'date_posted': item.get('releasedDate', ''), 'external_job_id': str(item.get('id', ''))})
             else:
                 category = item.get('categories') or {}
                 lists = item.get('lists') or []
@@ -210,7 +226,8 @@ def normalize(source: Source, data):
                         description += '\n' + plain(section.get('content', ''))
                 rows.append({'title': item.get('text'), 'url': item.get('hostedUrl'),
                              'company': source.identifier, 'location': category.get('location', '') if isinstance(category, dict) else '',
-                             'description': description, 'external_job_id': str(item.get('id', ''))})
+                             'description': description, 'employment_type': category.get('commitment', '') if isinstance(category, dict) else '',
+                             'salary': item.get('salaryDescription', ''), 'external_job_id': str(item.get('id', ''))})
         except (TypeError, ValueError, AttributeError):
             # Preserve the row position, never persist the malformed raw payload.
             rows.append({})
@@ -317,6 +334,16 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
                 db.execute('UPDATE runs SET finished_at=?,status=?,metrics=? WHERE id=?', (now(), state, dump(result), run_id))
                 db.execute('UPDATE sources SET health=?,last_error=NULL WHERE id=?', (state, source_id))
 
+        if source.kind in JOBSPY + EXPANDED_PUBLIC:
+            try:
+                from scanners.compat import mirror_to_pipeline
+                result['legacy_pipeline'] = mirror_to_pipeline(store.path.parent, normalize(source, payload))
+            except Exception as mirror_error:
+                # SQLite is committed; never pretend rollback. A later sighting
+                # safely retries the idempotent Markdown/cache mirror.
+                result['legacy_mirror_error'] = type(mirror_error).__name__
+                with store.connect() as db:
+                    store.audit(db, 'legacy_mirror_failed', {'source': source_id, 'error_type': type(mirror_error).__name__})
         return result
     except Exception as exc:
         # Do not persist provider bodies, headers, secrets or candidate input.
@@ -332,6 +359,13 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
         from .board_browser import BrowserError
         from .platform_posts import SetupRequired
         failure = {'error': message}
+        if row['kind'] in JOBSPY and isinstance(exc, RuntimeError):
+            message = 'JobSpy provider failed; no successful empty scan. Google Jobs is unavailable upstream.' if row['kind']=='jobspy_google' else 'JobSpy provider rejected or failed the request; inspect local scanner log. No proxy, login or challenge bypass.'
+            failure = {'error': message, 'failure_code': 'jobspy_provider_failure'}
+            if getattr(exc, 'http_status', None): failure['http_status'] = exc.http_status
+        if row['kind'] in JOBSPY and isinstance(exc, ImportError):
+            message = 'Original JobSpy runtime missing. Install requirements-scanners.lock and restart; no sources or data were removed.'
+            failure = {'error': message, 'failure_code': 'scanner_runtime_missing'}
         if isinstance(exc, SetupRequired):
             message = str(exc)
             failure = {'error':message,'failure_code':'platform_setup_required'}
@@ -345,6 +379,9 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
             failure['error'] = message
             failure['failure_code'] = 'http_timeout'
         with store.connect() as db:
+            if row['kind'] in JOBSPY and isinstance(exc, RuntimeError):
+                from .source_health import retry_gate
+                retry_gate(db, row['kind'], '', max(cooldown, 3600))
             if access_blocked:
                 db.execute('UPDATE sources SET approved=0,health=?,last_error=? WHERE kind=?',('access_blocked',message,row['kind']))
                 store.audit(db,'provider_access_pause',{'kind':row['kind']})

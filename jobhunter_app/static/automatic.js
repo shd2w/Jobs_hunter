@@ -15,7 +15,7 @@
   $('auto-badge').textContent=!enabled?'PAUSED · YOUR JOBS ARE KEPT':active?'AUTOMATIC DISCOVERY · SCANNING':'AUTOMATIC DISCOVERY';
   if(!enabled)$('auto-summary').textContent='Your pause is saved, including after a restart. An in-flight request may finish, but its cancelled results are not imported.';
   if(enabled)$('auto-summary').textContent=data.error||(active?active.label+' is being checked. Results appear here automatically.':(data.last_cycle?'Feeds refresh when due while this server runs.':'Starting the first bounded scan. No setup needed.')+(failures?' '+failures+' source'+(failures===1?' needs':'s need')+' attention. Other feeds continue.':''));
-  $('auto-scope').textContent=data.scope;
+  $('auto-scope').textContent=data.scope+(data.legacy_restore?' Legacy recovery: '+data.legacy_restore.jobs_inserted+' jobs restored; '+data.legacy_restore.history_archived+' historical records archived. '+data.legacy_restore.conflicting_rows+' conflicting rows kept for review, not overwritten.':'')+(data.legacy_restore_error?' '+data.legacy_restore_error:'');
   const signature=JSON.stringify(data.sources);
   if(signature!==rendered){rendered=signature;$('auto-sources').replaceChildren(...data.sources.map(s=>{
    const card=node('article',undefined,'auto-source');card.append(node('h3',s.label));
