@@ -32,6 +32,8 @@ POLICIES.update({
 })
 from .expanded_sources import JOBSPY, PUBLIC as EXPANDED_PUBLIC
 from scanners.jobspy_registry import SCOPES
+from .scrapling_engine import SOURCES as SCRAPLING_SOURCES
+SCRAPLING_KINDS=tuple(SCRAPLING_SOURCES)
 for _site in JOBSPY:
     POLICIES[_site] = {'cooldown': 86400 if _site == 'jobspy_google' else 300, 'requests': 1, 'docs': 'https://github.com/speedyapply/JobSpy',
         'notice': 'Original configured JobSpy searches, one provider/query/page per scan (five-minute local cooldown; Google daily while unavailable upstream); rotates through all configured regions and English/German terms. Description requests are additional. No proxy or challenge bypass. Google Jobs is currently unavailable upstream; failures are reported, not zero-result success. Install requirements-scanners.txt.'}
@@ -40,6 +42,10 @@ for _site, _scope in SCOPES.items():
 for _kind, _docs in [('remoteok', 'https://remoteok.com/api'), ('weworkremotely', 'https://weworkremotely.com/remote-job-rss-feed')]:
     POLICIES[_kind] = {'cooldown': 3600, 'requests': 1, 'docs': _docs,
         'notice': 'Public feed; retain publisher attribution and original listing backlink. One-hour conservative local cooldown. Current feed only, no whole-site completeness claim.'}
+for _kind,_cfg in SCRAPLING_SOURCES.items():
+    POLICIES[_kind]={'cooldown':3600,'requests':5,'docs':'https://github.com/D4Vinci/Scrapling',
+        'engine':'scrapling','provider':_cfg['provider'],
+        'notice':'Primary Scrapling HTTP+Selector engine. Fixed public HTML source, robots checked, one listing and at most three structured detail pages per scan plus robots; pending details resume. Public DNS pinned, verified TLS, no redirects/proxies/stealth/browser/credentials. One-hour cooldown shared with native publisher adapters. Retain publisher attribution/backlink. No whole-site or worldwide eligibility claim. Install requirements-scanners.lock.'}
 PAGED = {'wuzzuf','naukrigulf','smartrecruiters','jobicy','arbeitnow','hn','usajobs'}
 
 for _kind, _docs in [('wuzzuf','https://wuzzuf.net/policies'),('naukrigulf','https://www.naukrigulf.com/terms-and-conditions')]:
@@ -104,6 +110,9 @@ class Source:
             if not isinstance(self.identifier,str) or not 1 <= len(self.identifier) <= 100 or any(ord(c)<32 for c in self.identifier): raise ValueError('Supply a keyword query of 1–100 characters')
         elif not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', self.identifier):
             raise ValueError('Use a simple public board identifier')
+        if self.kind in SCRAPLING_KINDS:
+            from .scrapling_engine import validate_source
+            validate_source(self.kind,self.identifier)
         if self.kind in JOBSPY and self.identifier != 'configured': raise ValueError('JobSpy uses configured registry only')
         if self.kind in EXPANDED_PUBLIC and self.identifier != 'remote': raise ValueError('Use remote for this public feed')
         if self.kind == 'remotive' and self.identifier != 'remote':
@@ -119,6 +128,7 @@ class Source:
 
     @property
     def url(self):
+        if self.kind in SCRAPLING_KINDS:return SCRAPLING_SOURCES[self.kind]['start']
         if self.kind == 'greenhouse':
             return f'https://boards-api.greenhouse.io/v1/boards/{self.identifier}/jobs?content=true'
         if self.kind == 'lever':
@@ -144,7 +154,10 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 def fetch(source: Source, cancel_event=None, checkpoint=None):
-    if source.kind in JOBSPY + EXPANDED_PUBLIC:
+    if source.kind in SCRAPLING_KINDS:
+        from .scrapling_engine import collect
+        return collect(source,checkpoint,cancel_event)
+    if source.kind in JOBSPY + EXPANDED_PUBLIC + SCRAPLING_KINDS:
         from .expanded_sources import collect
         return collect(source, checkpoint, cancel_event)
     if source.kind in POST_PLATFORMS:
@@ -178,7 +191,7 @@ def fetch(source: Source, cancel_event=None, checkpoint=None):
 
 
 def normalize(source: Source, data):
-    if source.kind in ('wuzzuf','naukrigulf') + JOBSPY + EXPANDED_PUBLIC:
+    if source.kind in ('wuzzuf','naukrigulf') + JOBSPY + EXPANDED_PUBLIC + SCRAPLING_KINDS:
         if not isinstance(data,list) or len(data)>10000: raise ValueError('Invalid normalized board rows')
         return data
     if source.kind in ('jobicy','arbeitnow','usajobs'):
@@ -248,16 +261,16 @@ def register(store, kind, identifier, approved=False):
     return source.id
 
 
-def scan(store, source_id, transport=fetch, cancel_event=None, profile_id='default'):
+def scan(store, source_id, transport=fetch, cancel_event=None, profile_id='default', mirror_legacy=True):
     lock = FileLock(str(store.path) + '.scan.lock', timeout=0)
     try:
         with lock:
-            return _scan_locked(store, source_id, transport, cancel_event, profile_id)
+            return _scan_locked(store, source_id, transport, cancel_event, profile_id, mirror_legacy)
     except Timeout as exc:
         raise ValueError('Another source scan is active; wait for completion') from exc
 
 
-def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='default'):
+def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='default', mirror_legacy=True):
     from datetime import datetime, timezone
     import time
     started = time.monotonic()
@@ -269,13 +282,15 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
             from .platform_posts import setup, SetupRequired
             missing=setup(row['kind'])['missing_configuration']
             if missing:raise SetupRequired('Configure authorized post access locally: '+', '.join(missing))
-        gate = db.execute('SELECT not_before FROM provider_gates WHERE kind=?',(row['kind'],)).fetchone()
+        from .source_health import provider_family, provider_kinds
+        family=provider_family(row['kind']);family_kinds=provider_kinds(row['kind'])
+        gate = db.execute('SELECT not_before FROM provider_gates WHERE kind=?',(family,)).fetchone()
         if gate and datetime.fromisoformat(gate[0]) > datetime.now(timezone.utc): raise ValueError('Provider Retry-After gate is active; reapproval does not bypass it')
         cooldown = POLICIES[row['kind']]['cooldown']
         if row['last_run'] and (datetime.now(timezone.utc) - datetime.fromisoformat(row['last_run'])).total_seconds() < cooldown:
             raise ValueError(f'Per-source cooldown: wait at least {cooldown} seconds between scans')
-        if row['kind'] in ('jobicy','arbeitnow','hn','usajobs','wuzzuf','naukrigulf')+POST_PLATFORMS:
-            latest = db.execute('SELECT MAX(last_run) FROM sources WHERE kind=?',(row['kind'],)).fetchone()[0]
+        if row['kind'] in ('jobicy','arbeitnow','hn','usajobs','wuzzuf','naukrigulf')+POST_PLATFORMS+SCRAPLING_KINDS:
+            latest = db.execute('SELECT MAX(last_run) FROM sources WHERE kind IN ('+','.join('?' for _ in family_kinds)+')',family_kinds).fetchone()[0]
             if latest and (datetime.now(timezone.utc)-datetime.fromisoformat(latest)).total_seconds()<cooldown: raise ValueError('Provider-wide local cooldown is active')
         run_id = db.execute('INSERT INTO runs(source,started_at,status) VALUES(?,?,?)', (source_id, now(), 'running')).lastrowid
         db.execute('UPDATE sources SET last_run=? WHERE id=?', (now(), source_id))
@@ -338,7 +353,7 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
                 db.execute('UPDATE runs SET finished_at=?,status=?,metrics=? WHERE id=?', (now(), state, dump(result), run_id))
                 db.execute('UPDATE sources SET health=?,last_error=NULL WHERE id=?', (state, source_id))
 
-        if source.kind in JOBSPY + EXPANDED_PUBLIC:
+        if mirror_legacy and source.kind in JOBSPY + EXPANDED_PUBLIC + SCRAPLING_KINDS:
             try:
                 from scanners.compat import mirror_to_pipeline
                 result['legacy_pipeline'] = mirror_to_pipeline(store.path.parent, normalize(source, payload))
@@ -358,10 +373,11 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
             return {'cancelled':True,'inserted':0}
         rate_limited = isinstance(exc, urllib.error.HTTPError) and exc.code == 429
         from .authorized_boards import AccessBlocked
-        access_blocked = row['kind'] in ('wuzzuf','naukrigulf')+POST_PLATFORMS and (isinstance(exc,AccessBlocked) or (isinstance(exc,urllib.error.HTTPError) and exc.code in (401,403)))
+        access_blocked = row['kind'] in ('wuzzuf','naukrigulf')+POST_PLATFORMS+SCRAPLING_KINDS and (isinstance(exc,AccessBlocked) or (isinstance(exc,urllib.error.HTTPError) and exc.code in (401,403)))
         message = ('Provider quota exhausted; all registered sources of this adapter kind are paused. Review provider retry policy before re-approving.' if rate_limited else 'Source access blocked; this provider is unapproved. Review permission and access rules; no bypass or automatic retry.' if access_blocked else type(exc).__name__ + ': source scan failed; check access, quota or payload')
         from .board_browser import BrowserError
         from .platform_posts import SetupRequired
+        from .scrapling_transport import ScraplingRuntimeMissing
         failure = {'error': message}
         if row['kind'] in JOBSPY and isinstance(exc, RuntimeError):
             message = 'JobSpy provider failed; no successful empty scan. Google Jobs is unavailable upstream.' if row['kind']=='jobspy_google' else 'JobSpy provider rejected or failed the request; inspect local scanner log. No proxy, login or challenge bypass.'
@@ -370,6 +386,9 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
         if row['kind'] in JOBSPY and isinstance(exc, ImportError):
             message = 'Original JobSpy runtime missing. Install requirements-scanners.lock and restart; no sources or data were removed.'
             failure = {'error': message, 'failure_code': 'scanner_runtime_missing'}
+        if isinstance(exc,ScraplingRuntimeMissing):
+            message='Primary Scrapling runtime missing; install requirements-scanners.lock and restart. No fallback attempted.'
+            failure={'error':message,'failure_code':'scrapling_runtime_missing','engine':'scrapling'}
         if isinstance(exc, SetupRequired):
             message = str(exc)
             failure = {'error':message,'failure_code':'platform_setup_required'}
@@ -391,9 +410,9 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
                 store.audit(db,'provider_access_pause',{'kind':row['kind']})
             if rate_limited:
                 # Do not let another board configuration become a quota workaround.
-                db.execute('UPDATE sources SET approved=0,health=?,last_error=? WHERE kind=?', ('rate_limited', message, row['kind']))
+                db.execute('UPDATE sources SET approved=0,health=?,last_error=? WHERE kind IN ('+','.join('?' for _ in family_kinds)+')', ('rate_limited',message,*family_kinds))
                 from .source_health import retry_gate
-                retry_gate(db,row['kind'],exc.headers.get('Retry-After','') if exc.headers else '',cooldown)
+                retry_gate(db,family,exc.headers.get('Retry-After','') if exc.headers else '',cooldown)
                 store.audit(db, 'provider_quota_pause', {'kind': row['kind']})
             db.execute('UPDATE runs SET finished_at=?,status=?,metrics=? WHERE id=?', (now(), 'failed', dump(failure), run_id))
             db.execute('UPDATE sources SET health=?,last_error=?,approved=CASE WHEN ? THEN 0 ELSE approved END WHERE id=?', ('rate_limited' if rate_limited else 'access_blocked' if access_blocked else 'failed', message, int(rate_limited or access_blocked), source_id))

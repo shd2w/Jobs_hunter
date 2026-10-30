@@ -28,3 +28,6 @@ pytest>=8.0.0,<9.0.0
 rich>=13.7.0
 
 filelock>=4.2.1,<5
+
+# Primary fixed-source HTML engine alongside JobSpy and direct APIs
+scrapling[fetchers]==0.5

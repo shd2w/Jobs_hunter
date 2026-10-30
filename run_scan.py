@@ -22,6 +22,7 @@ from scanners.workday import DirectAPIScanner
 from scanners.jobspy_scanner import JobSpyScanner, bounded_search
 from scanners.jobspy_registry import SITES
 from scanners.bridge import PipelineBridge
+from scanners.scrapling_scanner import ScraplingScanner
 from utils.utf8_logging import get_utf8_stream_handler
 
 # Setup logging — use UTF-8 safe handler so job titles containing chars
@@ -53,7 +54,7 @@ def load_config() -> dict:
         return yaml.safe_load(f) or {}
 
 
-async def run_scan(dry_run: bool = False, config_override=None, data_dir="data", only_jobspy=False):
+async def run_scan(dry_run: bool = False, config_override=None, data_dir="data", only_jobspy=False, only_scrapling=False):
     """Execute all scanners and merge results."""
     load_dotenv()
     config = config_override if config_override is not None else load_config()
@@ -65,19 +66,30 @@ async def run_scan(dry_run: bool = False, config_override=None, data_dir="data",
 
     scan_results = []
 
-    # 1. Workday scanner (Siemens, Adidas, Puma, Bosch)
+    # Primary Scrapling engine shares production checkpoints and provider gates.
+    if not only_jobspy:
+        try:
+            result=await ScraplingScanner(config,data_dir,dry_run).scan()
+            scan_results.append(result)
+            logger.info(f"Scrapling: {result.job_count} jobs, {result.error_count} errors")
+        except Exception as exc:
+            from scanners.base import ScanResult
+            scan_results.append(ScanResult(scanner_name='scrapling',errors=[str(exc)]))
+            logger.error(f"Scrapling engine failed: {type(exc).__name__}")
+
+    # 1. Original direct scanner (only explicitly configured employers)
     try:
         workday = DirectAPIScanner(config)
-        result = await workday.scan() if not only_jobspy else workday._finish_result(workday._make_result())
+        result = await workday.scan() if not only_jobspy and not only_scrapling else workday._finish_result(workday._make_result())
         scan_results.append(result)
         logger.info(f"Workday: {result.job_count} jobs, {result.error_count} errors")
     except Exception as e:
         logger.error(f"Workday scanner failed entirely: {e}")
 
-    # 2. JobSpy scanner (LinkedIn, Indeed, Google)
+    # 2. JobSpy scanner (all pinned providers; original routes retained)
     try:
         jobspy = JobSpyScanner(config)
-        result = await jobspy.scan()
+        result = await jobspy.scan() if not only_scrapling else jobspy._finish_result(jobspy._make_result())
         scan_results.append(result)
         logger.info(f"JobSpy: {result.job_count} jobs, {result.error_count} errors")
     except Exception as e:
@@ -133,12 +145,15 @@ def main():
         "--dry-run", action="store_true",
         help="Show results without writing to pipeline.md"
     )
+    parser.add_argument('--engine',choices=['all','scrapling'],default='all',help='Run all original engines or only primary Scrapling sources')
     parser.add_argument('--site', choices=SITES)
     parser.add_argument('--term', help='Optional bounded query override; registry is not edited')
     parser.add_argument('--location', help='Optional bounded location override')
     parser.add_argument('--limit', type=int, default=10)
     parser.add_argument('--data-dir', default='data')
     args = parser.parse_args()
+    if args.engine=='scrapling' and (args.site or args.term or args.location):
+        parser.error('Scrapling uses fixed source routes; --site/--term/--location are JobSpy overrides')
     config = None
     if args.site or args.term or args.location:
         config = load_config()
@@ -153,7 +168,7 @@ def main():
             'results_wanted': max(1, min(100, args.limit))}]
 
 
-    summary = asyncio.run(run_scan(dry_run=args.dry_run, config_override=config, data_dir=args.data_dir, only_jobspy=config is not None))
+    summary = asyncio.run(run_scan(dry_run=args.dry_run, config_override=config, data_dir=args.data_dir, only_jobspy=config is not None,only_scrapling=args.engine=='scrapling'))
     sys.exit(1 if summary["errors"] and not summary["total_found"] else 0)
 
 
