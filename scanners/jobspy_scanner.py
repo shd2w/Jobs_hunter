@@ -26,9 +26,9 @@ logger = logging.getLogger(__name__)
 class ProviderFailure(RuntimeError):
     """Structured provider failure; no response body is persisted in source health."""
     def __init__(self, errors):
-        import re
-        match = re.search(r'(?:status code|HTTP)\s*(401|403|429)', str(errors), re.I)
-        self.http_status = int(match[1]) if match else None
+        from jobhunter_app.provider_recovery import http_status
+        self.errors = dict(errors)
+        self.http_status = http_status(errors)
         super().__init__('JobSpy provider failure: ' + '; '.join(f'{k}: {v}' for k, v in errors.items()))
 
 
@@ -127,6 +127,8 @@ class JobSpyScanner(BaseScanner):
 
         # Run jobspy in a thread pool since it's synchronous + blocking
         loop = asyncio.get_running_loop()
+        blocked = {}  # Per-run only; never remove configured providers.
+        from jobhunter_app.provider_recovery import http_status, policy
         with ThreadPoolExecutor(max_workers=1) as executor:
             for search_config in self.searches:
                 from jobhunter_app.store import now
@@ -136,12 +138,21 @@ class JobSpyScanner(BaseScanner):
                     'query': search_config.get('term'), 'providers': search_config.get('sites',[]),
                     'started_at': now(), 'status': 'dispatched'}
                 result.attempts.append(attempt)
+                providers = search_config.get('sites', ['indeed', 'google'])
+                active = [site for site in providers if site not in blocked]
+                attempt['deferred_providers'] = {site: blocked[site] for site in providers if site in blocked}
+                if not active:
+                    attempt.update(status='deferred', result_count=0, finished_at=now(),
+                                   reason='Provider denied access, rate limited, or unavailable earlier in this run')
+                    continue
+                effective = dict(search_config, sites=active)
+                self.last_errors = {}
                 try:
                     jobs = await loop.run_in_executor(
-                        executor, self._run_search, search_config
+                        executor, self._run_search, effective
                     )
                     result.jobs.extend(jobs)
-                    attempt.update(status='partial' if self.last_errors else 'succeeded', result_count=len(jobs))
+                    attempt.update(status='partial' if self.last_errors or attempt['deferred_providers'] else 'succeeded', result_count=len(jobs))
                     result.errors.extend(f"{site}: {message}" for site, message in self.last_errors.items())
                 except Exception as e:
                     error_msg = (
@@ -152,6 +163,12 @@ class JobSpyScanner(BaseScanner):
                     attempt.update(status='failed', error_category=type(e).__name__, result_count=0)
                     self.logger.error(error_msg)
 
+                # Suppress only the failed provider, not its healthy co-providers.
+                # Unknown/transient failures are not treated as access denials.
+                for site, detail in self.last_errors.items():
+                    code = http_status(detail)
+                    if site in active and (code in (401, 403, 429) or site == 'google'):
+                        blocked[site] = policy('jobspy_' + site, code)['recovery_category']
                 attempt['finished_at'] = now()
 
                 # Delay between searches to avoid rate limits
