@@ -77,7 +77,7 @@ def test_upgrade_keeps_existing_pause_jobs_profile_and_new_seed_once(tmp_path):
         assert not db.execute("SELECT approved FROM sources WHERE id='jobspy_indeed:configured'").fetchone()[0]
         value=json.loads(db.execute('SELECT data FROM workflow_settings').fetchone()[0])
     assert not value[KEY]['enabled'] and value['saved_searches']==[{'retain':True}]
-    assert value[SEED_KEY]==2 and store.summary()['total_jobs']==1 and store.profile()['name']=='Private'
+    assert value[SEED_KEY]==3 and store.summary()['total_jobs']==1 and store.profile()['name']=='Private'
 
 
 def test_jobspy_checkpoint_rotation_and_pagination(monkeypatch):
