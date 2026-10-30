@@ -109,6 +109,7 @@ class AutomaticDiscovery:
             # Do not discard sources or jobs if an old file needs manual repair.
             self.legacy_restore_error = type(exc).__name__ + ': legacy restoration needs review; files unchanged'
         self.cancel, self.wake, self.closed = Event(), Event(), Event()
+        self.search_requested = False
         self.lock = Lock(); self.control = Lock(); self.thread = None
         self.state = {'phase': 'starting', 'current_source': '', 'revision': 0, 'last_cycle': None, 'error': ''}
 
@@ -138,9 +139,23 @@ class AutomaticDiscovery:
         # This wakes the coordinator, not a quota-bypassing forced scan.
         self.wake.set(); return {'requested': True, 'notice': 'Checking sources that are due; provider cooldowns remain in force.'}
 
+    def search(self):
+        """Queue one finite intent-driven run on the existing coordinator thread."""
+        with self.control:
+            with self.store.connect() as db: _, config = _read(db, self.profile_id)
+            if not config['enabled'] or self.closed.is_set():
+                raise ValueError('Resume discovery before requesting a profile search')
+            with self.lock: running = self.state['phase'] == 'searching'
+            already = self.search_requested or running
+            if not already: self.search_requested = True
+            self.wake.set()
+        return {'requested': True, 'already_pending': already,
+                'notice': 'Finite candidate-derived job-board search queued. Existing approvals/cooldowns apply; no new-source access is presumed.'}
+
     def status(self):
         with self.store.connect() as db: _, config = _read(db, self.profile_id)
         with self.lock: state = dict(self.state)
+        from .runtime_status import status as runtime_status, latest_search
         sources = []
         current = datetime.now(timezone.utc)
         for row in health(self.store):
@@ -153,8 +168,13 @@ class AutomaticDiscovery:
             sources.append({'id': row['id'], 'label': LABELS.get(row['id'], row['id']), 'state': state_name,
                             'health': row['health'], 'engine':row['engine'], 'provider_family':row['provider_family'], 'approved': bool(row['approved']), 'error': row['last_error'],
                             'last_completed_at': row['last_completed_at'], 'next_allowed_at': row['next_allowed_at'],
-                            'new_jobs': metrics.get('new_unique_jobs', 0), 'invalid': metrics.get('invalid', 0)})
+                            'new_jobs': metrics.get('new_unique_jobs', 0), 'invalid': metrics.get('invalid', 0),
+                            'failure_code': metrics.get('failure_code'), 'failure_stage': metrics.get('failure_stage'),
+                            'http_status': metrics.get('http_status'), 'error_type': metrics.get('error_type'),
+                            'validation_hint': metrics.get('validation_hint')})
         return {'available': True, 'enabled': config['enabled'], **state, 'sources': sources,
+                'runtime': runtime_status(), 'profile_search_requested': self.search_requested,
+                'profile_search': latest_search(self.store, self.profile_id),
                 'legacy_restore': self.legacy_restore, 'legacy_restore_error': self.legacy_restore_error,
                 'has_profile': bool(self.store.profile(self.profile_id).get('skills')),
                 'total_jobs': self.store.summary(self.profile_id)['total_jobs'],
@@ -166,6 +186,12 @@ class AutomaticDiscovery:
             with self.store.connect() as db: _, config = _read(db, self.profile_id)
             if not config['enabled'] or self.closed.is_set(): self._state(phase='paused'); return
             self.cancel.clear()
+            requested = self.search_requested
+            self.search_requested = False
+            if requested: self._state(phase='searching', current_source='', error='')
+        if requested:
+            self._profile_search()
+            return
         self._state(phase='scanning', error='')
         # Re-read each source immediately before scanning; another source/process may consume its provider gate.
         rows = [x for x in health(self.store) if x['approved']]
@@ -200,6 +226,19 @@ class AutomaticDiscovery:
                 attempted += 1; self._state(current_source='')
         if not self.cancel.is_set(): self._match_if_needed()
         self._state(phase='paused' if self.cancel.is_set() else 'waiting', last_cycle=now())
+
+    def _profile_search(self):
+        # Runs on the same worker as ordinary refresh, not a second competing scanner.
+        self._state(phase='searching', current_source='', error='')
+        try:
+            from .discovery_run import run
+            run(self.store, self.profile_id, max_attempts=12, seconds=120,
+                cancel_event=_Cancellation(self), approve_public_ats=False)
+        except Exception:
+            # Detailed persisted task/source outcomes are available separately.
+            self._state(phase='error', error='Profile search could not complete. Check runtime/source diagnostics and the persisted run. No access gates were reset.', last_cycle=now())
+        else:
+            self._state(phase='paused' if _Cancellation(self).is_set() else 'waiting', last_cycle=now())
 
     def _match_if_needed(self):
         p = self.store.profile(self.profile_id)
