@@ -152,8 +152,13 @@ def collect(source,checkpoint=None,cancel_event=None,getter=None):
     if not pending:
         if page in visited:raise ValueError('Repeated Scrapling listing page')
         pending,next_page=listing(kind,read(page,robots),page);visited=visited+[page]
-    rows=[]
-    for target in pending[:MAX_DETAILS]:rows.extend(postings(kind,read(target,robots),target))
+    rows=[];leads=[]
+    for target in pending[:MAX_DETAILS]:
+        body=read(target,robots)
+        rows.extend(postings(kind,body,target))
+        from .source_discovery import discover
+        from dataclasses import asdict
+        leads.extend(asdict(lead) for lead in discover([{'url':target,'description':body.decode('utf-8-sig')}]))
     remaining=pending[MAX_DETAILS:]
     if next_page and next_page in visited:raise ValueError('Scrapling pagination cycle')
     if not remaining and next_page and index>=MAX_PAGES:raise ValueError('Scrapling page bound reached; review/reset checkpoint explicitly')
@@ -164,4 +169,4 @@ def collect(source,checkpoint=None,cancel_event=None,getter=None):
     return Collection(rows,state,{'engine':'scrapling','engine_version':'0.5','transport':'scrapling_http',
         'requests':requests,'detail_pages':min(len(pending),MAX_DETAILS),'pending_details':len(remaining),
         'robots':'checked','coverage_complete':False,'listing_pass_complete':complete,
-        'bounded_selection':True,'coverage_scope':'Configured HTML listing pages only; no whole-site completeness claim'})
+        'bounded_selection':True,'coverage_scope':'Configured HTML listing pages only; no whole-site completeness claim'},leads=leads)

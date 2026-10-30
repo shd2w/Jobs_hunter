@@ -61,7 +61,11 @@ def get(url, accept='application/json', max_bytes=MAX_BYTES, credentials=None, c
     if p.scheme != 'https' or p.port not in (None, 443): raise ValueError('HTTPS sources only')
     host = p.hostname.encode('idna').decode('ascii')
     headers = {'User-Agent': 'JobHunter-Local/0.3', 'Accept': accept, 'Accept-Encoding': 'identity'}
-    if credential_scope is not None:
+    if credential_scope == 'brave_search':
+        from .search_provider import validate_scope
+        validate_scope(url,credentials or {})
+        headers.update(credentials or {})
+    elif credential_scope is not None:
         from .platform_posts import validate_request_scope
         validate_request_scope(credential_scope,url,credentials or {})
         headers.update(credentials or {})

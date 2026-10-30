@@ -40,7 +40,7 @@ def health(store):
             family=provider_family(row['kind']);family_kinds=provider_kinds(row['kind'])
             gate=db.execute('SELECT not_before FROM provider_gates WHERE kind=?',(family,)).fetchone()
             due=datetime.fromisoformat(row['last_run'])+timedelta(seconds=POLICIES[row['kind']]['cooldown']) if row['last_run'] else datetime.min.replace(tzinfo=timezone.utc)
-            if row['kind'] in ('jobicy','arbeitnow','hn','usajobs','wuzzuf','naukrigulf','scrapling_jobicy','scrapling_arbeitnow')+POST_PLATFORMS:
+            if row['kind'] in ('structured_html','jobicy','arbeitnow','hn','usajobs','wuzzuf','naukrigulf','scrapling_jobicy','scrapling_arbeitnow')+POST_PLATFORMS:
                 latest=db.execute('SELECT MAX(last_run) FROM sources WHERE kind IN ('+','.join('?' for _ in family_kinds)+')',family_kinds).fetchone()[0]
                 if latest: due=max(due,datetime.fromisoformat(latest)+timedelta(seconds=POLICIES[row['kind']]['cooldown']))
             if gate: due=max(due,datetime.fromisoformat(gate[0]))
