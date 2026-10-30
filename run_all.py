@@ -74,8 +74,15 @@ async def _run_pipeline(dry_run: bool = False, scan_only: bool = False, threshol
         logger.info("Scan-only mode. Skipping evaluation.")
         return
 
+    # Local matching is a separate population and does not require cloud credentials.
+    local_db = Path('data/jobhunter.sqlite3')
+    if local_db.exists():
+        from jobhunter_app.store import Store
+        local_store = Store(local_db)
+        if local_store.profile():
+            local_store.evaluate(pending_only=True)
     new_jobs = scan_summary.get("new_added", 0)
-    if new_jobs == 0:
+    if new_jobs == 0 and not scan_summary.get("pending_legacy", 0):
         logger.info("No new jobs found. Pipeline complete.")
         return
 

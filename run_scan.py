@@ -64,36 +64,32 @@ async def run_scan(dry_run: bool = False, config_override=None, data_dir="data",
     logger.info("Starting job scan...")
     logger.info("=" * 60)
 
-    scan_results = []
-
-    # Primary Scrapling engine shares production checkpoints and provider gates.
+    from scanners.base import ScanResult
+    from jobhunter_app.store import now
+    from uuid import uuid4
+    run_id = uuid4().hex
+    scan_results, tasks = [], []
+    selected = []
     if not only_jobspy:
+        selected.append(('scrapling', lambda: ScraplingScanner(config, data_dir, dry_run)))
+    if not only_jobspy and not only_scrapling:
+        selected.append(('direct_api', lambda: DirectAPIScanner(config)))
+    if not only_scrapling:
+        selected.append(('jobspy', lambda: JobSpyScanner(config)))
+    for name, factory in selected:
+        task = {'id': f'{run_id}:{name}', 'source': name, 'status': 'dispatched',
+                'started_at': now(), 'finished_at': '', 'error_category': None}
+        tasks.append(task)
         try:
-            result=await ScraplingScanner(config,data_dir,dry_run).scan()
-            scan_results.append(result)
-            logger.info(f"Scrapling: {result.job_count} jobs, {result.error_count} errors")
+            result = await factory().scan()
         except Exception as exc:
-            from scanners.base import ScanResult
-            scan_results.append(ScanResult(scanner_name='scrapling',errors=[str(exc)]))
-            logger.error(f"Scrapling engine failed: {type(exc).__name__}")
-
-    # 1. Original direct scanner (only explicitly configured employers)
-    try:
-        workday = DirectAPIScanner(config)
-        result = await workday.scan() if not only_jobspy and not only_scrapling else workday._finish_result(workday._make_result())
+            result = ScanResult(scanner_name=name, errors=[str(exc)])
+            task['error_category'] = type(exc).__name__
+            logger.error('%s scanner failed entirely: %s', name, type(exc).__name__)
         scan_results.append(result)
-        logger.info(f"Workday: {result.job_count} jobs, {result.error_count} errors")
-    except Exception as e:
-        logger.error(f"Workday scanner failed entirely: {e}")
-
-    # 2. JobSpy scanner (all pinned providers; original routes retained)
-    try:
-        jobspy = JobSpyScanner(config)
-        result = await jobspy.scan() if not only_scrapling else jobspy._finish_result(jobspy._make_result())
-        scan_results.append(result)
-        logger.info(f"JobSpy: {result.job_count} jobs, {result.error_count} errors")
-    except Exception as e:
-        logger.error(f"JobSpy scanner failed entirely: {e}")
+        task['query_attempts'] = result.attempts
+        task.update(status=('partial' if result.jobs else 'failed') if result.errors else 'succeeded',
+                    finished_at=now(), result_count=result.job_count, errors=list(result.errors))
 
     # 3. Merge through bridge
     bridge = PipelineBridge(config, data_dir)
@@ -110,6 +106,14 @@ async def run_scan(dry_run: bool = False, config_override=None, data_dir="data",
         accepted = filter_jobs(rows, bridge.title_filter, bridge.location_filter)['passed']
         summary['inbox'] = mirror_to_inbox(accepted, data_dir)
 
+
+    import re
+    pipeline_path = Path(data_dir) / 'pipeline.md'
+    summary['pending_legacy'] = len(re.findall(r'^- \[ \] https?://\S+\s*\|\s*[^|]+\|.+$', pipeline_path.read_text(encoding='utf-8'), re.MULTILINE)) if pipeline_path.exists() else 0
+    failed = any(t['status'] in ('failed', 'partial') for t in tasks)
+    summary['execution'] = {'run_id': run_id, 'planned': len(tasks),
+        'dispatched': len(tasks), 'tasks': tasks,
+        'status': ('partial' if summary['total_found'] or any(t['status'] == 'succeeded' for t in tasks) else 'failed') if failed else 'succeeded'}
 
     # 4. Print summary
     logger.info("=" * 60)
