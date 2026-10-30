@@ -14,7 +14,7 @@ from .sources import Source, scan
 from .source_health import health
 
 KEY = 'automatic_discovery'
-STARTERS = (('jobicy', 'remote'), ('arbeitnow', 'de'), ('remotive', 'remote'),
+STARTERS = (('scrapling_jobicy','remote'),('scrapling_arbeitnow','de'),('jobicy', 'remote'), ('arbeitnow', 'de'), ('remotive', 'remote'),
             ('remoteok', 'remote'), ('weworkremotely', 'remote'),
             ('jobspy_linkedin', 'configured'), ('jobspy_indeed', 'configured'),
             ('jobspy_bayt', 'configured'), ('jobspy_google', 'configured'),
@@ -22,8 +22,10 @@ STARTERS = (('jobicy', 'remote'), ('arbeitnow', 'de'), ('remotive', 'remote'),
             ('jobspy_naukri', 'configured'), ('jobspy_bdjobs', 'configured'),
             ('jobspy_hellowork', 'configured'))
 SEED_KEY = 'scraper_registry_revision'
-SEED_REVISION = 2
-LABELS = {'jobicy:remote': 'Jobicy · worldwide remote', 'arbeitnow:de': 'Arbeitnow · Germany',
+SEED_REVISION = 3
+LABELS = {'scrapling_jobicy:remote':'Scrapling · Jobicy HTML',
+          'scrapling_arbeitnow:de':'Scrapling · Arbeitnow HTML',
+          'jobicy:remote': 'Jobicy · worldwide remote', 'arbeitnow:de': 'Arbeitnow · Germany',
           'remotive:remote': 'Remotive · worldwide remote',
           'remoteok:remote': 'Remote OK · remote', 'weworkremotely:remote': 'We Work Remotely · remote',
           'jobspy_indeed:configured': 'Indeed · original regional searches',
@@ -149,14 +151,14 @@ class AutomaticDiscovery:
                           'cooldown' if not due else 'queued')
             metrics = row['last_metrics']
             sources.append({'id': row['id'], 'label': LABELS.get(row['id'], row['id']), 'state': state_name,
-                            'health': row['health'], 'approved': bool(row['approved']), 'error': row['last_error'],
+                            'health': row['health'], 'engine':row['engine'], 'provider_family':row['provider_family'], 'approved': bool(row['approved']), 'error': row['last_error'],
                             'last_completed_at': row['last_completed_at'], 'next_allowed_at': row['next_allowed_at'],
                             'new_jobs': metrics.get('new_unique_jobs', 0), 'invalid': metrics.get('invalid', 0)})
         return {'available': True, 'enabled': config['enabled'], **state, 'sources': sources,
                 'legacy_restore': self.legacy_restore, 'legacy_restore_error': self.legacy_restore_error,
                 'has_profile': bool(self.store.profile(self.profile_id).get('skills')),
                 'total_jobs': self.store.summary(self.profile_id)['total_jobs'],
-                'scope': 'Original configured JobSpy searches: Egypt, Oman, UAE, Germany, Switzerland, Austria and remote; English/German. Public remote feeds also run automatically. Provider access may fail; see each source. Approved custom sources join automatically. '
+                'scope': 'Primary Scrapling HTML collection, JobSpy multi-board searches and native public APIs/feeds coexist. Shared publisher cooldowns apply; no automatic transport fallback. Original configured JobSpy searches: Egypt, Oman, UAE, Germany, Switzerland, Austria and remote; English/German. Public remote feeds also run automatically. Provider access may fail; see each source. Approved custom sources join automatically. '
                          'Account-dependent channels need setup; no paid access is added. Runs only while this server is running.'}
 
     def cycle(self):

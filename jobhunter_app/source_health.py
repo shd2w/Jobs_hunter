@@ -5,6 +5,15 @@ import json
 from filelock import FileLock, Timeout
 from .store import now, dump
 
+def provider_family(kind):
+    # Native API and Scrapling HTML paths share one publisher request gate.
+    return {'scrapling_jobicy':'jobicy','scrapling_arbeitnow':'arbeitnow'}.get(kind,kind)
+
+def provider_kinds(kind):
+    family=provider_family(kind)
+    return (family,'scrapling_'+family) if family in ('jobicy','arbeitnow') else (kind,)
+
+
 def retry_gate(db,kind,value,cooldown):
     value=str(value).strip()
     current=datetime.now(timezone.utc);until=current+timedelta(seconds=cooldown)
@@ -28,14 +37,15 @@ def health(store):
                 item['platform_setup']=setup(row['kind'])
             last=db.execute('SELECT * FROM runs WHERE source=? ORDER BY id DESC LIMIT 1',(row['id'],)).fetchone()
             success=db.execute("SELECT finished_at FROM runs WHERE source=? AND status IN ('success','partial') ORDER BY id DESC LIMIT 1",(row['id'],)).fetchone()
-            gate=db.execute('SELECT not_before FROM provider_gates WHERE kind=?',(row['kind'],)).fetchone()
+            family=provider_family(row['kind']);family_kinds=provider_kinds(row['kind'])
+            gate=db.execute('SELECT not_before FROM provider_gates WHERE kind=?',(family,)).fetchone()
             due=datetime.fromisoformat(row['last_run'])+timedelta(seconds=POLICIES[row['kind']]['cooldown']) if row['last_run'] else datetime.min.replace(tzinfo=timezone.utc)
-            if row['kind'] in ('jobicy','arbeitnow','hn','usajobs','wuzzuf','naukrigulf')+POST_PLATFORMS:
-                latest=db.execute('SELECT MAX(last_run) FROM sources WHERE kind=?',(row['kind'],)).fetchone()[0]
+            if row['kind'] in ('jobicy','arbeitnow','hn','usajobs','wuzzuf','naukrigulf','scrapling_jobicy','scrapling_arbeitnow')+POST_PLATFORMS:
+                latest=db.execute('SELECT MAX(last_run) FROM sources WHERE kind IN ('+','.join('?' for _ in family_kinds)+')',family_kinds).fetchone()[0]
                 if latest: due=max(due,datetime.fromisoformat(latest)+timedelta(seconds=POLICIES[row['kind']]['cooldown']))
             if gate: due=max(due,datetime.fromisoformat(gate[0]))
             checkpoint=db.execute('SELECT updated_at FROM source_checkpoints WHERE source_id=?',(row['id'],)).fetchone()
-            item.update(last_completed_at=success[0] if success else None,next_allowed_at=due.isoformat() if due!=datetime.min.replace(tzinfo=timezone.utc) else None,checkpoint_saved_at=checkpoint[0] if checkpoint else None,last_metrics=json.loads(last['metrics']) if last else {},coverage_warning='Observed snapshots only. Absence is not evidence of vacancy closure. Discovery does not score relevance.')
+            item.update(engine='scrapling' if row['kind'].startswith('scrapling_') else 'jobspy' if row['kind'].startswith('jobspy_') else 'native',provider_family=family,last_completed_at=success[0] if success else None,next_allowed_at=due.isoformat() if due!=datetime.min.replace(tzinfo=timezone.utc) else None,checkpoint_saved_at=checkpoint[0] if checkpoint else None,last_metrics=json.loads(last['metrics']) if last else {},coverage_warning='Observed snapshots only. Absence is not evidence of vacancy closure. Discovery does not score relevance.')
             item['observations_older_than_30_days']=db.execute("SELECT COUNT(*) FROM sightings WHERE source=? AND datetime(last_seen)<datetime('now','-30 days')",(row['id'],)).fetchone()[0]
             item['manual_priority_hint']='Review failures/permissions first' if row['health'] in ('failed','rate_limited','interrupted','access_blocked') else 'Resume incomplete pass when due' if item['last_metrics'].get('bounded_selection') else 'Compare unique contribution before another manual pass'
             result.append(item)
