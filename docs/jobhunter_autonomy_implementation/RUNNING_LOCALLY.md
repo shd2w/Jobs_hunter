@@ -110,3 +110,7 @@ python qa/autonomy_discovery_live.py --live --provider linkedin --state C:/JobHu
 ```
 
 The harness uses a synthetic profile, two adapter attempts, a 60-second dispatch budget and 120-second child timeout, no paid API and no automatic new ATS approval. Reuse state to preserve gates. Inspect `qualification.json`, `run.json` and actual task outcomes privately: process success is **not** new-source discovery success. A real A03/A05 pass requires observed acquisition evidence, an initially absent recognized source, lawful approval, actual native retrieval, valid intake and downstream evidence—not merely another URL or a mocked employer.
+
+## Dashboard integration update
+
+The dashboard now exposes **Search from my profile** to queue the same finite intent-driven runner on its existing worker. **Check due sources** remains the ordinary source refresh action. Expand **Source status & coverage** for persisted search attempts, safe source diagnostics and the `dashboard-discovery-bridge-1` runtime identifier. Update and restart the actual Python server; a GitHub push does not upgrade a running instance. See `DASHBOARD_SEARCH_FIX.md` for verification limits and Windows/existing-Codespace update steps.

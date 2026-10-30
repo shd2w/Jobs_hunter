@@ -43,3 +43,7 @@ Three real trials: Indeed20 + Arbeitnow300; Jobicy100 + RemoteOK99; LinkedIn20 +
 The code and controlled acceptance provide an implemented supported-family vertical slice, not merely another design report. Material remaining qualification requires lawful real new-source evidence and actual access; optional API setup needs credentials/explicit cost consent. Broader semantic/category feedback and arbitrary-site onboarding still require engineering. These are recorded as open, not “complete” because unit tests passed.
 
 See `IMPLEMENTATION_REPORT.md` for architecture, coverage/evidence levels, before/after scorecard, A01–A14, live observations and the direct verdict; `RUNNING_LOCALLY.md` for local Windows commands and approval/pending/report behavior. No application submission, billable infrastructure, Codespace or public Python backend was started.
+
+## Dashboard integration follow-up
+
+A user report exposed a real integration gap: the finite candidate-derived runner was CLI-only while the dashboard retained its older coordinator. The dashboard now queues that runner on the existing worker and displays persisted attempts, safe failure diagnostics and runtime/dependency identification. See `DASHBOARD_SEARCH_FIX.md` for the fix, final regression/browser evidence and the distinction between repository publication and updating the user’s running instance. The original report remains a historical qualification record; no new live unknown-source-discovery claim is made.
