@@ -68,11 +68,11 @@ async def _run_pipeline(dry_run: bool = False, scan_only: bool = False, threshol
 
     if dry_run:
         logger.info("Dry run complete. No further action.")
-        return
+        return {'status':scan_summary.get('status','succeeded'),'scan':scan_summary,'evaluation':'not_requested','dry_run':True}
 
     if scan_only:
         logger.info("Scan-only mode. Skipping evaluation.")
-        return
+        return {'status':scan_summary.get('status','succeeded'),'scan':scan_summary,'evaluation':'not_requested'}
 
     # Local matching is a separate population and does not require cloud credentials.
     local_db = Path('data/jobhunter.sqlite3')
@@ -83,12 +83,15 @@ async def _run_pipeline(dry_run: bool = False, scan_only: bool = False, threshol
             local_store.evaluate(pending_only=True)
     new_jobs = scan_summary.get("new_added", 0)
     if new_jobs == 0 and not scan_summary.get("pending_legacy", 0):
-        logger.info("No new jobs found. Pipeline complete.")
-        return
+        logger.info("No pending jobs; scan outcome: %s",scan_summary.get("status","unknown"))
+        return {"status":scan_summary.get("status","succeeded"),"scan":scan_summary,"evaluation":"not_requested"}
 
     # Phase 2: Evaluate new jobs
     logger.info(f"\n[EVAL] PHASE 2: Evaluating {new_jobs} new job(s)...")
     eval_results = await run_evaluate(mode="all", threshold_override=threshold_override, german_policy=german_policy)
+
+    if any(not r.get("success") for r in eval_results):
+        raise RuntimeError("Evaluation partially completed or failed; successful records remain persisted, failed jobs remain pending. Queue export not published.")
 
     # Phase 2.5: Publish the application queue for UniversalAutoApplier.
     # Runs only after scan + evaluate succeeded. A failed export fails the
@@ -112,7 +115,8 @@ async def _run_pipeline(dry_run: bool = False, scan_only: bool = False, threshol
     high_scores = [r for r in successful_evals if r.get("global_score", 0) >= threshold]
 
     logger.info(f"\n{'='*60}")
-    logger.info("PIPELINE COMPLETE")
+    pipeline_status = "partial" if scan_summary.get("status") in ("partial","failed") else "succeeded"
+    logger.info("PIPELINE %s",pipeline_status.upper())
     logger.info(f"{'='*60}")
     logger.info(f"  Duration:         {elapsed:.0f}s")
     logger.info(f"  Jobs scanned:     {scan_summary.get('total_found', 0)}")
@@ -128,6 +132,8 @@ async def _run_pipeline(dry_run: bool = False, scan_only: bool = False, threshol
                 f"  * {r.get('global_score', '?')}/5 -- "
                 f"{r.get('company', '?')} — {r.get('title', '?')}"
             )
+
+    return {"status":pipeline_status,"scan":scan_summary,"evaluated":len(successful_evals),"queue_export":export_summary}
 
 
 async def run_pipeline(dry_run=False, scan_only=False, threshold_override=None, german_policy=None):
@@ -145,7 +151,9 @@ def main():
     parser.add_argument("--german-policy", type=str, choices=["reject_b1_plus", "reject_b2_plus_only", "reject_unless_bilingual", "accept_all"], default=None, help="Override German filter policy")
     args = parser.parse_args()
 
-    asyncio.run(run_pipeline(dry_run=args.dry_run, scan_only=args.scan_only, threshold_override=args.threshold, german_policy=args.german_policy))
+    result = asyncio.run(run_pipeline(dry_run=args.dry_run, scan_only=args.scan_only, threshold_override=args.threshold, german_policy=args.german_policy))
+    if result and result.get("status") in ("partial","failed"):
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":

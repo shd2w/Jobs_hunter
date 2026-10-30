@@ -34,7 +34,7 @@ def make_server(store, port=8765, profile_id='default', automatic=False):
     coordinator = AutomaticDiscovery(store, profile_id) if automatic else None
     token = secrets.token_urlsafe(32)
     task_lock = Lock()
-    task = {'running': False, 'result': None, 'error': None}
+    task = {'running': False, 'result': None, 'error': None, 'status':'idle','started_at':None,'finished_at':None}
     cancel = Event()
 
     class Handler(BaseHTTPRequestHandler):
@@ -75,7 +75,7 @@ def make_server(store, port=8765, profile_id='default', automatic=False):
                 if path == '/':
                     html = (ASSETS / 'index.html').read_text(encoding='utf-8').replace('__CSRF__', token)
                     return self.send(200, html.encode(), 'text/html; charset=utf-8')
-                if path in ('/app.js', '/discovery.js', '/workflow.js', '/calendar.js', '/searches.js', '/outcomes.js', '/packs.js', '/learning.js', '/learning-progress.js', '/evidence-mapping.js', '/automatic.js', '/style.css'):
+                if path in ('/app.js', '/discovery.js', '/workflow.js', '/calendar.js', '/searches.js', '/outcomes.js', '/packs.js', '/learning.js', '/learning-progress.js', '/evidence-mapping.js', '/automatic.js', '/evaluation.js', '/style.css'):
                     return self.send(200, (ASSETS / path[1:]).read_bytes(), 'application/javascript' if path.endswith('.js') else 'text/css')
                 if path in ('/api/packs','/api/pack-inspect'):
                     from .pack_management import list_packs, inspect_pack
@@ -138,6 +138,9 @@ def make_server(store, port=8765, profile_id='default', automatic=False):
                     return self.send(200,preview(store,profile_id))
                 if path == '/api/summary':
                     return self.send(200, {**store.summary(profile_id), 'states': STATES})
+                if path == '/api/evaluation':
+                    from .evaluation_service import latest
+                    return self.send(200, latest(store, params.get('id',[''])[0],profile_id))
                 if path == '/api/jobs':
                     return self.send(200, store.jobs(params.get('q', [''])[0], params.get('status', [''])[0], profile_id,
                                                     offset=int(params.get('offset', ['0'])[0])))
@@ -203,6 +206,9 @@ def make_server(store, port=8765, profile_id='default', automatic=False):
                 if path == '/api/posts/preview':
                     from .posts import process
                     result = process(store, data.get('posts'), dry_run=True,profile_id=profile_id)
+                elif path == '/api/posts/process':
+                    from .posts import process
+                    result = process(store,data.get('posts'),data.get('rights_attested'),dry_run=data.get('dry_run') is True,profile_id=profile_id)
                 elif path == '/api/posts/stage':
                     from .posts import process
                     result = process(store, data.get('posts'), data.get('rights_attested'),profile_id=profile_id)
@@ -275,6 +281,10 @@ def make_server(store, port=8765, profile_id='default', automatic=False):
                 elif path == '/api/digest-send':
                     from .digests import send
                     result=send(store,data.get('fingerprint'),data.get('confirmed'),profile_id)
+                elif path == '/api/evaluate':
+                    from .evaluation_service import evaluate, EvaluationOptions
+                    if set(data)-{'id','options'}: raise ValueError('Unknown evaluation field')
+                    result = evaluate(store,data.get('id'),profile_id,EvaluationOptions.parse(data.get('options',{})))
                 elif path == '/api/match':
                     result = store.evaluate(profile_id)
                 elif path == '/api/status':
@@ -301,7 +311,8 @@ def make_server(store, port=8765, profile_id='default', automatic=False):
                     with task_lock:
                         if task['running']:
                             return self.send(409, {'error': 'A manual scan is already running'})
-                        task.update(running=True, result=None, error=None)
+                        from .store import now
+                        task.update(running=True, result=None, error=None,status='running',started_at=now(),finished_at=None)
                         cancel.clear()
                     source_id = data.get('source_id')
                     ids = data.get('source_ids')
@@ -309,6 +320,8 @@ def make_server(store, port=8765, profile_id='default', automatic=False):
                     if (not is_batch and not isinstance(source_id,str)) or (is_batch and (not isinstance(ids,list) or not 1<=len(ids)<=10 or any(not isinstance(x,str) for x in ids) or len(set(ids))!=len(ids))):
                         with task_lock:
                             task['running'] = False
+                            task['status'] = 'failed'
+                            task['finished_at'] = now()
                         raise ValueError('Source id required')
                     def run():
                         try:
@@ -319,12 +332,15 @@ def make_server(store, port=8765, profile_id='default', automatic=False):
                                 result = scan(store, source_id, cancel_event=cancel,profile_id=profile_id)
                             with task_lock:
                                 task['result'] = result
+                                task['status'] = result.get('status','cancelled' if result.get('cancelled') else 'partial' if result.get('invalid') or result.get('bounded_selection') else 'success')
                         except Exception as exc:
                             with task_lock:
                                 task['error'] = str(exc)[:200]
+                                task['status'] = 'failed'
                         finally:
                             with task_lock:
                                 task['running'] = False
+                                task['finished_at'] = now()
                     Thread(target=run, daemon=True).start()
                     result = {'started': True}
                 elif path == '/api/stop':
