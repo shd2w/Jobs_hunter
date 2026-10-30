@@ -33,7 +33,7 @@ async function loadJobs(){
 }
 $('search-form').onsubmit=safe(async e=>{e.preventDefault();offset=0;await loadJobs();});
 $('previous').onclick=safe(async()=>{offset=Math.max(0,offset-200);await loadJobs();});$('next').onclick=safe(async()=>{offset+=200;await loadJobs();});
-async function openJob(job){if(window.confirmEvidenceSwitch&&!window.confirmEvidenceSwitch())return;selected=job;$('detail-title').textContent=job.title;$('detail-company').textContent=job.company+(job.location?' · '+job.location:'');$('detail-url').href=job.url;
+async function openJob(job){if(window.confirmEvidenceSwitch&&!window.confirmEvidenceSwitch())return;selected=job;if(window.loadEvaluation)window.loadEvaluation(job);$('detail-title').textContent=job.title;$('detail-company').textContent=job.company+(job.location?' · '+job.location:'');$('detail-url').href=job.url;
  $('detail-description').textContent=job.description||'No description supplied. Eligibility and keyword evidence remain incomplete.';
  $('detail-match').textContent=job.match?job.match.explanation+' '+job.match.uncertainties.join(' '):'You can browse and apply using the original listing without a profile. Add your skills under Your evidence only if you want optional local keyword matching. Eligibility is not inferred.';
  if(job.match?.requirements){$('detail-match').textContent+='\n\nContextual skill clauses (rule-based; review required):\n'+job.match.requirements.map(r=>r.skill+' · '+r.classification+' · '+r.candidate_evidence+'\n“'+r.evidence+'”').join('\n');$('detail-match').textContent+='\n\nConstraint checks:\n'+(job.match.hard_constraint_checks.map(c=>c.kind+': '+c.term+' → '+c.state).join('\n')||'None configured.');}const context=job.match?.eligibility_context;
@@ -64,5 +64,5 @@ $('backup').onclick=safe(async()=>{const r=await api('/api/backup',{});message('
 function scanSummary(result){
  if(!result)return 'No active scan';
  const items=result.results||[{result}];
- return items.map(item=>{const r=item.result||{};return (item.source?item.source+': ':'')+(item.error|| (r.cancelled?'Cancelled; checkpoint unchanged.':r.staged!==undefined?r.staged+' posts staged; review required.':(r.new_unique_jobs??r.inserted??0)+' new unique jobs; '+(r.existing_job_observations??r.updated??0)+' existing observations.'))+(r.source_scope?(r.listing_pass_exhausted?' Listing route exhausted; whole-site coverage unverified.':' Bounded route; inspect health and resume manually when due.'):r.bounded_selection?' More pages remain; resume manually when due.':'');}).join('\n');
+ return (result.status?'Outcome: '+result.status+'\n':'')+items.map(item=>{const r=item.result||{};return (item.source?item.source+': ':'')+(item.error|| (r.cancelled?'Cancelled; checkpoint unchanged.':r.staged!==undefined?r.staged+' posts staged; review required.':(r.new_unique_jobs??r.inserted??0)+' canonical inserts; '+(r.existing_job_observations??r.updated??0)+' existing observations.'))+' '+(r.pagination?.message||'Continuation information unavailable.');}).join('\n');
 }
