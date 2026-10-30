@@ -5,14 +5,14 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 import platform
 
-BUILD = 'dashboard-cli-consistency-1'
+BUILD = 'source-recovery-1'
 
 
 @lru_cache(maxsize=1)
 def status():
     root = Path(__file__).parent
     digest = sha256()
-    for name in ('automatic.py', 'discovery_run.py', 'sources.py', 'web.py', 'static/automatic.js','evaluation_service.py','pagination.py','static/evaluation.js','static/discovery.js'):
+    for name in ('automatic.py', 'discovery_run.py', 'sources.py', 'web.py', 'static/automatic.js','evaluation_service.py','pagination.py','static/evaluation.js','static/discovery.js','source_health.py','provider_recovery.py','source_outcomes.py','expanded_sources.py'):
         digest.update(name.encode())
         digest.update((root / name).read_bytes())
     engines = {}

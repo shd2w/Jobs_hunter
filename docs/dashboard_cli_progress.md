@@ -35,3 +35,22 @@ Baseline: eaf0907. Release build: dashboard-cli-consistency-1.
 - Live all-provider, Windows and representative performance qualification remain open. Controlled tests demonstrate shared behavior, not all-source coverage or unknown-site autonomy.
 
 Publication and CI status are recorded in the associated pull request/release handoff, rather than fabricated before remote checks finish.
+
+## Source recovery follow-up (`source-recovery-1`)
+
+- Added shared response-outcome classification, persisted atomically with intake
+  and exposed consistently through CLI/API health and the automatic dashboard.
+- Added validated snapshot receipts for Remote OK, Remotive, WWR and explicit
+  feed imports; no invented whole-source exhaustion or next-page evidence.
+- Added JobSpy denial/rate-limit/upstream recovery metadata and capped backoff;
+  preserved source approvals, committed cursors and longer existing gates.
+- Legacy full scans defer only the failed provider after an access denial,
+  rate-limit or Google upstream failure; healthy providers continue.
+- Fixed partial provider/detail errors being stored as healthy success.
+- Exposed shared publisher versus per-source versus provider retry waits.
+- Verified actual desktop/mobile rendering with deterministic loopback fixtures;
+  added CLI/HTTP equivalence for first-insert and duplicate-only feed scans.
+- Bounded live availability samples and unresolved external failures are recorded
+  in [SOURCE_RECOVERY.md](SOURCE_RECOVERY.md). Bayt/ZipRecruiter 403 and Google
+  upstream availability are **not** claimed repaired. Codespace-specific provider
+  access remains unverified; no user's running server was changed remotely.

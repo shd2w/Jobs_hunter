@@ -6,13 +6,15 @@ Remaining detail work is not a next listing page. Receipt scope is one search/pa
 
 def state(*, has_next_page=None, continuation_available=False, page_limit_reached=False,
           result_limit_reached=False, source_exhausted=None, partial=False, failed=False,
-          cancelled=False, evidence='unavailable', pages_retrieved=None, pending_details=0):
+          cancelled=False, evidence='unavailable', pages_retrieved=None, pending_details=0,
+          response_mode=None):
     for x in (has_next_page,source_exhausted):
         if x is not None and type(x) is not bool: raise ValueError('Expected explicit pagination evidence or unknown')
     for x in (continuation_available,page_limit_reached,result_limit_reached,partial,failed,cancelled):
         if type(x) is not bool: raise ValueError('Invalid pagination flag')
     if has_next_page is True and source_exhausted is True: raise ValueError('Conflicting pagination evidence')
     if source_exhausted is True and continuation_available: raise ValueError('Exhausted source cannot continue this pass')
+    if response_mode not in (None, 'snapshot'): raise ValueError('Invalid pagination response mode')
     messages=[]
     if failed: messages.append('Scan failed before continuation could be established.')
     elif cancelled: messages.append('Scan interrupted; only previously committed progress can be resumed.')
@@ -23,18 +25,22 @@ def state(*, has_next_page=None, continuation_available=False, page_limit_reache
     if source_exhausted is True: messages.append('No additional pages reported by the source for this search/pass.')
     if pending_details: messages.append(f'{pending_details} observed detail records remain; not evidence of another listing page.')
     unknown = has_next_page is None and source_exhausted is None
-    if unknown and not failed and not cancelled: messages.append('Continuation information unavailable.' if not continuation_available else 'A continuation request is possible; additional results are not confirmed.')
+    if response_mode == 'snapshot' and not failed and not cancelled:
+        messages.append('Current feed response processed; no page continuation is provided. This is not whole-site coverage.')
+    elif unknown and not failed and not cancelled: messages.append('Continuation information unavailable.' if not continuation_available else 'A continuation request is possible; additional results are not confirmed.')
     return {'schema_version':1,'has_next_page':has_next_page,'continuation_available':continuation_available,
             'page_limit_reached':page_limit_reached,'result_limit_reached':result_limit_reached,
             'source_exhausted':source_exhausted,'continuation_unknown':unknown,'partial':partial,
             'failed':failed,'cancelled':cancelled,'evidence':evidence,'pages_retrieved':pages_retrieved,
-            'pending_details':pending_details,'message':' '.join(messages)}
+            'pending_details':pending_details,'response_mode':response_mode,'message':' '.join(messages)}
 
 
 def receipt(source, collected):
     if collected is None: return state()
     m=collected.metrics; cp=collected.checkpoint
     if 'pagination' in m: return dict(m['pagination'])
+    if source.kind in ('remoteok','weworkremotely') and m.get('coverage_complete') is True:
+        return state(response_mode='snapshot', pages_retrieved=1, evidence='validated current feed response only')
     kind=source.kind
     if kind.startswith('jobspy_'):
         return state(continuation_available=bool(m.get('offset_continuation')),

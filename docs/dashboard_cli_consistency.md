@@ -120,3 +120,12 @@ Add business rules to services, not HTTP handlers, argument handlers or JavaScri
 ## Explicit remaining limits / nonclaims
 
 Real AI account selection/quotas/paid access and every live provider are not qualified by fixture tests. User private Codespace restart and installed dependency environment remain a separate deployment check. Legacy YAML/CV and Markdown/JSON queues are explicit compatibility adapters, not automatically merged SQLite profiles/history; different candidate inputs legitimately differ. Legacy JD fetch/notification/document delivery is not automatically triggered by the per-job dashboard evaluation endpoint. The dashboard is not an AI batch/delivery control panel, and the finite search button does not expose every advanced CLI search override. These are intentional boundaries, not claims of exhaustive UI-option or operational parity. Unknown-source autonomy and provider availability require their own real retrieval evidence.
+
+## Source-response recovery follow-up
+
+Build `source-recovery-1` adds backend-owned response outcomes, snapshot receipt
+scope and source/provider wait reasons. See [SOURCE_RECOVERY.md](SOURCE_RECOVERY.md)
+for ownership, tests, backoff behavior and remaining external provider limitations.
+Do not interpret zero canonical inserts as an empty or failed response; use the
+backend outcome and raw/valid/existing/filtered counts. No UI control overrides a
+publisher gate, and a snapshot completion is not proof of whole-site coverage.
