@@ -208,7 +208,8 @@ async def evaluate_job(
             return {"success": False, "error": "Description unavailable; retry after resolving source access", "url": job["url"], "company": job["company"], "title": job["title"]}
 
     # 2. Evaluate
-    evaluation = evaluator.evaluate(job)
+    from jobhunter_app.evaluation_service import evaluate_prepared
+    evaluation = evaluate_prepared(job, evaluator, german_policy)
 
     if not evaluation.get("success"):
         logger.error(f"Evaluation failed: {evaluation.get('error')}")
@@ -217,7 +218,7 @@ async def evaluate_job(
     score = evaluation.get("global_score", 0)
 
     import math
-    if isinstance(score, bool) or not isinstance(score, (int, float)) or not math.isfinite(score) or not 1 <= score <= 5:
+    if isinstance(score, bool) or not isinstance(score, (int, float)) or not math.isfinite(score) or not (1 <= score <= 5 or (score == 0 and evaluation.get("policy_rejected"))):
         return {"success": False, "error": "Invalid evaluation score; job remains pending", "url": job["url"]}
     evaluation["global_score"] = round(score, 1)
 
@@ -234,57 +235,10 @@ async def evaluate_job(
     if job.get("date_posted"):
         evaluation["date_posted"] = job["date_posted"]
 
-    # --- German Language Auto-Rejection ---
-    german_level = evaluation.get("german_level_required", "none")
-    german_required = evaluation.get("german_required", False)
-
-    should_reject = False
-    if german_policy == "reject_b1_plus":
-        should_reject = german_level in ("B2+", "B1")
-    elif german_policy == "reject_b2_plus_only":
-        should_reject = german_level == "B2+"
-    elif german_policy == "reject_unless_bilingual":
-        # Accept German-requiring jobs IF the JD also mentions English
-        if german_level in ("B2+", "B1") or german_required:
-            jd_lower = job.get("description", "").lower()
-            english_signals = [
-                "english", "englisch", "fluent in english", "good english",
-                "very good english", "excellent english", "english required",
-                "working language: english", "english is a must",
-                "gute englischkenntnisse", "sehr gute englischkenntnisse",
-                "flie\u00dfend englisch", "b2 english",
-            ]
-            # Check word-boundary matches for short CEFR codes (avoid matching "C1 certification" etc.)
-            has_english = any(signal in jd_lower for signal in english_signals)
-            if not has_english:
-                has_english = bool(re.search(r'\b(c1|c2)\b.*\b(english|englisch)\b', jd_lower)) or \
-                              bool(re.search(r'\b(english|englisch)\b.*\b(c1|c2)\b', jd_lower))
-            if has_english:
-                should_reject = False
-                logger.info(
-                    f"[DE] BILINGUAL: German {german_level} + English found "
-                    f"-> keeping job (policy={german_policy})"
-                )
-            else:
-                should_reject = True
-    # accept_all: never auto-reject
-
-    if should_reject:
-        original_score = score
-        score = 0
-        evaluation["global_score"] = 0
-        evaluation["recommendation"] = "skip_german"
-        logger.info(
-            f"[DE] AUTO-SKIP: German {german_level} required "
-            f"(policy={german_policy}) | "
-            f"Original score: {original_score}/5 | Company: {job['company']}"
-        )
-    else:
-        logger.info(
-            f"Score: {score}/5 | Company: {job['company']} | "
-            f"Recommendation: {evaluation.get('recommendation')} | "
-            f"German: {german_level}"
-        )
+    evaluation["threshold"] = threshold
+    evaluation["classification"] = "rejected" if evaluation.get("policy_rejected") else "above_threshold" if evaluation["global_score"] >= threshold else "below_threshold"
+    # Policy and scoring owned by the shared evaluation service.
+    score = evaluation["global_score"]
 
     # 3. Send Telegram notification for every evaluation
     telegram.notify_evaluation(evaluation)
@@ -376,6 +330,8 @@ async def run_evaluate(
     german_policy_resolved = german_policy if german_policy else profile.get("evaluation", {}).get("german_filter", "accept_all")
     if create_cv_override:
         raise ValueError("CV creation is retired")
+    from jobhunter_app.evaluation_service import EvaluationOptions
+    EvaluationOptions(method='ai',threshold=threshold,german_policy=german_policy_resolved)
     create_cv = False
 
     evaluator = Evaluator()
@@ -473,13 +429,15 @@ def main():
         create_cv_override = True
 
     if args.url:
-        asyncio.run(run_evaluate(mode="url", url=args.url, threshold_override=args.threshold, german_policy=args.german_policy, create_cv_override=create_cv_override))
+        results = asyncio.run(run_evaluate(mode="url", url=args.url, threshold_override=args.threshold, german_policy=args.german_policy, create_cv_override=create_cv_override))
     elif args.all:
-        asyncio.run(run_evaluate(mode="all", threshold_override=args.threshold, german_policy=args.german_policy, create_cv_override=create_cv_override))
+        results = asyncio.run(run_evaluate(mode="all", threshold_override=args.threshold, german_policy=args.german_policy, create_cv_override=create_cv_override))
     elif args.batch:
-        asyncio.run(run_evaluate(mode="batch", batch_size=args.batch, threshold_override=args.threshold, german_policy=args.german_policy, create_cv_override=create_cv_override))
+        results = asyncio.run(run_evaluate(mode="batch", batch_size=args.batch, threshold_override=args.threshold, german_policy=args.german_policy, create_cv_override=create_cv_override))
     else:
-        asyncio.run(run_evaluate(mode="next", threshold_override=args.threshold, german_policy=args.german_policy, create_cv_override=create_cv_override))
+        results = asyncio.run(run_evaluate(mode="next", threshold_override=args.threshold, german_policy=args.german_policy, create_cv_override=create_cv_override))
+    if any(not r.get("success") for r in results):
+        raise SystemExit(2)
 
 
 

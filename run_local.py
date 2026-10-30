@@ -20,6 +20,8 @@ def main(argv=None):
     p = sub.add_parser('import'); p.add_argument('file', type=Path); p.add_argument('--dry-run', action='store_true'); p.add_argument('--with-state', action='store_true')
     p = sub.add_parser('migrate'); p.add_argument('directory', type=Path); p.add_argument('--apply', action='store_true'); p.add_argument('--allow-partial', action='store_true')
     sub.add_parser('match')
+    p = sub.add_parser('evaluate'); p.add_argument('job_id'); p.add_argument('--method',choices=['local','ai'],default='local'); p.add_argument('--allow-provider',action='store_true'); p.add_argument('--fallback',action='store_true'); p.add_argument('--threshold',type=float,default=3.5); p.add_argument('--german-policy',choices=__import__('jobhunter_app.evaluation_service',fromlist=['POLICIES']).POLICIES,default='accept_all')
+    p = sub.add_parser('evaluation'); p.add_argument('job_id')
     sub.add_parser('semantic-status')
     p = sub.add_parser('semantic-rank'); p.add_argument('--model-dir',required=True,type=Path); p.add_argument('--limit',type=int,default=50); p.add_argument('--threads',type=int,default=2); p.add_argument('--cache',type=Path); p.add_argument('--output',type=Path)
     sub.add_parser('summary')
@@ -112,6 +114,9 @@ def main(argv=None):
         elif args.command == 'migrate':
             from jobhunter_app.migration import migrate
             result = migrate(store, args.directory, dry_run=not args.apply, profile_id=pid, allow_partial=args.allow_partial)
+        elif args.command in ('evaluate','evaluation'):
+            from jobhunter_app.evaluation_service import evaluate, latest, EvaluationOptions
+            result = latest(store,args.job_id,pid) if args.command=='evaluation' else evaluate(store,args.job_id,pid,EvaluationOptions(args.method,args.allow_provider,args.fallback,args.threshold,args.german_policy))
         elif args.command == 'match':
             result = store.evaluate(pid)
         elif args.command == 'semantic-rank':
@@ -217,7 +222,7 @@ def main(argv=None):
             else:
                 from jobhunter_app.feeds import ingest
                 with args.file.open('rb') as stream: content = stream.read(5 * 1024 * 1024 + 1)
-                result = ingest(store, content, args.rights_attested, dry_run=args.dry_run)
+                result = ingest(store, content, args.rights_attested, dry_run=args.dry_run, auto_add=True, profile_id=pid)
         elif args.command == 'posts':
             from jobhunter_app.posts import listing
             result = listing(store, args.status, args.offset)
@@ -273,7 +278,7 @@ def main(argv=None):
             serve(store, args.port, pid, automatic=not args.manual_discovery)
             return 0
         print(json.dumps(result, ensure_ascii=False, indent=2))
-        return 0
+        return 2 if args.command=='evaluate' and result['status'] in ('pending','failed','partial') else 0
     except sqlite3.DatabaseError:
         print('Error: Local database operation failed. Preserve the database and any WAL/SHM files. Restore a verified backup to a new filename; no automatic reset was attempted.', file=sys.stderr)
         return 2
