@@ -171,7 +171,9 @@ class AutomaticDiscovery:
                             'pagination': row['pagination'], 'new_jobs': metrics.get('new_unique_jobs', 0), 'invalid': metrics.get('invalid', 0),
                             'failure_code': metrics.get('failure_code'), 'failure_stage': metrics.get('failure_stage'),
                             'http_status': metrics.get('http_status'), 'error_type': metrics.get('error_type'),
-                            'validation_hint': metrics.get('validation_hint')})
+                            'validation_hint': metrics.get('validation_hint'), 'outcome': row['outcome'],
+                            'last_attempt_status': row['last_attempt_status'], 'wait_reason': row['wait_reason'],
+                            'recovery_category': metrics.get('recovery_category'), 'recovery_action': metrics.get('recovery_action')})
         return {'available': True, 'enabled': config['enabled'], **state, 'sources': sources,
                 'runtime': runtime_status(), 'profile_search_requested': self.search_requested,
                 'profile_search': latest_search(self.store, self.profile_id),
