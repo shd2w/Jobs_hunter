@@ -168,7 +168,7 @@ class AutomaticDiscovery:
             sources.append({'id': row['id'], 'label': LABELS.get(row['id'], row['id']), 'state': state_name,
                             'health': row['health'], 'engine':row['engine'], 'provider_family':row['provider_family'], 'approved': bool(row['approved']), 'error': row['last_error'],
                             'last_completed_at': row['last_completed_at'], 'next_allowed_at': row['next_allowed_at'],
-                            'new_jobs': metrics.get('new_unique_jobs', 0), 'invalid': metrics.get('invalid', 0),
+                            'pagination': row['pagination'], 'new_jobs': metrics.get('new_unique_jobs', 0), 'invalid': metrics.get('invalid', 0),
                             'failure_code': metrics.get('failure_code'), 'failure_stage': metrics.get('failure_stage'),
                             'http_status': metrics.get('http_status'), 'error_type': metrics.get('error_type'),
                             'validation_hint': metrics.get('validation_hint')})
