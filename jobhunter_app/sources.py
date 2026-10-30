@@ -317,6 +317,7 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
             from .authorized_boards import robots_mode
             from .board_browser import transport_mode
             store.audit(db,'authorized_board_robots_mode',{'source':source_id,'robots_mode':robots_mode(),'transport':transport_mode(),'approval_required':True})
+    failure_stage = 'configuration'
     try:
         source = Source(row['kind'], row['identifier'])
         if request is not None:
@@ -326,6 +327,7 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
         with store.connect() as db:
             checkpoint = db.execute('SELECT data FROM search_progress WHERE signature=?', (request.signature,)).fetchone() if request else db.execute('SELECT data FROM source_checkpoints WHERE source_id=?',(source_id,)).fetchone()
         state = json.loads(checkpoint[0]) if checkpoint else {}
+        failure_stage = 'retrieval'
         if request:
             from .expanded_sources import collect
             payload = collect(source, state, cancel_event, request=request) if transport is fetch else transport(source)
@@ -341,12 +343,14 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
             return {'cancelled': True, 'inserted': 0}
         from .source_discovery import discover
         from dataclasses import asdict
+        failure_stage = 'normalization'
         observed = normalize(source, payload) if source.kind != 'feed' and not (collected and collected.posts) else []
         raw_evidence=[]
         if source.kind in ('jobicy','arbeitnow') and isinstance(payload,dict):
             for item in payload.get('jobs' if source.kind=='jobicy' else 'data',[])[:1000]:
                 if isinstance(item,dict): raw_evidence.append({'url':item.get('url',''),'description':item.get('jobDescription' if source.kind=='jobicy' else 'description','')})
         leads = (collected.leads if collected else []) + [asdict(lead) for lead in discover(observed+raw_evidence)]
+        failure_stage = 'intake'
         if source.kind == 'feed':
             from .feeds import ingest
             with store.connect() as db:
@@ -441,6 +445,14 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
             message = ('Direct HTTP timed out. Optional explicit browser transport may be used after local setup; no automatic retry or fallback.' if row['kind'] in ('wuzzuf','naukrigulf') else 'Source HTTP timed out; review official access/configuration. No automatic retry or alternate transport.')
             failure['error'] = message
             failure['failure_code'] = 'http_timeout'
+        validation_hints = {
+            'Expected JSON': 'Expected a JSON response, but the source returned a different content type. No usable response was imported.',
+            'Invalid Arbeitnow payload': 'Arbeitnow response did not contain the expected bounded jobs data list. No successful empty scan was recorded.',
+        }
+        if type(exc) is ValueError and str(exc) in validation_hints:
+            failure['validation_hint'] = validation_hints[str(exc)]
+        failure.update(error_type=type(exc).__name__, failure_stage=failure_stage)
+        failure.setdefault('failure_code', 'http_error' if isinstance(exc, urllib.error.HTTPError) else 'response_validation' if isinstance(exc, (ValueError, TypeError, KeyError)) else 'source_failure')
         with store.connect() as db:
             if row['kind'] in JOBSPY and isinstance(exc, RuntimeError):
                 from .source_health import retry_gate
