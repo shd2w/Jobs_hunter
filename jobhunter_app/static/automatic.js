@@ -40,11 +40,13 @@
    const card=node('article',undefined,'auto-source');card.append(node('h3',s.label));
    const failed=['failed','blocked','access_blocked','rate_limited','interrupted'].includes(s.health);
    card.append(node('p',failed?'Access or response problem':names[s.state]||s.state,failed?'source-error':'source-state'));
-   if(s.last_completed_at&&!failed)card.append(node('p',s.new_jobs+' canonical inserts in last response · '+(s.pagination?.message||'Continuation information unavailable.')));
+   if(s.last_attempt_status&&!failed)card.append(node('p',(s.outcome?.message||'Response counts unavailable.')+' '+(s.pagination?.message||'Continuation information unavailable.')));
    if(s.error)card.append(node('p',s.error,'muted'));
    if(s.validation_hint)card.append(node('p',s.validation_hint,'muted'));
    if(s.failure_code)card.append(node('p','Diagnostic: '+s.failure_code+' · stage: '+(s.failure_stage||'unknown')+(s.http_status?' · HTTP '+s.http_status:'')+(s.error_type?' · '+s.error_type:''),'muted'));
-   if(s.last_completed_at&&s.new_jobs===0&&!failed)card.append(node('p','Zero new records can mean duplicates or an empty response; it does not establish source failure.','muted'));
+   if(s.wait_reason)card.append(node('p',s.wait_reason,'muted'));
+   if(s.recovery_action)card.append(node('p',s.recovery_action,'muted'));
+   if(!s.last_attempt_status&&s.wait_reason)card.append(node('p','This source has not run yet; a shared publisher wait is not a scan failure.','muted'));
    if(s.next_allowed_at)card.append(node('p','Next allowed: '+date(s.next_allowed_at),'muted'));
    if(!s.approved)card.append(node('p','Review this source in Discovery before enabling it again.','muted'));
    return card;

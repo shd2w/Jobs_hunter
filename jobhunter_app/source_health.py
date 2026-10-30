@@ -43,12 +43,20 @@ def health(store):
             if row['kind'] in ('structured_html','jobicy','arbeitnow','hn','usajobs','wuzzuf','naukrigulf','scrapling_jobicy','scrapling_arbeitnow')+POST_PLATFORMS:
                 latest=db.execute('SELECT MAX(last_run) FROM sources WHERE kind IN ('+','.join('?' for _ in family_kinds)+')',family_kinds).fetchone()[0]
                 if latest: due=max(due,datetime.fromisoformat(latest)+timedelta(seconds=POLICIES[row['kind']]['cooldown']))
-            if gate: due=max(due,datetime.fromisoformat(gate[0]))
+            wait_reason = 'Source refresh cooldown' if row['last_run'] else None
+            if due > (datetime.fromisoformat(row['last_run'])+timedelta(seconds=POLICIES[row['kind']]['cooldown']) if row['last_run'] else datetime.min.replace(tzinfo=timezone.utc)):
+                wait_reason = 'Shared publisher cooldown: native API and HTML use the same request budget'
+            if gate and datetime.fromisoformat(gate[0]) >= due:
+                due=max(due,datetime.fromisoformat(gate[0]))
+                wait_reason = 'Provider retry/backoff gate; scan/reset/reapproval cannot bypass it'
+            item['wait_reason'] = wait_reason if due > datetime.now(timezone.utc) else None
             checkpoint=db.execute('SELECT updated_at FROM source_checkpoints WHERE source_id=?',(row['id'],)).fetchone()
             item.update(engine='scrapling' if row['kind'].startswith('scrapling_') else 'jobspy' if row['kind'].startswith('jobspy_') else 'native',provider_family=family,last_completed_at=success[0] if success else None,next_allowed_at=due.isoformat() if due!=datetime.min.replace(tzinfo=timezone.utc) else None,checkpoint_saved_at=checkpoint[0] if checkpoint else None,last_metrics=json.loads(last['metrics']) if last else {},coverage_warning='Observed snapshots only. Absence is not evidence of vacancy closure. Discovery does not score relevance.')
             from .pagination import state as pagination
             item['pagination'] = item['last_metrics'].get('pagination') or pagination(evidence='historical receipt unavailable')
             item['last_attempt_status'] = last['status'] if last else None
+            from .source_outcomes import outcome
+            item['outcome'] = outcome(item['last_metrics'])
             item['observations_older_than_30_days']=db.execute("SELECT COUNT(*) FROM sightings WHERE source=? AND datetime(last_seen)<datetime('now','-30 days')",(row['id'],)).fetchone()[0]
             item['manual_priority_hint']='Review failures/permissions first' if row['health'] in ('failed','rate_limited','interrupted','access_blocked') else 'Resume incomplete pass when due' if item['last_metrics'].get('bounded_selection') else 'Compare unique contribution before another manual pass'
             result.append(item)

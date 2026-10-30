@@ -204,6 +204,14 @@ def fetch(source: Source, cancel_event=None, checkpoint=None):
     if 'json' not in content_type:
         raise ValueError('Source did not return JSON')
     data = json.loads(content)
+    if source.kind == 'remotive':
+        # This endpoint supplies a bounded snapshot, not a resumable cursor.
+        normalize(source, data)  # Validate before emitting a completed receipt.
+        from .collection import Collection
+        from .pagination import state as pagination
+        return Collection(data, {'complete': True}, {'requests': 1,
+            'pagination': pagination(response_mode='snapshot', pages_retrieved=1,
+                                    evidence='validated Remotive current API response; not all vacancies')})
     return data
 
 
@@ -359,11 +367,13 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
                 result = ingest(store, payload, rights_attested=True, source_label=source_id, base_url=source.identifier,_db=db,auto_add=True,profile_id=profile_id)
                 result.pop('items', None)
                 from .pagination import state as pagination
-                result['pagination'] = pagination(evidence='current feed response only')
+                result['pagination'] = pagination(response_mode='snapshot', evidence='current feed response only')
                 result['duration_seconds']=round(time.monotonic()-started,3)
                 result['new_unique_jobs']=result.get('auto_added',0)
                 result['existing_job_observations']=result.get('linked_existing',0)
                 state = 'partial' if result['invalid'] or result.get('feed_truncated') or result.get('feed_errors') else 'success'
+                from .source_outcomes import outcome
+                result['outcome'] = outcome(result)
                 db.execute('UPDATE runs SET finished_at=?,status=?,metrics=? WHERE id=?', (now(), state, dump(result), run_id))
                 db.execute('UPDATE sources SET health=?,last_error=NULL WHERE id=?', (state, source_id))
         else:
@@ -401,7 +411,9 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
                     result['bounded_selection'] = collected.metrics['bounded_selection'] if collected else True
                     result['total_reported'] = payload.get('totalFound')
                     result['notice'] = 'At most 10 details per scan; default collector resumes only committed checkpoints. Injected transport coverage is unverified.'
-                state = 'partial' if result['invalid'] or result.get('bounded_selection') else 'success'
+                state = 'partial' if result['pagination']['partial'] or result.get('bounded_selection') else 'success'
+                from .source_outcomes import outcome
+                result['outcome'] = outcome(result)
                 db.execute('UPDATE runs SET finished_at=?,status=?,metrics=? WHERE id=?', (now(), state, dump(result), run_id))
                 db.execute('UPDATE sources SET health=?,last_error=NULL WHERE id=?', (state, source_id))
 
@@ -467,7 +479,15 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
         with store.connect() as db:
             if row['kind'] in JOBSPY and isinstance(exc, RuntimeError):
                 from .source_health import retry_gate
-                retry_gate(db, row['kind'], '', max(cooldown, 3600))
+                from .provider_recovery import policy
+                consecutive = 1
+                for previous in db.execute('SELECT status FROM runs WHERE source=? AND id<? ORDER BY id DESC', (source_id, run_id)):
+                    if previous['status'] != 'failed': break
+                    consecutive += 1
+                recovery = policy(row['kind'], getattr(exc, 'http_status', None), consecutive)
+                failure.update(recovery, consecutive_failures=consecutive)
+                message = recovery['error']
+                retry_gate(db, row['kind'], getattr(exc, 'retry_after', '') or '', max(cooldown, recovery['retry_delay_seconds']))
             if access_blocked:
                 db.execute('UPDATE sources SET approved=0,health=?,last_error=? WHERE kind=?',('access_blocked',message,row['kind']))
                 store.audit(db,'provider_access_pause',{'kind':row['kind']})
