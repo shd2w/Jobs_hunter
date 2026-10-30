@@ -58,6 +58,16 @@ def main(argv=None):
     p = sub.add_parser('post'); p.add_argument('id')
     p = sub.add_parser('post-accept'); p.add_argument('id'); p.add_argument('fields', type=Path); p.add_argument('--confirmed', action='store_true'); p.add_argument('--link-job', default='')
     p = sub.add_parser('post-dismiss'); p.add_argument('id')
+    p = sub.add_parser('discover', help='Finite local intent-to-source discovery; no URLs required')
+    p.add_argument('--region', action='append', default=[])
+    p.add_argument('--language', action='append', default=[])
+    p.add_argument('--attempts', type=int, default=12)
+    p.add_argument('--seconds', type=int, default=120)
+    p.add_argument('--approve-public-ats', action='store_true', help='Operator attests provider/employer terms permit NEW public ATS bindings; never reapproves paused sources')
+    p.add_argument('--no-legacy-projection', action='store_true')
+    p.add_argument('--inspect-public-links', action='store_true', help='Optional at most two robots-checked observed employer-page inspections per run')
+    p.add_argument('--search-api', action='store_true', help='Optional explicitly configured search API; requires local access/cost consent')
+    p = sub.add_parser('discovery-report'); p.add_argument('--run-id')
     sub.add_parser('source-catalog')
     p = sub.add_parser('source-directory'); p.add_argument('--query', default='')
     sub.add_parser('source-health')
@@ -172,6 +182,17 @@ def main(argv=None):
         elif args.command == 'source':
             from jobhunter_app.sources import register
             result = {'source': register(store, args.kind, args.identifier, args.approve), 'approved': args.approve}
+        elif args.command == 'discover':
+            from jobhunter_app.discovery_run import run
+            provider = None
+            if args.search_api:
+                from jobhunter_app.search_provider import BraveSearch
+                provider = BraveSearch()
+            result = run(store,pid,args.region,args.language,args.attempts,args.seconds,args.approve_public_ats,
+                         project=not args.no_legacy_projection,search_provider=provider,inspect_links=args.inspect_public_links)
+        elif args.command == 'discovery-report':
+            from jobhunter_app.discovery_run import report
+            result = report(store,args.run_id)
         elif args.command == 'source-directory':
             from jobhunter_app.source_directory import directory
             result = directory(args.query)
