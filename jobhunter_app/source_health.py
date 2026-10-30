@@ -46,6 +46,9 @@ def health(store):
             if gate: due=max(due,datetime.fromisoformat(gate[0]))
             checkpoint=db.execute('SELECT updated_at FROM source_checkpoints WHERE source_id=?',(row['id'],)).fetchone()
             item.update(engine='scrapling' if row['kind'].startswith('scrapling_') else 'jobspy' if row['kind'].startswith('jobspy_') else 'native',provider_family=family,last_completed_at=success[0] if success else None,next_allowed_at=due.isoformat() if due!=datetime.min.replace(tzinfo=timezone.utc) else None,checkpoint_saved_at=checkpoint[0] if checkpoint else None,last_metrics=json.loads(last['metrics']) if last else {},coverage_warning='Observed snapshots only. Absence is not evidence of vacancy closure. Discovery does not score relevance.')
+            from .pagination import state as pagination
+            item['pagination'] = item['last_metrics'].get('pagination') or pagination(evidence='historical receipt unavailable')
+            item['last_attempt_status'] = last['status'] if last else None
             item['observations_older_than_30_days']=db.execute("SELECT COUNT(*) FROM sightings WHERE source=? AND datetime(last_seen)<datetime('now','-30 days')",(row['id'],)).fetchone()[0]
             item['manual_priority_hint']='Review failures/permissions first' if row['health'] in ('failed','rate_limited','interrupted','access_blocked') else 'Resume incomplete pass when due' if item['last_metrics'].get('bounded_selection') else 'Compare unique contribution before another manual pass'
             result.append(item)
@@ -70,4 +73,9 @@ def batch(store,source_ids,cancel_event=None,transport=None,profile_id='default'
                 try: results.append({'source':identity,'result':_scan_locked(store,identity,transport or fetch,cancel_event,profile_id)})
                 except ValueError as exc: results.append({'source':identity,'error':str(exc)})
     except Timeout as exc: raise ValueError('Another source scan is active') from exc
-    return {'results':results,'cancelled':bool(cancel_event and cancel_event.is_set()),'manual':True}
+    cancelled=bool(cancel_event and cancel_event.is_set())
+    failed=sum('error' in r or r.get('result',{}).get('pagination',{}).get('failed',False) for r in results)
+    partial=sum(bool(r.get('result',{}).get('pagination',{}).get('partial') or r.get('result',{}).get('invalid') or r.get('result',{}).get('bounded_selection')) for r in results)
+    return {'results':results,'cancelled':cancelled,'manual':True,
+            'status':'cancelled' if cancelled else 'failed' if failed==len(source_ids) else 'partial' if failed or partial else 'success',
+            'counts':{'requested':len(source_ids),'attempted':len(results),'failed':failed,'partial':partial,'deferred':len(source_ids)-len(results)}}

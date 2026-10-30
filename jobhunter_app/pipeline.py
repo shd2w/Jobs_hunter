@@ -122,6 +122,22 @@ def export_uaa(store, destination: Path, profile_id='default', threshold=3.5, pr
             ambiguous.discard(jid)
         elif timestamp == latest[jid][0] and dump(evaluation) != dump(latest[jid][1]):
             ambiguous.add(jid)
+    # Current shared evaluations supersede historical scores only for this
+    # explicit profile/job. Local, failed or stale receipts must NEVER resurrect
+    # an older AI recommendation in the application queue.
+    from .evaluation_service import latest as latest_evaluation
+    with store.connect() as db:
+        has_evaluations = db.execute("SELECT 1 FROM sqlite_master WHERE name='evaluation_meta'").fetchone()
+        evaluated_jobs = [r[0] for r in db.execute('SELECT DISTINCT job_id FROM evaluations WHERE profile_id=?',(profile_id,))] if has_evaluations else []
+    for jid in evaluated_jobs:
+        if jid not in jobs: continue
+        current = latest_evaluation(store,jid,profile_id)
+        latest.pop(jid,None); ambiguous.discard(jid)
+        if not current or current.get('stale') or current.get('status')!='completed_ai' or current.get('method')!='ai':
+            unlinked.append({'reason':'current_evaluation_not_exportable','job_id':jid})
+            continue
+        evaluation = {**current['ai'],'evaluated_at':current['finished_at']}
+        latest[jid] = (datetime.fromisoformat(current['finished_at']),evaluation)
     original_cv = store.profile(profile_id).get('original_cv', '')
     original_hash = None
     if original_cv:
@@ -164,4 +180,4 @@ def export_uaa(store, destination: Path, profile_id='default', threshold=3.5, pr
         publish_new(Path(destination), temporary.read_bytes())
     return {'exported': len(rows), 'skipped': skips + unlinked, 'file': str(destination),
             'original_cv_sha256': original_hash,
-            'notice': 'Historical evaluation projection only. Required existing PDFs and pinned UAA validation remain enforced. Nothing submitted.'}
+            'notice': 'Current shared AI or historical evaluation projection. Local/fallback/stale evaluations are not AI queue entries. Required existing PDFs and pinned UAA validation remain enforced. Nothing submitted.'}

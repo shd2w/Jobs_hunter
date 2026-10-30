@@ -5,14 +5,14 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 import platform
 
-BUILD = 'dashboard-discovery-bridge-1'
+BUILD = 'dashboard-cli-consistency-1'
 
 
 @lru_cache(maxsize=1)
 def status():
     root = Path(__file__).parent
     digest = sha256()
-    for name in ('automatic.py', 'discovery_run.py', 'sources.py', 'web.py', 'static/automatic.js'):
+    for name in ('automatic.py', 'discovery_run.py', 'sources.py', 'web.py', 'static/automatic.js','evaluation_service.py','pagination.py','static/evaluation.js','static/discovery.js'):
         digest.update(name.encode())
         digest.update((root / name).read_bytes())
     engines = {}
@@ -23,7 +23,7 @@ def status():
             engines[name] = {'installed': False, 'version': None}
     return {'build': BUILD, 'code_fingerprint': digest.hexdigest()[:12],
             'python': platform.python_version(), 'engines': engines,
-            'dashboard_profile_search': True,
+            'dashboard_profile_search': True, 'shared_evaluation': 'evaluation-service-1', 'pagination_contract': 1,
             'notice': 'Installed versions and code fingerprint, not proof of provider access. Restart the Python server after updating source.'}
 
 

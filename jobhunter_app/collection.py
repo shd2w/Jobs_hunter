@@ -34,6 +34,7 @@ def text(html):
 
 def collect(source, checkpoint=None, cancel_event=None):
     from .network import get
+    from .pagination import state as pagination
     state=checkpoint or {}; requests=0
     def read(url, credentials=None):
         nonlocal requests
@@ -48,11 +49,13 @@ def collect(source, checkpoint=None, cancel_event=None):
         return Collection(payload,next_state,{'requests':requests,'coverage_complete':complete,'bounded_selection':not complete,**metrics})
     if source.kind=='smartrecruiters':
         offset=int(state.get('offset',0)); pending=state.get('pending',[])
-        total=state.get('total',0)
+        total=state.get('total',0); known_total=state.get('known_total',False); listing_pages=0
         if not pending:
             if state.get('complete'): offset=0
+            listing_pages=1
             root=read(f'https://api.smartrecruiters.com/v1/companies/{source.identifier}/postings?'+urlencode({'limit':100,'offset':offset}))
             if not isinstance(root,dict) or not isinstance(root.get('content'),list) or len(root['content'])>100: raise ValueError('Invalid posting list')
+            known_total = 'totalFound' in root
             total=root.get('totalFound',len(root['content']))
             if type(total) is not int or total<0: raise ValueError('Invalid total')
             pending=[x.get('id') if isinstance(x,dict) else None for x in root['content']]
@@ -63,7 +66,7 @@ def collect(source, checkpoint=None, cancel_event=None):
                 entries.append(read(f'https://api.smartrecruiters.com/v1/companies/{source.identifier}/postings/{identity}'))
             else: entries.append({})
         remaining=pending[10:]; complete=not remaining and offset>=total
-        return finish({'content':entries,'totalFound':total}, {'offset':offset,'pending':remaining,'total':total,'complete':complete}, complete,total_reported=total)
+        return finish({'content':entries,'totalFound':total}, {'offset':offset,'pending':remaining,'total':total,'known_total':known_total,'complete':complete}, complete,total_reported=total, pagination=pagination(has_next_page=(offset<total) if known_total else None, continuation_available=bool(remaining) or (known_total and offset<total), source_exhausted=(offset>=total and not remaining) if known_total else None, pending_details=len(remaining), evidence='reported totalFound' if known_total else 'observed detail IDs only',pages_retrieved=listing_pages))
     if source.kind=='jobicy':
         cursor=state.get('cursor') if not state.get('complete') else None
         started=state.get('started',time.time()) if cursor else time.time()
@@ -75,7 +78,7 @@ def collect(source, checkpoint=None, cancel_event=None):
         cursor=root.get('nextCursor')
         if root['hasMore'] and cursor == state.get('cursor'): raise ValueError('Repeated pagination cursor; reset explicitly after reviewing source')
         if root['hasMore'] and (not isinstance(cursor,str) or not 1<=len(cursor)<=4000): raise ValueError('Invalid cursor')
-        return finish(root,{'cursor':cursor if root['hasMore'] else None,'started':started,'complete':not root['hasMore']},not root['hasMore'],window='7-day feed, delayed 3 hours; absence does not establish closure')
+        return finish(root,{'cursor':cursor if root['hasMore'] else None,'started':started,'complete':not root['hasMore']},not root['hasMore'],window='7-day feed, delayed 3 hours; absence does not establish closure', pagination=pagination(has_next_page=root['hasMore'],continuation_available=root['hasMore'],source_exhausted=not root['hasMore'],evidence='validated hasMore + nextCursor',pages_retrieved=1))
     if source.kind=='arbeitnow':
         page=1 if state.get('complete') else int(state.get('page',1))
         base='https://www.arbeitnow.co.uk' if source.identifier=='uk' else 'https://www.arbeitnow.com'
@@ -89,7 +92,7 @@ def collect(source, checkpoint=None, cancel_event=None):
             # The remote URL is never fetched; only an increasing page number is used.
             if len(values)!=1 or not values[0].isdigit() or int(values[0])!=page+1: raise ValueError('Invalid page sequence')
             next_page=page+1
-        return finish(root,{'page':next_page or 1,'complete':next_page is None},next_page is None)
+        return finish(root,{'page':next_page or 1,'complete':next_page is None},next_page is None, pagination=pagination(has_next_page=bool(next_page) if isinstance(root.get('links'),dict) and 'next' in root['links'] else None,continuation_available=bool(next_page),source_exhausted=(not bool(next_page)) if isinstance(root.get('links'),dict) and 'next' in root['links'] else None,evidence='links.next' if isinstance(root.get('links'),dict) and 'next' in root['links'] else 'missing links.next',pages_retrieved=1))
     if source.kind=='usajobs':
         key=os.environ.get('USAJOBS_API_KEY','');agent=os.environ.get('USAJOBS_USER_AGENT','')
         if not key or not agent: raise ValueError('USAJOBS requires explicit environment configuration')
@@ -98,7 +101,7 @@ def collect(source, checkpoint=None, cancel_event=None):
         result=root.get('SearchResult') if isinstance(root,dict) else None
         if not isinstance(result,dict) or not isinstance(result.get('SearchResultItems'),list) or len(result['SearchResultItems'])>50: raise ValueError('Invalid USAJOBS payload')
         total=int(result.get('SearchResultCountAll',0));complete=page*50>=total
-        return finish(root,{'page':page+1,'complete':complete},complete,total_reported=total)
+        return finish(root,{'page':page+1,'complete':complete},complete,total_reported=total, pagination=pagination(has_next_page=(not complete) if 'SearchResultCountAll' in result else None,continuation_available=not complete,source_exhausted=complete if 'SearchResultCountAll' in result else None,evidence='SearchResultCountAll' if 'SearchResultCountAll' in result else 'missing total',pages_retrieved=1))
     if source.kind=='hn':
         base='https://hacker-news.firebaseio.com/v0/item/'
         root=read(base+source.identifier+'.json')
@@ -115,5 +118,5 @@ def collect(source, checkpoint=None, cancel_event=None):
             if not body: continue
             rows.append({'body':body,'origin_url':f'https://news.ycombinator.com/item?id={identity}','source_label':source.id,'published':str(item.get('time',''))})
         # No user profiles, author names or reply trees are collected.
-        return Collection(rows,{'seen':sorted(seen.intersection(kids))}, {'requests':requests,'coverage_complete':len(todo)<=10,'bounded_selection':len(todo)>10,'retrieved_comments':min(len(todo),10),'source_context':'HN Who is hiring thread; individual comments unverified'},True)
+        return Collection(rows,{'seen':sorted(seen.intersection(kids))}, {'requests':requests,'coverage_complete':len(todo)<=10,'bounded_selection':len(todo)>10,'pending_comments':max(0,len(todo)-10),'retrieved_comments':min(len(todo),10),'source_context':'HN Who is hiring thread; individual comments unverified'},True)
     raise ValueError('No bounded collector for source')
