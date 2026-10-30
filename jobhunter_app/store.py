@@ -223,7 +223,12 @@ class Store:
                     (job_id, job['url'], job['title'], job['company'], job['location'], job['description'], dump(job), timestamp, timestamp))
                 db.execute('INSERT INTO sightings VALUES(?,?,?,?) ON CONFLICT(job_id,source) DO UPDATE SET last_seen=excluded.last_seen',
                            (job_id, source, timestamp, timestamp))
-                db.execute('DELETE FROM matches WHERE job_id=?', (job_id,))
+                changed = not existing or json.loads(existing['data']) != job
+                if changed:
+                    db.execute('DELETE FROM matches WHERE job_id=?', (job_id,))
+                    if db.execute("SELECT 1 FROM sqlite_master WHERE name='search_projection'").fetchone():
+                        from .search_strategy import fingerprint
+                        db.execute("INSERT INTO search_projection(job_id,status,fingerprint) VALUES(?,'pending',?) ON CONFLICT(job_id) DO UPDATE SET status='pending',fingerprint=excluded.fingerprint,error=''", (job_id, fingerprint(job)))
             if not dry_run:
                 self.audit(db, 'ingest', {k: v for k, v in report.items() if k != 'errors'})
         return report
@@ -269,7 +274,7 @@ class Store:
                            (profile_id, job_id, old['status'] if old else None, status, timestamp))
             self.audit(db, 'application_updated', {'profile_id': profile_id, 'job_id': job_id, 'status': status})
 
-    def evaluate(self, profile_id='default'):
+    def evaluate(self, profile_id='default', pending_only=False):
         from .matching import match_job, MATCHER_VERSION
         with self.connect() as db:
             p = db.execute('SELECT data FROM profiles WHERE id=?', (profile_id,)).fetchone()
@@ -277,7 +282,8 @@ class Store:
                 raise ValueError('Configure a profile before matching')
             profile = json.loads(p['data'])
             count = 0
-            for row in db.execute('SELECT id,data FROM jobs').fetchall():
+            query = 'SELECT j.id,j.data FROM jobs j LEFT JOIN matches m ON m.job_id=j.id AND m.profile_id=? WHERE m.job_id IS NULL' if pending_only else 'SELECT id,data FROM jobs'
+            for row in db.execute(query, (profile_id,) if pending_only else ()).fetchall():
                 result = match_job(json.loads(row['data']), profile)
                 db.execute('INSERT INTO matches VALUES(?,?,?,?) ON CONFLICT(profile_id,job_id) DO UPDATE SET data=excluded.data,updated_at=excluded.updated_at',
                            (profile_id, row['id'], dump(result), now()))
