@@ -20,7 +20,7 @@ def config():
     return value
 
 
-def collect(source, checkpoint=None, cancel_event=None):
+def collect(source, checkpoint=None, cancel_event=None, request=None):
     state = checkpoint or {}
     if cancel_event and cancel_event.is_set(): raise InterruptedError('Collection cancelled')
     if source.kind in JOBSPY:
@@ -28,7 +28,7 @@ def collect(source, checkpoint=None, cancel_event=None):
         registry = config()
         scanner = JobSpyScanner(registry)
         site = source.kind.removeprefix('jobspy_')
-        searches = [s for s in scanner.searches if site in s.get('sites', [])]
+        searches = [request.parameters()] if request else [s for s in scanner.searches if site in s.get('sites', [])]
         if not searches: raise ValueError('No searches configured for this provider in config/portals.yml')
         index = int(state.get('search_index', 0)) % len(searches)
         search = dict(searches[index])
@@ -40,17 +40,21 @@ def collect(source, checkpoint=None, cancel_event=None):
         # Two pages per query by default; each pass is bounded, not exhaustive.
         more = len(rows) >= size and page + 1 < min(5, max(1, int(search.get('pages', 2))))
         from utils.filters import TitleFilter, LocationFilter, filter_jobs
-        filtered = filter_jobs(rows, TitleFilter(registry), LocationFilter(registry))
+        if request:
+            # Retrieval is broad: only explicit candidate hard title exclusions apply here.
+            filtered = filter_jobs(rows, TitleFilter({'title_filter': {'negative': list(request.exclusions)}}), LocationFilter({}))
+        else:
+            filtered = filter_jobs(rows, TitleFilter(registry), LocationFilter(registry))
         raw_count = len(rows)
         rows = filtered['passed']
         next_state = {'search_index': index if more else (index + 1) % len(searches),
-                      'page': page + 1 if more else 0, 'complete': False}
+                      'page': page + 1 if more else 0, 'complete': not more if request else False}
         return Collection(rows, next_state, {'raw_received': raw_count,
             'rejected_title': len(filtered['rejected_title']), 'rejected_location': len(filtered['rejected_location']), 'query': search['term'], 'location_query': search.get('location', ''),
             'scope_notice': search.get('scope_notice', ''), 'page': page + 1, 'configured_queries': len(searches), 'bounded_selection': True,
             'coverage_complete': False, 'provider_errors': scanner.last_errors,
             'provider_warnings': scanner.last_warnings,
-            'request_unit': 'One provider search page plus provider-managed description requests; not one HTTP request'})
+            'request_unit': 'One provider search page plus provider-managed description requests; not one HTTP request'}, leads=scanner.last_leads)
     from .network import get
     if source.kind == 'remoteok':
         body, typ = get('https://remoteok.com/api')

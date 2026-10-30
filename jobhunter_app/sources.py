@@ -24,6 +24,10 @@ POLICIES = {
  "feed": {"cooldown": 3600, "requests": 1, "docs": "", "notice": "Approve only a public HTTPS RSS/Atom feed whose terms permit this use. Use official platform adapters for social sources. Complete source-backed vacancies may be auto-added; ambiguous entries remain for review. One-hour local cooldown."},
 }
 
+POLICIES['structured_html'] = {'cooldown':3600,'requests':5,'docs':'https://schema.org/JobPosting','notice':'Opt-in reviewed generic Scrapling JSON-LD recipe. Explicit source approval, robots, same-origin bounds; at most five reads. No universal extraction.'}
+
+POLICIES['workday'] = {'cooldown': 600, 'requests': 105, 'docs': 'https://github.com/shd2w/Jobs_hunter/blob/main/scanners/workday.py', 'notice': 'Explicitly approved public Workday tenant/board. Reuses bounded direct scanner (at most five listing pages plus details). No authentication or fallback.'}
+
 POLICIES.update({
  'jobicy': {'cooldown':3600,'requests':1,'docs':'https://jobicy.com/jobs-rss-feed','notice':'Public free API only; never attaches a paid key. Jobicy credit/backlink retained. Seven-day feed delayed three hours. Cursor expires after 24 hours; expired incomplete passes need a checkpoint reset (automatic mode restarts a due pass without clearing gates).'},
  'arbeitnow': {'cooldown':3600,'requests':1,'docs':'https://www.arbeitnow.com/blog/job-board-api','notice':'Public DE/UK API; identifier de or uk. One page per manual scan. One-hour conservative local cooldown, not a published provider quota. Credit/backlink retained.'},
@@ -97,13 +101,16 @@ class Source:
     def __post_init__(self):
         if self.kind not in POLICIES:
             raise ValueError('Unsupported source kind')
+        if self.kind == 'workday':
+            if not re.fullmatch(r'[a-z0-9-]+__wd[0-9]+__[A-Za-z0-9_-]{1,80}', self.identifier):
+                raise ValueError('Workday requires observed tenant__wdN__board identity')
         if self.kind in POST_PLATFORMS:
             from .platform_posts import validate_identifier
             validate_identifier(self.kind,self.identifier)
         elif self.kind in ('wuzzuf','naukrigulf'):
             from .authorized_boards import safe_url
             safe_url(self.kind,self.identifier)
-        elif self.kind == 'feed':
+        elif self.kind in ('feed','structured_html'):
             from .network import feed_url
             feed_url(self.identifier)
         elif self.kind == 'usajobs':
@@ -124,11 +131,14 @@ class Source:
 
     @property
     def id(self):
-        return f'{self.kind}:' + (sha256(self.identifier.encode()).hexdigest()[:32] if self.kind in ('feed','usajobs','wuzzuf','naukrigulf') else self.identifier)
+        return f'{self.kind}:' + (sha256(self.identifier.encode()).hexdigest()[:32] if self.kind in ('feed','structured_html','usajobs','wuzzuf','naukrigulf') else self.identifier)
 
     @property
     def url(self):
         if self.kind in SCRAPLING_KINDS:return SCRAPLING_SOURCES[self.kind]['start']
+        if self.kind == 'workday':
+            tenant, node, board = self.identifier.split('__')
+            return f'https://{tenant}.{node}.myworkdayjobs.com/{board}'
         if self.kind == 'greenhouse':
             return f'https://boards-api.greenhouse.io/v1/boards/{self.identifier}/jobs?content=true'
         if self.kind == 'lever':
@@ -154,6 +164,12 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 def fetch(source: Source, cancel_event=None, checkpoint=None):
+    if source.kind == 'structured_html':
+        from .structured_source import collect
+        return collect(source,checkpoint,cancel_event)
+    if source.kind == 'workday':
+        from .workday_source import collect
+        return collect(source, checkpoint, cancel_event)
     if source.kind in SCRAPLING_KINDS:
         from .scrapling_engine import collect
         return collect(source,checkpoint,cancel_event)
@@ -191,7 +207,7 @@ def fetch(source: Source, cancel_event=None, checkpoint=None):
 
 
 def normalize(source: Source, data):
-    if source.kind in ('wuzzuf','naukrigulf') + JOBSPY + EXPANDED_PUBLIC + SCRAPLING_KINDS:
+    if source.kind in ('structured_html','workday','wuzzuf','naukrigulf') + JOBSPY + EXPANDED_PUBLIC + SCRAPLING_KINDS:
         if not isinstance(data,list) or len(data)>10000: raise ValueError('Invalid normalized board rows')
         return data
     if source.kind in ('jobicy','arbeitnow','usajobs'):
@@ -261,16 +277,19 @@ def register(store, kind, identifier, approved=False):
     return source.id
 
 
-def scan(store, source_id, transport=fetch, cancel_event=None, profile_id='default', mirror_legacy=True):
+def scan(store, source_id, transport=fetch, cancel_event=None, profile_id='default', mirror_legacy=True, request=None):
+    if request is not None:
+        from .discovery_state import ensure
+        ensure(store)
     lock = FileLock(str(store.path) + '.scan.lock', timeout=0)
     try:
         with lock:
-            return _scan_locked(store, source_id, transport, cancel_event, profile_id, mirror_legacy)
+            return _scan_locked(store, source_id, transport, cancel_event, profile_id, mirror_legacy, request)
     except Timeout as exc:
         raise ValueError('Another source scan is active; wait for completion') from exc
 
 
-def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='default', mirror_legacy=True):
+def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='default', mirror_legacy=True, request=None):
     from datetime import datetime, timezone
     import time
     started = time.monotonic()
@@ -289,7 +308,7 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
         cooldown = POLICIES[row['kind']]['cooldown']
         if row['last_run'] and (datetime.now(timezone.utc) - datetime.fromisoformat(row['last_run'])).total_seconds() < cooldown:
             raise ValueError(f'Per-source cooldown: wait at least {cooldown} seconds between scans')
-        if row['kind'] in ('jobicy','arbeitnow','hn','usajobs','wuzzuf','naukrigulf')+POST_PLATFORMS+SCRAPLING_KINDS:
+        if row['kind'] in ('structured_html','jobicy','arbeitnow','hn','usajobs','wuzzuf','naukrigulf')+POST_PLATFORMS+SCRAPLING_KINDS:
             latest = db.execute('SELECT MAX(last_run) FROM sources WHERE kind IN ('+','.join('?' for _ in family_kinds)+')',family_kinds).fetchone()[0]
             if latest and (datetime.now(timezone.utc)-datetime.fromisoformat(latest)).total_seconds()<cooldown: raise ValueError('Provider-wide local cooldown is active')
         run_id = db.execute('INSERT INTO runs(source,started_at,status) VALUES(?,?,?)', (source_id, now(), 'running')).lastrowid
@@ -300,9 +319,18 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
             store.audit(db,'authorized_board_robots_mode',{'source':source_id,'robots_mode':robots_mode(),'transport':transport_mode(),'approval_required':True})
     try:
         source = Source(row['kind'], row['identifier'])
+        if request is not None:
+            from .search_strategy import QuerySpec
+            if not isinstance(request, QuerySpec) or source.kind != 'jobspy_' + request.provider or request.profile_id != profile_id:
+                raise ValueError('Runtime query must match source and profile')
         with store.connect() as db:
-            checkpoint = db.execute('SELECT data FROM source_checkpoints WHERE source_id=?',(source_id,)).fetchone()
-        payload = transport(source, cancel_event=cancel_event, checkpoint=json.loads(checkpoint[0]) if checkpoint else {}) if transport is fetch else transport(source)
+            checkpoint = db.execute('SELECT data FROM search_progress WHERE signature=?', (request.signature,)).fetchone() if request else db.execute('SELECT data FROM source_checkpoints WHERE source_id=?',(source_id,)).fetchone()
+        state = json.loads(checkpoint[0]) if checkpoint else {}
+        if request:
+            from .expanded_sources import collect
+            payload = collect(source, state, cancel_event, request=request) if transport is fetch else transport(source)
+        else:
+            payload = transport(source, cancel_event=cancel_event, checkpoint=state) if transport is fetch else transport(source)
         from .collection import Collection
         collected = payload if isinstance(payload, Collection) else None
         if collected: payload = collected.payload
@@ -311,6 +339,14 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
                 db.execute('UPDATE runs SET finished_at=?,status=? WHERE id=?', (now(), 'cancelled', run_id))
                 db.execute('UPDATE sources SET health=? WHERE id=?', ('cancelled', source_id))
             return {'cancelled': True, 'inserted': 0}
+        from .source_discovery import discover
+        from dataclasses import asdict
+        observed = normalize(source, payload) if source.kind != 'feed' and not (collected and collected.posts) else []
+        raw_evidence=[]
+        if source.kind in ('jobicy','arbeitnow') and isinstance(payload,dict):
+            for item in payload.get('jobs' if source.kind=='jobicy' else 'data',[])[:1000]:
+                if isinstance(item,dict): raw_evidence.append({'url':item.get('url',''),'description':item.get('jobDescription' if source.kind=='jobicy' else 'description','')})
+        leads = (collected.leads if collected else []) + [asdict(lead) for lead in discover(observed+raw_evidence)]
         if source.kind == 'feed':
             from .feeds import ingest
             with store.connect() as db:
@@ -335,7 +371,11 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
                     result = store.ingest(normalize(source, payload), source=source_id, _db=db)
                 if collected:
                     result.update(collected.metrics)
-                    db.execute('INSERT INTO source_checkpoints VALUES(?,?,?) ON CONFLICT(source_id) DO UPDATE SET data=excluded.data,updated_at=excluded.updated_at',(source_id,dump(collected.checkpoint),now()))
+                    if request:
+                        db.execute('INSERT INTO search_progress VALUES(?,?,?) ON CONFLICT(signature) DO UPDATE SET data=excluded.data,updated_at=excluded.updated_at',(request.signature,dump(collected.checkpoint),now()))
+                    else:
+                        db.execute('INSERT INTO source_checkpoints VALUES(?,?,?) ON CONFLICT(source_id) DO UPDATE SET data=excluded.data,updated_at=excluded.updated_at',(source_id,dump(collected.checkpoint),now()))
+                result['discovery_leads'] = leads
                 result['duration_seconds'] = round(time.monotonic()-started,3)
                 result['new_unique_jobs'] = result.get('inserted',0)
                 result['existing_job_observations'] = result.get('updated',0)
@@ -373,7 +413,7 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
             return {'cancelled':True,'inserted':0}
         rate_limited = isinstance(exc, urllib.error.HTTPError) and exc.code == 429
         from .authorized_boards import AccessBlocked
-        access_blocked = row['kind'] in ('wuzzuf','naukrigulf')+POST_PLATFORMS+SCRAPLING_KINDS and (isinstance(exc,AccessBlocked) or (isinstance(exc,urllib.error.HTTPError) and exc.code in (401,403)))
+        access_blocked = row['kind'] in ('structured_html','wuzzuf','naukrigulf')+POST_PLATFORMS+SCRAPLING_KINDS and (isinstance(exc,AccessBlocked) or (isinstance(exc,urllib.error.HTTPError) and exc.code in (401,403)))
         message = ('Provider quota exhausted; all registered sources of this adapter kind are paused. Review provider retry policy before re-approving.' if rate_limited else 'Source access blocked; this provider is unapproved. Review permission and access rules; no bypass or automatic retry.' if access_blocked else type(exc).__name__ + ': source scan failed; check access, quota or payload')
         from .board_browser import BrowserError
         from .platform_posts import SetupRequired

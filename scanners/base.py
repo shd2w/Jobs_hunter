@@ -48,6 +48,7 @@ class ScanResult:
     errors: list[str] = field(default_factory=list)
     started_at: str = ""
     finished_at: str = ""
+    attempts: list[dict] = field(default_factory=list)
     
     @property
     def job_count(self) -> int:

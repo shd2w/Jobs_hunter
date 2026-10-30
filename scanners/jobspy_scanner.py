@@ -48,6 +48,7 @@ class JobSpyScanner(BaseScanner):
         self.searches = self._load_searches(config)
         self.last_errors = {}
         self.last_warnings = {}
+        self.last_leads = []
 
     @staticmethod
     def _load_searches(config: dict) -> list[dict]:
@@ -128,11 +129,19 @@ class JobSpyScanner(BaseScanner):
         loop = asyncio.get_running_loop()
         with ThreadPoolExecutor(max_workers=1) as executor:
             for search_config in self.searches:
+                from jobhunter_app.store import now
+                from hashlib import sha256
+                import json
+                attempt = {'id': sha256(json.dumps(search_config,sort_keys=True,default=str).encode()).hexdigest(),
+                    'query': search_config.get('term'), 'providers': search_config.get('sites',[]),
+                    'started_at': now(), 'status': 'dispatched'}
+                result.attempts.append(attempt)
                 try:
                     jobs = await loop.run_in_executor(
                         executor, self._run_search, search_config
                     )
                     result.jobs.extend(jobs)
+                    attempt.update(status='partial' if self.last_errors else 'succeeded', result_count=len(jobs))
                     result.errors.extend(f"{site}: {message}" for site, message in self.last_errors.items())
                 except Exception as e:
                     error_msg = (
@@ -140,7 +149,10 @@ class JobSpyScanner(BaseScanner):
                         f"in '{search_config.get('location', '?')}': {e}"
                     )
                     result.errors.append(error_msg)
+                    attempt.update(status='failed', error_category=type(e).__name__, result_count=0)
                     self.logger.error(error_msg)
+
+                attempt['finished_at'] = now()
 
                 # Delay between searches to avoid rate limits
                 await asyncio.sleep(2.0)
@@ -163,6 +175,7 @@ class JobSpyScanner(BaseScanner):
 
     def _do_search(self, search_config: dict) -> list[JobPosting]:
         """Inner search logic — separated so errors are always caught."""
+        self.last_leads = []
         try:
             from jobspy import scrape_jobs
         except ImportError:
@@ -245,12 +258,18 @@ class JobSpyScanner(BaseScanner):
             return []
 
         jobs = []
+        self.last_leads = []
         for _, row in df.iterrows():
             try:
                 url = clean(row.get("job_url"))
                 title = clean(row.get("title"))
                 if not url.startswith(("https://", "http://")) or not title:
                     continue
+                from jobhunter_app.source_discovery import discover
+                from dataclasses import asdict
+                evidence = {'url': url, 'job_url_direct': clean(row.get('job_url_direct')),
+                    'company_url': clean(row.get('company_url'))}
+                self.last_leads.extend(asdict(lead) for lead in discover([evidence]))
                 company = clean(row.get("company"))
                 location_str = clean(row.get("location"))
                 # Only a provider-declared remote flag is a remote fact. Keep

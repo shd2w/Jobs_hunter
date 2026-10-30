@@ -14,6 +14,7 @@ class Collection:
     checkpoint: dict = field(default_factory=dict)
     metrics: dict = field(default_factory=dict)
     posts: bool = False
+    leads: list = field(default_factory=list)
 
 class Paragraphs(HTMLParser):
     def __init__(self):
