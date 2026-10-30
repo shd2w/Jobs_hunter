@@ -153,8 +153,11 @@ def make_server(store, port=8765, profile_id='default', automatic=False):
                     return self.send(200,listing(store,profile_id))
                 if path == '/api/learning':
                     return self.send(200, store.learning(profile_id))
+                if path == '/api/runtime':
+                    from .runtime_status import status
+                    return self.send(200, status())
                 if path == '/api/automatic':
-                    return self.send(200, coordinator.status() if coordinator else {'available': False, 'enabled': False, 'sources': [], 'phase': 'manual'})
+                    return self.send(200, coordinator.status() if coordinator else {'available': False, 'enabled': False, 'sources': [], 'phase': 'manual', 'runtime': __import__('jobhunter_app.runtime_status', fromlist=['status']).status()})
                 if path == '/api/task':
                     with task_lock:
                         return self.send(200, dict(task))
@@ -235,6 +238,10 @@ def make_server(store, port=8765, profile_id='default', automatic=False):
                     if not coordinator: raise ValueError('Automatic discovery is disabled in this server mode')
                     if set(data) != {'enabled'} or type(data['enabled']) is not bool: raise ValueError('Use an explicit true or false discovery choice')
                     result = coordinator.choice(data['enabled'])
+                elif path == '/api/profile-search':
+                    if data: raise ValueError('No options accepted; access and cooldowns cannot be overridden')
+                    if not coordinator: raise ValueError('Automatic discovery is disabled in this server mode')
+                    result = coordinator.search()
                 elif path == '/api/automatic-check':
                     if data: raise ValueError('No options are accepted; cooldowns cannot be overridden')
                     if not coordinator: raise ValueError('Automatic discovery is disabled in this server mode')
