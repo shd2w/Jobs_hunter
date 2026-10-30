@@ -1,8 +1,9 @@
 """
 Evaluator agent — scores a job posting against the candidate's CV.
 
-Reads cv.md + profile.yml, sends to OpenRouter with a structured evaluation
-prompt, and outputs a scored report (1-5) with analysis.
+Legacy construction reads cv.md + profile.yml; from_context accepts explicit
+application context without filesystem reads. SmartRouter selects the provider.
+Validated dimensions use shared weighted scoring; legacy reports remain optional.
 """
 
 import json
@@ -91,6 +92,16 @@ class Evaluator:
         self.cv_content = self._load_cv()
         self.profile = self._load_profile()
 
+    @classmethod
+    def from_context(cls, profile, cv_content, client=None):
+        """In-memory application adapter; no ambient CV reads or report writes."""
+        instance = cls.__new__(cls)
+        instance.profile = profile
+        instance.cv_content = cv_content
+        instance.client = client if client is not None else SmartRouter()
+        instance.write_reports = False
+        return instance
+
     def _load_cv(self) -> str:
         """Load CV content."""
         if not self.cv_path.exists():
@@ -147,7 +158,7 @@ class Evaluator:
             return {"success": False, "error": "Job description required for evaluation", "company": company, "title": title, "url": url}
 
         # Build prompt
-        target_locations = ", ".join(self.profile.get("preferences", {}).get("locations", ["Oman", "Muscat", "Remote"]))
+        target_locations = ", ".join(self.profile.get("preferences", {}).get("locations", []))
         system = SYSTEM_PROMPT.format(
             profile_summary=self._make_profile_summary(),
             cv_content=self.cv_content,
@@ -186,8 +197,8 @@ class Evaluator:
             }
 
         evaluation["model_reported_global_score"] = evaluation["global_score"]
-        weights = {"skills_match": .30, "education_match": .20, "location": .20, "language": .20, "growth": .10}
-        evaluation["global_score"] = round(sum(evaluation["scores"][key] * weight for key, weight in weights.items()), 1)
+        from jobhunter_app.evaluation_service import weighted_score
+        evaluation["global_score"] = weighted_score(evaluation["scores"])
 
         # Add metadata — use AI-extracted names when original is empty
         ai_company = evaluation.get("company_name", "")
@@ -200,8 +211,9 @@ class Evaluator:
         evaluation["success"] = True
 
         # Save report
-        report_path = self._save_report(evaluation)
-        evaluation["report_path"] = str(report_path)
+        if getattr(self, "write_reports", True):
+            report_path = self._save_report(evaluation)
+            evaluation["report_path"] = str(report_path)
 
         # Update tracker
         # Tracker is updated by the runner only after durable evaluation persistence.

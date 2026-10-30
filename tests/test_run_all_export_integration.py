@@ -100,3 +100,18 @@ class TestRunAllQueueExport:
         monkeypatch.setattr(run_all, "run_scan", empty_scan)
         asyncio.run(run_all.run_pipeline())
         assert calls == []
+
+def test_returned_failed_evaluation_is_not_successful_pipeline(monkeypatch):
+    calls=install_fakes(monkeypatch)
+    async def failed(**kwargs):return [{'success':True,'global_score':4},{'success':False,'error':'fixture failure'}]
+    monkeypatch.setattr(run_all,'run_evaluate',failed)
+    with pytest.raises(RuntimeError,match='Queue export not published'):asyncio.run(run_all.run_pipeline())
+    assert not calls
+
+
+def test_partial_scan_is_preserved_in_full_pipeline_outcome(monkeypatch):
+    install_fakes(monkeypatch)
+    async def partial(**kwargs):return {**SCAN_SUMMARY,'status':'partial'}
+    monkeypatch.setattr(run_all,'run_scan',partial)
+    result=asyncio.run(run_all.run_pipeline())
+    assert result['status']=='partial' and result['scan']['status']=='partial'

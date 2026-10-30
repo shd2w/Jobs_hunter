@@ -40,7 +40,7 @@
    const card=node('article',undefined,'auto-source');card.append(node('h3',s.label));
    const failed=['failed','blocked','access_blocked','rate_limited','interrupted'].includes(s.health);
    card.append(node('p',failed?'Access or response problem':names[s.state]||s.state,failed?'source-error':'source-state'));
-   if(s.last_completed_at&&!failed)card.append(node('p',s.new_jobs+' new jobs in last scan · '+(s.health==='partial'?'bounded page, more may be available':'scan complete')));
+   if(s.last_completed_at&&!failed)card.append(node('p',s.new_jobs+' canonical inserts in last response · '+(s.pagination?.message||'Continuation information unavailable.')));
    if(s.error)card.append(node('p',s.error,'muted'));
    if(s.validation_hint)card.append(node('p',s.validation_hint,'muted'));
    if(s.failure_code)card.append(node('p','Diagnostic: '+s.failure_code+' · stage: '+(s.failure_stage||'unknown')+(s.http_status?' · HTTP '+s.http_status:'')+(s.error_type?' · '+s.error_type:''),'muted'));

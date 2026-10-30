@@ -61,7 +61,7 @@ def test_runtime_diagnostics_read_only_in_manual_mode(tmp_path):
             assert status == 200
             value = json.loads(raw)
             runtime = value.get('runtime', value)
-            assert runtime['build'] == 'dashboard-discovery-bridge-1'
+            assert runtime['build'] == 'dashboard-cli-consistency-1'
             assert len(runtime['code_fingerprint']) == 12
             assert set(runtime['engines']) == {'jobspy', 'scrapling'}
             assert str(tmp_path) not in raw.decode()

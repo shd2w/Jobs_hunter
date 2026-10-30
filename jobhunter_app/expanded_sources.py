@@ -52,7 +52,9 @@ def collect(source, checkpoint=None, cancel_event=None, request=None):
         return Collection(rows, next_state, {'raw_received': raw_count,
             'rejected_title': len(filtered['rejected_title']), 'rejected_location': len(filtered['rejected_location']), 'query': search['term'], 'location_query': search.get('location', ''),
             'scope_notice': search.get('scope_notice', ''), 'page': page + 1, 'configured_queries': len(searches), 'bounded_selection': True,
-            'coverage_complete': False, 'provider_errors': scanner.last_errors,
+            'coverage_complete': False, 'offset_continuation': more,
+            'page_limit_reached': page + 1 >= min(5, max(1, int(search.get('pages', 2)))),
+            'result_limit_reached': raw_count >= size, 'provider_errors': scanner.last_errors,
             'provider_warnings': scanner.last_warnings,
             'request_unit': 'One provider search page plus provider-managed description requests; not one HTTP request'}, leads=scanner.last_leads)
     from .network import get

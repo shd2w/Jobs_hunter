@@ -13,6 +13,7 @@ import urllib.request
 import urllib.error
 from filelock import FileLock, Timeout
 from .store import dump, now
+from .pagination import state as pagination_state
 from hashlib import sha256
 
 POLICIES = {
@@ -338,9 +339,9 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
         if collected: payload = collected.payload
         if cancel_event and cancel_event.is_set():
             with store.connect() as db:
-                db.execute('UPDATE runs SET finished_at=?,status=? WHERE id=?', (now(), 'cancelled', run_id))
+                db.execute('UPDATE runs SET finished_at=?,status=?,metrics=? WHERE id=?', (now(), 'cancelled', dump({'pagination':pagination_state(cancelled=True)}), run_id))
                 db.execute('UPDATE sources SET health=? WHERE id=?', ('cancelled', source_id))
-            return {'cancelled': True, 'inserted': 0}
+            return {'cancelled': True, 'inserted': 0,'status':'cancelled','pagination':pagination_state(cancelled=True)}
         from .source_discovery import discover
         from dataclasses import asdict
         failure_stage = 'normalization'
@@ -357,6 +358,8 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
                 db.execute('BEGIN IMMEDIATE')
                 result = ingest(store, payload, rights_attested=True, source_label=source_id, base_url=source.identifier,_db=db,auto_add=True,profile_id=profile_id)
                 result.pop('items', None)
+                from .pagination import state as pagination
+                result['pagination'] = pagination(evidence='current feed response only')
                 result['duration_seconds']=round(time.monotonic()-started,3)
                 result['new_unique_jobs']=result.get('auto_added',0)
                 result['existing_job_observations']=result.get('linked_existing',0)
@@ -379,6 +382,11 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
                         db.execute('INSERT INTO search_progress VALUES(?,?,?) ON CONFLICT(signature) DO UPDATE SET data=excluded.data,updated_at=excluded.updated_at',(request.signature,dump(collected.checkpoint),now()))
                     else:
                         db.execute('INSERT INTO source_checkpoints VALUES(?,?,?) ON CONFLICT(source_id) DO UPDATE SET data=excluded.data,updated_at=excluded.updated_at',(source_id,dump(collected.checkpoint),now()))
+                from .pagination import receipt
+                result['pagination'] = receipt(source,collected)
+                if result.get('invalid') or result.get('provider_errors') or result.get('detail_errors'):
+                    result['pagination'].update(partial=True)
+                    result['pagination']['message'] = 'Scan partially completed due to source errors or invalid records. ' + result['pagination']['message']
                 result['discovery_leads'] = leads
                 result['duration_seconds'] = round(time.monotonic()-started,3)
                 result['new_unique_jobs'] = result.get('inserted',0)
@@ -397,6 +405,7 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
                 db.execute('UPDATE runs SET finished_at=?,status=?,metrics=? WHERE id=?', (now(), state, dump(result), run_id))
                 db.execute('UPDATE sources SET health=?,last_error=NULL WHERE id=?', (state, source_id))
 
+        result['status'] = state
         if mirror_legacy and source.kind in JOBSPY + EXPANDED_PUBLIC + SCRAPLING_KINDS:
             try:
                 from scanners.compat import mirror_to_pipeline
@@ -412,9 +421,9 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
         # Do not persist provider bodies, headers, secrets or candidate input.
         if isinstance(exc,InterruptedError) or (cancel_event and cancel_event.is_set()):
             with store.connect() as db:
-                db.execute('UPDATE runs SET finished_at=?,status=? WHERE id=?',(now(),'cancelled',run_id))
+                db.execute('UPDATE runs SET finished_at=?,status=?,metrics=? WHERE id=?',(now(),'cancelled',dump({'pagination':pagination_state(cancelled=True)}),run_id))
                 db.execute('UPDATE sources SET health=? WHERE id=?',('cancelled',source_id))
-            return {'cancelled':True,'inserted':0}
+            return {'cancelled':True,'inserted':0,'status':'cancelled','pagination':pagination_state(cancelled=True)}
         rate_limited = isinstance(exc, urllib.error.HTTPError) and exc.code == 429
         from .authorized_boards import AccessBlocked
         access_blocked = row['kind'] in ('structured_html','wuzzuf','naukrigulf')+POST_PLATFORMS+SCRAPLING_KINDS and (isinstance(exc,AccessBlocked) or (isinstance(exc,urllib.error.HTTPError) and exc.code in (401,403)))
@@ -451,6 +460,8 @@ def _scan_locked(store, source_id, transport, cancel_event=None, profile_id='def
         }
         if type(exc) is ValueError and str(exc) in validation_hints:
             failure['validation_hint'] = validation_hints[str(exc)]
+        from .pagination import state as pagination
+        failure['pagination'] = pagination(failed=True)
         failure.update(error_type=type(exc).__name__, failure_stage=failure_stage)
         failure.setdefault('failure_code', 'http_error' if isinstance(exc, urllib.error.HTTPError) else 'response_validation' if isinstance(exc, (ValueError, TypeError, KeyError)) else 'source_failure')
         with store.connect() as db:

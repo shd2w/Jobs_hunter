@@ -275,21 +275,8 @@ class Store:
             self.audit(db, 'application_updated', {'profile_id': profile_id, 'job_id': job_id, 'status': status})
 
     def evaluate(self, profile_id='default', pending_only=False):
-        from .matching import match_job, MATCHER_VERSION
-        with self.connect() as db:
-            p = db.execute('SELECT data FROM profiles WHERE id=?', (profile_id,)).fetchone()
-            if not p:
-                raise ValueError('Configure a profile before matching')
-            profile = json.loads(p['data'])
-            count = 0
-            query = 'SELECT j.id,j.data FROM jobs j LEFT JOIN matches m ON m.job_id=j.id AND m.profile_id=? WHERE m.job_id IS NULL' if pending_only else 'SELECT id,data FROM jobs'
-            for row in db.execute(query, (profile_id,) if pending_only else ()).fetchall():
-                result = match_job(json.loads(row['data']), profile)
-                db.execute('INSERT INTO matches VALUES(?,?,?,?) ON CONFLICT(profile_id,job_id) DO UPDATE SET data=excluded.data,updated_at=excluded.updated_at',
-                           (profile_id, row['id'], dump(result), now()))
-                count += 1
-            self.audit(db, 'contextual_matching_completed', {'profile_id': profile_id, 'jobs': count})
-        return {'evaluated': count, 'method': MATCHER_VERSION}
+        from .evaluation_service import local_batch
+        return local_batch(self, profile_id, pending_only)
 
     def summary(self, profile_id='default'):
         with self.connect() as db:
@@ -300,7 +287,8 @@ class Store:
             matched = db.execute('SELECT COUNT(*) FROM matches WHERE profile_id=?', (profile_id,)).fetchone()[0]
             sources = [dict(r) for r in db.execute('SELECT * FROM sources ORDER BY id')]
             runs = [dict(r) for r in db.execute('SELECT * FROM runs ORDER BY id DESC LIMIT 20')]
-        return {'total_jobs': total, 'status_counts': status, 'matched_jobs': matched, 'sources': sources, 'recent_runs': runs}
+        from .evaluation_service import summary as evaluation_summary
+        return {'total_jobs': total, 'status_counts': status, 'matched_jobs': matched, 'sources': sources, 'recent_runs': runs,'evaluations':evaluation_summary(self,profile_id)}
 
     def learning(self, profile_id='default'):
         from .learning import report
