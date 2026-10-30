@@ -1,0 +1,127 @@
+{
+  "scope": "Live production Scrapling HTTP+Selector path, one listing and three details/publisher; aggregate-only. Repeat intake reused downloaded rows; no cooldown reset.",
+  "results": [
+    {
+      "source": "scrapling_jobicy:remote",
+      "checked_at": "2026-10-29T23:59:54.515313+00:00",
+      "metrics": {
+        "received": 3,
+        "inserted": 3,
+        "updated": 0,
+        "invalid": 0,
+        "errors": [],
+        "dry_run": false,
+        "engine": "scrapling",
+        "engine_version": "0.5",
+        "transport": "scrapling_http",
+        "requests": 5,
+        "detail_pages": 3,
+        "pending_details": 7,
+        "robots": "checked",
+        "coverage_complete": false,
+        "listing_pass_complete": false,
+        "bounded_selection": true,
+        "coverage_scope": "Configured HTML listing pages only; no whole-site completeness claim",
+        "duration_seconds": 4.133,
+        "new_unique_jobs": 3,
+        "existing_job_observations": 0,
+        "eligibility_relevance": "not evaluated by discovery",
+        "valid_records": 3,
+        "invalid_rate": 0.0,
+        "existing_observation_rate": 0.0,
+        "freshness_notice": "Observed snapshot; never infer closure from absence.",
+        "legacy_pipeline": {
+          "total_found": 3,
+          "passed_filters": 0,
+          "rejected_title": 3,
+          "rejected_location": 0,
+          "duplicates": 0,
+          "new_added": 0,
+          "errors": []
+        }
+      },
+      "received": 3,
+      "valid": 3,
+      "invalid": [],
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 1,
+        "employment_type": 3,
+        "url": 3,
+        "date_posted": 3
+      },
+      "repeat_ingest": {
+        "received": 3,
+        "inserted": 0,
+        "updated": 3,
+        "invalid": 0,
+        "errors": [],
+        "dry_run": false
+      }
+    },
+    {
+      "source": "scrapling_arbeitnow:de",
+      "checked_at": "2026-10-29T23:59:58.682222+00:00",
+      "metrics": {
+        "received": 3,
+        "inserted": 3,
+        "updated": 0,
+        "invalid": 0,
+        "errors": [],
+        "dry_run": false,
+        "engine": "scrapling",
+        "engine_version": "0.5",
+        "transport": "scrapling_http",
+        "requests": 5,
+        "detail_pages": 3,
+        "pending_details": 47,
+        "robots": "checked",
+        "coverage_complete": false,
+        "listing_pass_complete": false,
+        "bounded_selection": true,
+        "coverage_scope": "Configured HTML listing pages only; no whole-site completeness claim",
+        "duration_seconds": 4.731,
+        "new_unique_jobs": 3,
+        "existing_job_observations": 0,
+        "eligibility_relevance": "not evaluated by discovery",
+        "valid_records": 3,
+        "invalid_rate": 0.0,
+        "existing_observation_rate": 0.0,
+        "freshness_notice": "Observed snapshot; never infer closure from absence.",
+        "legacy_pipeline": {
+          "total_found": 3,
+          "passed_filters": 0,
+          "rejected_title": 3,
+          "rejected_location": 0,
+          "duplicates": 0,
+          "new_added": 0,
+          "errors": []
+        }
+      },
+      "received": 3,
+      "valid": 3,
+      "invalid": [],
+      "nonempty": {
+        "title": 3,
+        "company": 3,
+        "location": 3,
+        "description": 3,
+        "salary": 0,
+        "employment_type": 3,
+        "url": 3,
+        "date_posted": 3
+      },
+      "repeat_ingest": {
+        "received": 3,
+        "inserted": 0,
+        "updated": 3,
+        "invalid": 0,
+        "errors": [],
+        "dry_run": false
+      }
+    }
+  ]
+}

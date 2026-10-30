@@ -46,6 +46,8 @@ The five added adapters were also tested through the production `sources.scan` i
 
 ## Scrapling integration
 
+**Superseded in part:** Scrapling now also has a default first-class HTTP/crawl engine. See [primary engine implementation](SCRAPLING_PRIMARY_ENGINE.md). The optional Wuzzuf/Naukrigulf parser described below remains available; it is no longer the only Scrapling integration.
+
 Scrapling is a library, not by itself an autonomous AI agent. It is implemented here as a reusable **optional extraction worker** on existing authorized Wuzzuf/Naukrigulf HTML paths, not another LLM, a replacement JobSpy scanner or a Notion custom agent.
 
 ```sh

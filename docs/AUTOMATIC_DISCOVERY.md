@@ -2,21 +2,26 @@
 
 ## Open the app, get jobs
 
-Normal startup (`python run_local.py serve`) starts bounded public-feed scans immediately. No name, CV, skills, keywords, board identifiers or API keys are required. New valid listings are saved progressively and the open dashboard updates every two seconds. Personalization and preparation remain optional; a blank profile is not assigned a fabricated match percentage.
+Normal startup (`python run_local.py serve`) starts bounded Scrapling HTML, JobSpy and native public-feed scans immediately. No name, CV, skills, keywords, board identifiers or API keys are required. New valid listings are saved progressively and the open dashboard updates every two seconds. Personalization and preparation remain optional; a blank profile is not assigned a fabricated match percentage.
 
 The initial sources are:
 
 | Feed | Starter scope | Earliest next scan |
 | --- | --- | --- |
+| Scrapling Jobicy HTML | Listing discovery plus at most 3 structured details; continuation saved | 1 hour, shared with native Jobicy |
+| Scrapling Arbeitnow HTML | Germany listing discovery plus at most 3 structured details; continuation saved | 1 hour, shared with native Arbeitnow |
 | Jobicy public API | Worldwide remote listings; individual location restrictions still apply | 1 hour |
 | Arbeitnow public API | Germany-based feed, not worldwide coverage | 1 hour |
 | Remotive public API | Worldwide remote listings; individual restrictions still apply | 6 hours |
 | Remote OK public API | Current remote feed, original attribution retained | 1 hour |
 | We Work Remotely RSS | Current remote feed, original attribution retained | 1 hour |
 | Original JobSpy Indeed/LinkedIn/Bayt | Original registry, Egypt/Oman/UAE/Germany/remote + Austria/Switzerland; English and German | 5 minutes per bounded provider/query/page; failures back off at least 1 hour |
+| JobSpy Glassdoor / ZipRecruiter / Naukri / BDJobs / HelloWork | Provider-specific DE/AT/CH, US, India, Bangladesh and France scopes; remote is not global eligibility | 5 minutes per bounded unit; failures back off |
 | Original JobSpy Google | Retained adapter; currently unavailable upstream | 24 hours |
 
-These feeds are not a complete search of the internet. Jobicy is delayed three hours and bounded to one page of 100 listings per pass; Remotive is delayed 24 hours. Arbeitnow is one page of at most 1,000 per pass (currently 300). Provider attribution and original links remain attached. Absence from a later scan never proves closure. Review the original vacancy and your eligibility before applying.
+Scrapling is a first-class HTTP/crawl engine in the standard dependency lock. It runs without a parser environment toggle. Native publisher APIs remain intact and share cooldown/Retry-After gates with the HTML engines; they are not fallback routes. See [primary engine architecture and verification](SCRAPLING_PRIMARY_ENGINE.md).
+
+These engines and feeds are not a complete search of the internet. Jobicy is delayed three hours and bounded to one page of 100 listings per pass; Remotive is delayed 24 hours. Arbeitnow is one page of at most 1,000 per pass (currently 300). Provider attribution and original links remain attached. Absence from a later scan never proves closure. Review the original vacancy and your eligibility before applying.
 
 Provider documentation: [Jobicy](https://jobicy.com/jobs-rss-feed), [Arbeitnow](https://www.arbeitnow.com/blog/job-board-api), [Remotive](https://github.com/remotive-com/remote-jobs-api).
 

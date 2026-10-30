@@ -25,28 +25,30 @@ bash .devcontainer/start.sh --restart
 
 Open **Ports → 8765 → Open in Browser**, keep visibility **Private**, and reload. No profile setup is required. If Git refuses because of local changes, preserve those changes first; do not force-reset your work.
 
-## All JobSpy platforms and optional Scrapling
+## Primary scraping engines: Scrapling, JobSpy and native adapters
 
-All eight requested platforms are wired into manual and automatic collection:
-LinkedIn, Indeed, Glassdoor, ZipRecruiter (`zip_recruiter`), Bayt, Naukri,
-BDJobs and HelloWork. The original Google Jobs route also remains. Original
-98 regional queries are retained; provider-specific scopes add 112 queries.
-Some providers are blocked from the verified environment; enabled does not mean accessible.
-See [all-platform implementation and live results](docs/JOBSPY_ALL_PLATFORMS.md).
+**Scrapling is a default first-class HTTP + extraction + crawl engine**, not just
+an optional parser. It discovers public job detail links on Jobicy and Arbeitnow,
+fetches publisher JobPosting data, preserves declared fields and location
+restrictions, and resumes bounded checkpoints through the existing SQLite/legacy
+pipeline. Standard `requirements-scanners.lock` installs its fetching runtime.
+No browser binaries, proxies, stealth mode or challenge solving are enabled.
 
-Scrapling is an optional extraction worker for the existing authorized Wuzzuf/
-Naukrigulf HTML routes, not an autonomous AI agent or a replacement scraper.
-The existing safe HTTP/browser transport, source approval and job intake remain.
-It does not bypass current blocked sources. Setup is explicit and optional:
+The dashboard schedules `scrapling_jobicy:remote` and `scrapling_arbeitnow:de`
+without profile input. Full `python run_scan.py` also includes Scrapling through
+its `BaseScanner` bridge; existing JobSpy/direct scanners are preserved.
+HTML and native API routes share publisher cooldowns, so they cannot be used as
+quota workarounds. No transport fallback occurs on failures. Dry-run skips the
+stateful Scrapling crawl without network or vacancy writes.
 
-```sh
-python -m pip install -r requirements-scrapling.txt
-export JOBHUNTER_AUTHORIZED_BOARD_PARSER=scrapling
-bash .devcontainer/start.sh --restart
-```
+[Primary Scrapling architecture, live evidence and limitations](docs/SCRAPLING_PRIMARY_ENGINE.md).
+The previous optional Scrapling parser setting for authorized Wuzzuf/Naukrigulf
+remains separate and unchanged; enabling it is not needed for the primary engine.
 
-Use `JOBHUNTER_AUTHORIZED_BOARD_PARSER=stdlib` to return to the original parser.
-Only these two authorized HTML routes use this setting; JobSpy uses its own adapters.
+All eight requested JobSpy platforms remain wired into manual and automatic
+collection, plus the original Google Jobs route. Original 98 regional query
+configurations and 112 provider-specific additions remain.
+[All-platform implementation and live results](docs/JOBSPY_ALL_PLATFORMS.md).
 
 ## Run locally
 
