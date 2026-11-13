@@ -71,7 +71,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "cee61b388e0ddc304e4a490542f76e623a05af14c72a2c865f454cb387316216"
+    entry_sha256: "cf998d89814c31120c0818a6f360ba8addd29f8e21dde0821b9eb3a10669431c"
     untrusted_input: false
   - path: ".ai-engineering/CONFIG/framework.yml"
     type: "yml"
@@ -269,7 +269,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "70b1c55c146fef7695f86b6af43cfeae8827ac9eb36382ad0a5aa54e2263765f"
+    entry_sha256: "fe650543304aa99f980ef6882c0cc485bc0d6669138ccc48049ab559ee4225cd"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/KNOWN_ISSUES.md"
     type: "md"
@@ -278,7 +278,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "28f079efdf79ead0a5f48610acdb58406715fe60d122dc4046e4689bc5ffaef8"
+    entry_sha256: "9bed762c26620cd3662ae92a5c5f496db8949723e9fda1228ab2313e799bf1b3"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/PROJECT_STATE.yml"
     type: "yml"
@@ -287,7 +287,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "ab204da28afa95e94a5e86226e5e751419285bd3f74e4cf84e894e6039fe81bf"
+    entry_sha256: "2bc2450dd001219d944661f40ee82de3c3b12d5925aad343083867593f007e4f"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/RECENT_FAILURES.md"
     type: "md"
@@ -561,7 +561,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "dc5e7bb89c418c03a79bda953a51dd2e5766309b653e3b6a37a9af042e001571"
+    entry_sha256: "9cb5d448fc0a53a6e3709033f96b96644d382ce8e6e89c99961e7c2e39eeebd6"
     untrusted_input: false
   - path: "AGENTS.md"
     type: "md"
@@ -706,6 +706,15 @@ files:
     entry_sha256: "4eea41d2ac2156bb71e88bdbbdc2570576249aa3d180ed997e41050f77a5ee51"
     untrusted_input: false
     features: ["F-01"]
+  - path: "config/profile.example.yml"
+    type: "yml"
+    purpose: "Candidate profile template (EXAMPLE - copy to config/profile.yml and fill in real values)."
+    component: "configuration"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "e62c1e68f86344d57d56e9677ab191185149bbf63bfeec12b8eb4d5b3534e807"
+    untrusted_input: false
   - path: "config/profile.yml"
     type: "yml"
     purpose: "Candidate profile and evaluation/AI settings read by the pipeline"
@@ -1225,6 +1234,17 @@ files:
     side_effects: ["filesystem-write", "environment"]
     tests: ["tests/test_extra_sources.py"]
     features: ["F-01"]
+  - path: "scan_secrets_pii.py"
+    type: "py"
+    purpose: "Secret and PII scan (G12)."
+    component: "repository-root"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "2b0c613b32a08d689ac4db9226a774616e688cd0d5a7d216a72ff7d95f0fbc18"
+    untrusted_input: false
+    interfaces: ["main"]
+    side_effects: ["subprocess"]
   - path: "scanners/__init__.py"
     type: "py"
     purpose: "Package marker"
@@ -1469,6 +1489,17 @@ files:
     interfaces: ["TestLinkedInExtractor", "TestCleanHtmlToText"]
     internal_imports: ["utils.jd_fetcher"]
     side_effects: ["none-detected"]
+  - path: "tests/test_policy_blocked.py"
+    type: "py"
+    purpose: "Blocked-dependency policy test (G3)."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "ffa48f599e9ed56c549c5dd62ef3cc2a2039f458941b32ec2b90d217460d3346"
+    untrusted_input: false
+    interfaces: ["test_blocked_dependencies_absent_from_core_lock", "test_blocked_dependencies_absent_from_pip_freeze"]
+    side_effects: ["subprocess"]
   - path: "tests/test_queue_exporter.py"
     type: "py"
     purpose: "Tests for the queue exporter (utils/queue_exporter.py)."
