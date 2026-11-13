@@ -1,6 +1,6 @@
 # Current Task
 
-**Task:** WP-01-01 through WP-01-07 — Phase 01: Stabilise existing behaviour (R1)
+**Task:** WP-01-07 — Phase 01: Stabilise existing behaviour (R1)
 **Status:** merged
 **Branch / base:** wp/WP-01-phase-01-stabilise from phase/00-foundations (merged into phase/00)
 **Last updated:** 2026-11-13T17:3xZ
