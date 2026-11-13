@@ -3,15 +3,28 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Optional
+
+import yaml
+from dotenv import load_dotenv
 
 from agents.evaluator import Evaluator
 from jobhunter.app.result import Err, Ok, Result
-from run_evaluate import compute_domain_score, load_profile
+from jobhunter.domain import compute_domain_score
 from utils.jd_cache import JDCache
 from utils.jd_fetcher import fetch_jd, fetch_jd_playwright
 
 logger = logging.getLogger(__name__)
+
+
+def load_profile() -> dict:
+    """Load profile.yml for threshold config."""
+    path = Path("config/profile.yml")
+    if not path.exists():
+        return {}
+    with open(path, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f) or {}
 
 
 class EvaluationService:

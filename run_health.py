@@ -15,6 +15,8 @@ import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
+from jobhunter.app.result import is_ok
+from jobhunter.app.services.health import HealthService
 
 logging.basicConfig(
     level=logging.INFO,
@@ -161,6 +163,25 @@ def main():
 
     logger.info("\n--- OpenRouter API ---")
     all_errors.extend(check_openrouter())
+
+    logger.info("\n--- Service Health Check ---")
+    svc = HealthService()
+    health_result = svc.check()
+    if is_ok(health_result):
+        report = health_result.value
+        status = report.get("status", "unknown")
+        logger.info(f"Overall service status: {status}")
+        for name, check in report.get("checks", {}).items():
+            ok = check.get("ok", False)
+            note = check.get("note", "")
+            if ok:
+                logger.info(f"  ✅ {name}")
+            else:
+                logger.warning(f"  ⚠️  {name}: {note}")
+                all_errors.append(f"⚠️  {name}: {note}")
+    else:
+        logger.error(f"Service health check failed: {health_result.error}")
+        all_errors.append(f"❌ Service health check: {health_result.error}")
 
     logger.info("\n" + "=" * 60)
     if all_errors:

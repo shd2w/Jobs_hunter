@@ -17,6 +17,8 @@ import logging
 import sys
 from pathlib import Path
 
+from jobhunter.app.result import is_ok
+
 # Fix: ensure stdout is UTF-8 safe on Windows
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -68,19 +70,22 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    from utils.queue_exporter import export_queue
+    from jobhunter.app.services.applications import ApplicationsService
 
-    summary = export_queue(
-        output_path=Path(args.output),
-        evaluations_path=Path(args.evaluations),
-        pipeline_path=Path(args.pipeline),
-        profile_path=Path(args.profile),
-        threshold=args.threshold,
-    )
+    svc = ApplicationsService(evaluations_path=str(args.evaluations))
+    result = svc.export_queue(output_path=args.output)
 
-    print(f"\nExport summary:")
-    for k, v in summary.items():
-        print(f"  {k}: {v}")
+    if result.is_ok():
+        print(f"\nExport summary:")
+        print(f"  output: {args.output}")
+        print(f"  evaluations: {args.evaluations}")
+        print(f"  status: exported")
+    else:
+        print(f"\nExport summary:")
+        print(f"  output: {args.output}")
+        print(f"  evaluations: {args.evaluations}")
+        print(f"  status: failed - {result.error}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
