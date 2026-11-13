@@ -3,7 +3,7 @@
 **Task:** WP-01-01 through WP-01-07 — Phase 01: Stabilise existing behaviour (R1)
 **Status:** merged
 **Branch / base:** wp/WP-01-phase-01-stabilise from phase/00-foundations (merged into phase/00)
-**Last updated:** 2026-11-13T17:2xZ
+**Last updated:** 2026-11-13T17:3xZ
 **Agent:** OpenCode CLI / glm-5.3-flash-free (implementer)
 
 ## Scope (all 7 WPs)

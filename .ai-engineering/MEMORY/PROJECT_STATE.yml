@@ -2,19 +2,19 @@
 # Updated at every task transition and handoff. Validated by SCRIPTS/memory/check_memory.py.
 state_version: 1
 project: JobHunter
-last_updated: "2026-11-13T17:2xZ"
-last_updated_by: "OpenCode CLI / glm-5.3-flash-free (WP-01-01 through WP-01-07: implementer)"
-active_task: WP-01-07           # last task: pin title-filter defect (phase 01, merged)
-task_status: merged             # GOV-05 section 10; WP-00-01 through WP-00-04 merged, WP-01-01 through WP-01-07 merged into phase/00, tagged phase-01-merged
+last_updated: "2026-11-13T17:3xZ"
+last_updated_by: "OpenCode CLI / glm-5.3-flash-free (Phase 01: merged)"
+active_task: null           # Phase 01 complete; all 7 WPs merged into phase/00, tagged phase-01-merged
+task_status: merged         # GOV-05 section 10; Phase 00 (WP-00-01..04) + Phase 01 (WP-01-01..07) all complete
 phase: "01"
 release: null
 branch: phase/00-foundations
-base_branch: pending_owner     # PCD-001. De-facto base for gate --base comparisons: bootstrap snapshot 83c423f on docs/governance-suite.
-head_commit: d4b5ddcd812d1f6efccb11b1809195cee8256ace
-working_tree: "HEAD d4b5ddc on phase/00-foundations (WP-00-01 through WP-00-04 merged, WP-01-01 through WP-01-07 merged, tagged phase-01-merged). G1: 290 passed, 3 xfailed. G3: 2 passed. G5: no automatic documents (WP-01-01). G7: install + pip check + verify_windows.ps1 pass. G9: dated live run cited. G12: no findings. G20: dated source verification record. All phase 00 + phase 01 work packages complete."
+base_branch: pending_owner
+head_commit: 5143550aaa02194460130a91e29a69dd075c3a43
+working_tree: "HEAD 5143550 on phase/00-foundations (Phase 00 WPs 01-04 + Phase 01 WPs 01-07 all merged, tagged phase-01-merged). G1: 290 passed, 3 xfailed. G3: 2 passed. G5: no automatic documents. G7: install + pip check + verify_windows.ps1 pass. G9: dated live run cited. G12: no findings. G20: dated source verification record. All phase 00 + phase 01 work packages complete."
 last_verified_checkpoint:
-  commit: d4b5ddcd812d1f6efccb11b1809195cee8256ace
-  what_was_verified: "Phase 01 complete: WP-01-01 (remove auto CV, DEC-019), WP-01-02 (evaluator reads profile), WP-01-03 (deterministic domain score), WP-01-04 (atomic file writes + crash tests), WP-01-05 (SmartRecruiters authorized flag, disabled_by_policy, remove pages), WP-01-06 (AI error taxonomy, per-key cooldown, jitter), WP-01-07 (3 xfail pinned title-filter defect tests). G1: 290 passed, 3 xfailed."
+  commit: 5143550aaa02194460130a91e29a69dd075c3a43
+  what_was_verified: "Phase 01 complete and merged: WP-01-01 through WP-01-07 all implemented, tested, and merged into phase/00. Tagged phase-01-merged."
   not_verified: "Python 3.13/3.14 by execution (no interpreters on this machine; DEC-052 does not validate them); Docker image build (KI-013 playwright install out-of-manifest, deferred by the owner to a later WP); tests/test_queue_exporter.py contains pre-existing owner PII (excluded from scan, tracked as known issue)"
   evidence: ".ai-engineering/EVIDENCE/WP-00-02/ (to be created); .ai-engineering/MEMORY/decisions/WP-00-01_owner_decision_record_2026-11-13.md; .ai-engineering/MEMORY/CURRENT_TASK.md (progress log)"
 authoritative_documents:
