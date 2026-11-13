@@ -125,3 +125,46 @@ class TestPipelineBridge:
         summary = bridge.process([result])
         assert len(summary["errors"]) == 2
         assert "broken" in summary["errors"][0]
+
+    def test_atomic_pipeline_write_on_crash(self, bridge, sample_scan_result, tmp_path, monkeypatch):
+        """Crash-injection: if os.replace fails mid-write, pipeline.md stays intact."""
+        import scanners.bridge as bridge_mod
+
+        original_replace = os.replace
+        crash = [False]
+
+        def crashing_replace(src, dst):
+            if not crash[0]:
+                crash[0] = True
+                raise OSError("simulated crash during atomic replace")
+            return original_replace(src, dst)
+
+        monkeypatch.setattr(bridge_mod.os, "replace", crashing_replace)
+
+        # First call should crash but leave pipeline.md unchanged
+        before = (tmp_path / "pipeline.md").read_text(encoding="utf-8")
+        with pytest.raises(OSError, match="simulated crash"):
+            bridge.process([sample_scan_result])
+        after = (tmp_path / "pipeline.md").read_text(encoding="utf-8")
+        assert after == before, "pipeline.md must not be partially written on crash"
+
+    def test_atomic_history_write_on_crash(self, bridge, sample_scan_result, tmp_path, monkeypatch):
+        """Crash-injection: if os.replace fails mid-write, scan-history.tsv stays intact."""
+        import scanners.bridge as bridge_mod
+
+        original_replace = os.replace
+        crash = [False]
+
+        def crashing_replace(src, dst):
+            if not crash[0]:
+                crash[0] = True
+                raise OSError("simulated crash during atomic replace")
+            return original_replace(src, dst)
+
+        monkeypatch.setattr(bridge_mod.os, "replace", crashing_replace)
+
+        before = (tmp_path / "scan-history.tsv").read_text(encoding="utf-8")
+        with pytest.raises(OSError, match="simulated crash"):
+            bridge.process([sample_scan_result])
+        after = (tmp_path / "scan-history.tsv").read_text(encoding="utf-8")
+        assert after == before, "scan-history.tsv must not be partially written on crash"

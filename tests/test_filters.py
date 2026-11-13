@@ -66,6 +66,37 @@ class TestTitleFilter:
         assert f.matches("Any Title") is True
 
 
+# ---- TitleFilter: pinned defect (WP-01-07) ----
+#
+# TitleFilter uses plain substring matching for keywords longer than 3 chars
+# (utils/filters.py:47-53). This means "Lead" matches "Leadership", "Staffing"
+# matches "staff", and "Architecture" matches "architect". These tests pin the
+# known defect as xfail — they document the behavior that should change when
+# word-boundary matching is extended to all keywords.
+
+    @pytest.mark.xfail(reason="WP-01-07: substring 'Lead' matches 'Leadership' — pinned defect")
+    def test_lead_does_not_match_leadership(self, title_filter):
+        """'Lead' should not match 'Leadership Development' (substring defect)."""
+        # title_filter has positive "Working Student", not "Lead" — set up custom
+        config = {"title_filter": {"positive": ["Lead"], "negative": []}}
+        f = TitleFilter(config)
+        assert f.matches("Leadership Development") is False
+
+    @pytest.mark.xfail(reason="WP-01-07: substring 'staff' matches 'staffing' — pinned defect")
+    def test_staff_does_not_match_staffing(self):
+        """'Staff' should not match 'Staffing Agency' (substring defect)."""
+        config = {"title_filter": {"positive": ["Staff"], "negative": []}}
+        f = TitleFilter(config)
+        assert f.matches("Staffing Agency") is False
+
+    @pytest.mark.xfail(reason="WP-01-07: substring 'architect' matches 'architecture' — pinned defect")
+    def test_architect_does_not_match_architecture(self):
+        """'Architect' should not match 'Software Architecture' (substring defect)."""
+        config = {"title_filter": {"positive": ["Architect"], "negative": []}}
+        f = TitleFilter(config)
+        assert f.matches("Software Architecture") is False
+
+
 # ---- LocationFilter tests ----
 
 @pytest.fixture

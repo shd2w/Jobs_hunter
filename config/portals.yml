@@ -171,12 +171,10 @@ jobspy_providers:
   glassdoor:
     enabled: false
     locations: ["Germany", "Austria", "Switzerland"]
-    pages: 2
     scope_notice: "Germany/Austria/Switzerland; not Egypt/Oman/UAE. Returned 403 in earlier tests"
   bayt:
     enabled: false
     locations: ["United Arab Emirates", "Egypt", "Oman"]
-    pages: 2
     scope_notice: "Middle East board; returned 403 in earlier tests"
   zip_recruiter:
     enabled: false
@@ -184,21 +182,18 @@ jobspy_providers:
     country_indeed: "USA"
     is_remote: true
     scope_notice: "US/Canada remote; verify country eligibility"
-    pages: 2
   naukri:
     enabled: false
     locations: ["India"]
     country_indeed: "India"
     is_remote: true
     scope_notice: "India-focused remote; not Naukrigulf"
-    pages: 2
   bdjobs:
     enabled: false
     locations: ["Bangladesh"]
     country_indeed: "USA"   # JobSpy country enum lacks Bangladesh; provider fixes its own country
     is_remote: true
     scope_notice: "Bangladesh work-from-home; verify country eligibility"
-    pages: 2
   hellowork:
     enabled: false
     locations: ["France"]
