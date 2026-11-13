@@ -11,6 +11,7 @@ Responsibilities:
 
 import logging
 import os
+import tempfile
 from datetime import datetime
 from pathlib import Path
 
@@ -20,6 +21,20 @@ from utils.dedup import DeduplicatorStore
 from utils.jd_cache import JDCache
 
 logger = logging.getLogger(__name__)
+
+
+def _atomic_write(path: Path, text: str) -> None:
+    """Write text to path atomically (temp file + os.replace) to avoid
+    partial/corrupt writes on crash."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=path.name, suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
+        os.replace(tmp, path)
+    finally:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
 
 
 class PipelineBridge:
@@ -177,11 +192,11 @@ class PipelineBridge:
             # No Pending section — prepend
             text = f"## Pending\n\n{block}\n{text}"
 
-        self.pipeline_path.write_text(text, encoding="utf-8")
+        _atomic_write(self.pipeline_path, text)
         logger.info(f"Added {len(jobs)} jobs to pipeline.md")
 
     def _append_to_history(self, jobs: list[dict], date: str, status: str):
-        """Append jobs to scan-history.tsv."""
+        """Append jobs to scan-history.tsv atomically."""
         if not jobs:
             return
 
@@ -196,5 +211,8 @@ class PipelineBridge:
                 f"{url}\t{date}\t{source}\t{title}\t{company}\t{status}\t{location}\n"
             )
 
-        with open(self.history_path, "a", encoding="utf-8") as f:
-            f.writelines(lines)
+        # Read existing content, append new lines, write atomically
+        existing = ""
+        if self.history_path.exists():
+            existing = self.history_path.read_text(encoding="utf-8")
+        _atomic_write(self.history_path, existing + "".join(lines))

@@ -29,6 +29,23 @@ from utils.telegram import TelegramNotifier
 from utils.jd_cache import JDCache
 from utils.utf8_logging import get_utf8_stream_handler
 
+
+def _atomic_write(path: Path, text: str) -> None:
+    """Write text to path atomically (temp file + os.replace) to avoid
+    partial/corrupt writes on crash."""
+    import os
+    import tempfile
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=path.name, suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
+        os.replace(tmp, path)
+    finally:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+
 # Domain-scoring weights (mirrors the evaluation prompt dimensions).
 DOMAIN_WEIGHTS = {
     "skills_match": 0.30,
@@ -161,7 +178,7 @@ def mark_job_checked(url: str, pipeline_path: str = "data/pipeline.md"):
         f"- [x] {url}",
         text,
     )
-    path.write_text(text, encoding="utf-8")
+    _atomic_write(path, text)
 
 
 def log_below_threshold(evaluation: dict, threshold: float):
