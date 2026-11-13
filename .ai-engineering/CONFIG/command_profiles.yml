@@ -41,8 +41,8 @@ commands:
   layer_lint:
     purpose: layer rules (G4)
     run: "python -m pytest tests/test_layers.py -q"
-    status: "unavailable_until:WP-02-01"
-    note: "test name still to be confirmed by WP-02-01"
+    status: exists
+    source: GOV-05 section 8; configured by WP-02-01
   migration_verify:
     purpose: migration verification (G13)
     run: null

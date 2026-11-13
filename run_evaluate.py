@@ -24,9 +24,11 @@ import yaml
 from dotenv import load_dotenv
 
 from agents.evaluator import Evaluator
-from utils.jd_fetcher import fetch_jd, fetch_jd_playwright
-from utils.telegram import TelegramNotifier
+from jobhunter.app import is_ok
+from jobhunter.app.services.evaluation import EvaluationService
+from jobhunter.domain import compute_domain_score
 from utils.jd_cache import JDCache
+from utils.telegram import TelegramNotifier
 from utils.utf8_logging import get_utf8_stream_handler
 
 
@@ -45,40 +47,6 @@ def _atomic_write(path: Path, text: str) -> None:
     finally:
         if os.path.exists(tmp):
             os.unlink(tmp)
-
-# Domain-scoring weights (mirrors the evaluation prompt dimensions).
-DOMAIN_WEIGHTS = {
-    "skills_match": 0.30,
-    "education_match": 0.20,
-    "location": 0.20,
-    "language": 0.20,
-    "growth": 0.10,
-}
-
-
-def compute_domain_score(scores: dict) -> float:
-    """Recompute the global score deterministically from dimension scores.
-
-    The model's global_score is ignored; the total is the weighted average of
-    the five dimension scores (skills 30%, education 20%, location 20%,
-    language 20%, growth 10%), clamped to 1-5.
-
-    Returns 0.0 if no usable dimension scores are present.
-    """
-    total = 0.0
-    weight_sum = 0.0
-    for dim, weight in DOMAIN_WEIGHTS.items():
-        try:
-            val = float(scores.get(dim, 0))
-            if val > 0:
-                total += val * weight
-                weight_sum += weight
-        except (ValueError, TypeError):
-            continue
-    if weight_sum == 0:
-        return 0.0
-    return round(max(1.0, min(5.0, total / weight_sum)), 1)
-
 
 # Setup logging — use UTF-8 safe handler so job titles containing chars
 # like \ufeff (BOM) do not crash logging on Windows cp1252 consoles.
@@ -389,14 +357,20 @@ async def run_evaluate(
     threshold = threshold_override if threshold_override is not None else profile.get("evaluation", {}).get("auto_cv_threshold", 3.5)
     german_policy_resolved = german_policy if german_policy else profile.get("evaluation", {}).get("german_filter", "accept_all")
 
-    evaluator = Evaluator()
     telegram = TelegramNotifier()
     jd_cache = JDCache()
+    svc = EvaluationService(german_policy=german_policy_resolved)
 
     if mode == "url" and url:
         job = {"url": url, "company": "Unknown", "title": "Unknown"}
-        result = await evaluate_job(job, evaluator, threshold, telegram, jd_cache, german_policy=german_policy_resolved)
-        return [result]
+        result = svc.evaluate(job)
+        evaluation = result.value if is_ok(result) else {
+            "success": False,
+            "error": result.error,
+            "company": job["company"],
+            "title": job["title"],
+        }
+        return [evaluation]
 
     # Get pending jobs
     pending = get_pending_jobs()
@@ -419,8 +393,14 @@ async def run_evaluate(
         logger.info(f"Job {i+1}/{len(jobs_to_evaluate)}")
         logger.info(f"{'='*60}")
 
-        result = await evaluate_job(job, evaluator, threshold, telegram, jd_cache, german_policy=german_policy_resolved)
-        results.append(result)
+        result = svc.evaluate(job)
+        evaluation = result.value if is_ok(result) else {
+            "success": False,
+            "error": result.error,
+            "company": job.get("company", "?"),
+            "title": job.get("title", "?"),
+        }
+        results.append(evaluation)
 
         # Rate limit delay between evaluations
         if i < len(jobs_to_evaluate) - 1:
