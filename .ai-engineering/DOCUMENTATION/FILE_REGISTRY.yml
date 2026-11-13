@@ -269,7 +269,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "6c7f0fada573857bc8faf966be235b89109ce3e0c08f547e56b662fe143e7097"
+    entry_sha256: "34089d01bb962b41f01393558c678dc1773c657c0769ae1c460a4efe90be71d5"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/KNOWN_ISSUES.md"
     type: "md"
@@ -287,7 +287,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "3a6863a0c730e1fc5a8c7beeb9804a618e2f6955ffb501f7f71c3e78c7295e17"
+    entry_sha256: "5768ee76e482cb0b8da05bada2816bdad641c912e9f9a7311f5b33471d614b39"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/RECENT_FAILURES.md"
     type: "md"
