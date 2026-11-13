@@ -12,6 +12,7 @@ multiply the effective daily quota from ~200/key to ~800 total.
 
 import logging
 import os
+import random
 import time
 from dataclasses import dataclass
 from itertools import cycle
@@ -21,6 +22,27 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logger = logging.getLogger(__name__)
+
+
+# --------------------------------------------------------------------------- error taxonomy
+class AIError(Exception):
+    """Base class for all AI provider errors."""
+
+
+class RateLimitError(AIError):
+    """HTTP 429 — provider rate limit hit."""
+
+
+class AuthError(AIError):
+    """HTTP 401/403 — invalid or missing API key."""
+
+
+class NetworkError(AIError):
+    """Transport-level failure (DNS, TLS, timeout, connection refused)."""
+
+
+class ModelError(AIError):
+    """Provider returned a malformed or empty response."""
 
 
 @dataclass
@@ -55,6 +77,7 @@ class SmartRouter:
         self._key_cycle = cycle(self._openrouter_keys) if self._openrouter_keys else None
         self._models = self._load_openrouter_models()
         self._request_count = 0
+        self._key_cooldowns: dict[str, float] = {}  # api_key -> cooldown_until timestamp
 
         # Try to init Google client
         try:
@@ -186,10 +209,16 @@ class SmartRouter:
         temperature: float,
         max_tokens: int,
     ) -> SmartResponse:
-        """Make a request to OpenRouter, rotating across keys and models."""
+        """Make a request to OpenRouter, rotating across keys and models.
+
+        Per-key cooldown: a key that fails is cooled down before reuse.
+        Jitter: retry sleeps include random jitter to avoid thundering herd.
+        Error taxonomy: RateLimitError / AuthError / NetworkError / ModelError.
+        """
         import httpx
 
         models = self._models
+        now = time.time()
 
         # Try each key+model combination
         keys_tried = 0
@@ -203,6 +232,12 @@ class SmartRouter:
                 )
 
             api_key = next(self._key_cycle)
+
+            # Per-key cooldown: skip keys still in cooldown
+            cooldown_until = self._key_cooldowns.get(api_key, 0)
+            if now < cooldown_until:
+                continue
+
             model = models[attempt % len(models)]
             key_idx = self._openrouter_keys.index(api_key) + 1
 
@@ -233,30 +268,49 @@ class SmartRouter:
 
                 if resp.status_code == 429:
                     retry_after = int(resp.headers.get("retry-after", "5"))
+                    # Cool down this key and add jitter to the sleep
+                    self._key_cooldowns[api_key] = time.time() + min(retry_after, 30)
+                    jitter = random.uniform(0, min(retry_after, 5))
                     logger.warning(
-                        "OpenRouter key#%d rate limited on %s. Trying next key...",
+                        "OpenRouter key#%d rate limited on %s. Cooling down %.0fs (jitter %.1fs).",
+                        key_idx, model, min(retry_after, 30), jitter
+                    )
+                    time.sleep(jitter)
+                    keys_tried += 1
+                    continue
+
+                if resp.status_code in (401, 403):
+                    self._key_cooldowns[api_key] = time.time() + 300  # 5 min cool down
+                    logger.warning(
+                        "OpenRouter key#%d auth failure on %s. Cooling down 5min.",
                         key_idx, model
                     )
-                    time.sleep(min(retry_after, 5))
+                    keys_tried += 1
                     continue
 
                 if resp.status_code != 200:
+                    # Transient server error — short cool down, try next
+                    self._key_cooldowns[api_key] = time.time() + 10
                     logger.warning(
-                        "OpenRouter key#%d %s: HTTP %d. Trying next...",
+                        "OpenRouter key#%d %s: HTTP %d. Cooling down 10s.",
                         key_idx, model, resp.status_code
                     )
+                    keys_tried += 1
                     continue
 
                 data = resp.json()
                 if "error" in data:
+                    self._key_cooldowns[api_key] = time.time() + 10
                     logger.warning(
-                        "OpenRouter key#%d %s: %s. Trying next...",
+                        "OpenRouter key#%d %s: %s. Cooling down 10s.",
                         key_idx, model, str(data["error"])[:100]
                     )
+                    keys_tried += 1
                     continue
 
                 choices = data.get("choices", [])
                 if not choices:
+                    self._key_cooldowns[api_key] = time.time() + 10
                     continue
 
                 msg_obj = choices[0].get("message", {})
@@ -277,6 +331,8 @@ class SmartRouter:
                     latency,
                 )
 
+                # Clear cooldown on success
+                self._key_cooldowns.pop(api_key, None)
                 self._request_count += 1
                 return SmartResponse(
                     content=content,
@@ -287,11 +343,29 @@ class SmartRouter:
                     reasoning_details=reasoning_details,
                 )
 
-            except Exception as e:
+            except httpx.TimeoutException as e:
+                self._key_cooldowns[api_key] = time.time() + 10
                 logger.warning(
-                    "OpenRouter key#%d error: %s. Trying next...",
+                    "OpenRouter key#%d timeout on %s: %s. Cooling down 10s.",
+                    key_idx, model, str(e)[:100]
+                )
+                keys_tried += 1
+                continue
+            except httpx.NetworkError as e:
+                self._key_cooldowns[api_key] = time.time() + 10
+                logger.warning(
+                    "OpenRouter key#%d network error on %s: %s. Cooling down 10s.",
+                    key_idx, model, str(e)[:100]
+                )
+                keys_tried += 1
+                continue
+            except Exception as e:
+                self._key_cooldowns[api_key] = time.time() + 10
+                logger.warning(
+                    "OpenRouter key#%d error: %s. Cooling down 10s.",
                     key_idx, str(e)[:100]
                 )
+                keys_tried += 1
                 continue
 
         return SmartResponse(
