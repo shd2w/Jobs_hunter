@@ -4,13 +4,13 @@ state_version: 1
 project: JobHunter
 last_updated: "2026-11-13T17:3xZ"
 last_updated_by: "OpenCode CLI / glm-5.3-flash-free (Phase 01: merged)"
-active_task: WP-01-07           # last task completed: pin title-filter defect (phase 01)
-task_status: merged             # GOV-05 section 10; Phase 00 (WP-00-01..04) + Phase 01 (WP-01-01..07) all complete
+active_task: "WP-01-01 through WP-01-07 — Phase 01: Stabilise existing behaviour (R1)"
+task_status: merged
 phase: "01"
 release: null
 branch: phase/00-foundations
 base_branch: pending_owner
-head_commit: 4c90903838
+head_commit: c1075517eb
 working_tree: "HEAD 5143550 on phase/00-foundations (Phase 00 WPs 01-04 + Phase 01 WPs 01-07 all merged, tagged phase-01-merged). G1: 290 passed, 3 xfailed. G3: 2 passed. G5: no automatic documents. G7: install + pip check + verify_windows.ps1 pass. G9: dated live run cited. G12: no findings. G20: dated source verification record. All phase 00 + phase 01 work packages complete."
 last_verified_checkpoint:
   commit: 5143550aaa02194460130a91e29a69dd075c3a43
