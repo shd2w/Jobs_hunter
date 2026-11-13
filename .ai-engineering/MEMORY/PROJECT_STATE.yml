@@ -4,13 +4,13 @@ state_version: 1
 project: JobHunter
 last_updated: "2026-11-13T17:5xZ"
 last_updated_by: "OpenCode CLI / glm-5.3-flash-free (Phase 02: post-merge)"
-active_task: "WP-02-01 through WP-02-05 — Phase 02: Service layer and scheduler (R1)"
+active_task: WP-02-05           # last task completed: scheduler worker with lease (phase 02, merged)
 task_status: merged
 phase: "02"
 release: null
 branch: phase/00-foundations
 base_branch: pending_owner
-head_commit: 09af3d2bdd
+head_commit: f60387d822
 working_tree: "HEAD 09af3d2 on phase/00-foundations (all phase 00, 01, 02 WPs merged, tagged phase-02-merged). G1: 325 passed, 3 xfailed. G4: layer lint passes. G15: parity test passes. G17: source-safety tests pass. All phase 00 + phase 01 + phase 02 work packages complete."
 last_verified_checkpoint:
   commit: 0945d051579e38448cba9e10385e63fc34ea0868
