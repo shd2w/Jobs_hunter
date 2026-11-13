@@ -17,17 +17,15 @@ import asyncio
 import logging
 import re
 import sys
+import warnings
 from pathlib import Path
 
 import yaml
 from dotenv import load_dotenv
 
 from agents.evaluator import Evaluator
-from agents.cv_tailor import CVTailor
-from agents.cover_letter import CoverLetterWriter
 from utils.jd_fetcher import fetch_jd, fetch_jd_playwright
 from utils.telegram import TelegramNotifier
-from utils.pdf_generator import generate_cv_pdf, generate_cover_letter_pdf
 from utils.jd_cache import JDCache
 from utils.utf8_logging import get_utf8_stream_handler
 
@@ -53,7 +51,26 @@ def load_profile() -> dict:
     if not path.exists():
         return {}
     with open(path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
+        profile = yaml.safe_load(f) or {}
+
+    # Deprecation warnings for auto_cv_threshold / create_cv (DEC-019).
+    ev = profile.get("evaluation", {}) or {}
+    if ev.get("auto_cv_threshold") is not None:
+        warnings.warn(
+            "DEC-019: 'auto_cv_threshold' is deprecated; CV creation is no longer "
+            "automatic. Use --create-cv only with --url.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+    if ev.get("create_cv") is not None:
+        warnings.warn(
+            "DEC-019: 'create_cv' is deprecated; CV creation is no longer automatic. "
+            "Use --create-cv only with --url.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+    return profile
 
 
 def get_pending_jobs(pipeline_path: str = "data/pipeline.md") -> list[dict]:
@@ -143,15 +160,12 @@ def log_below_threshold(evaluation: dict, threshold: float):
 async def evaluate_job(
     job: dict,
     evaluator: Evaluator,
-    cv_tailor: CVTailor | None,
-    cover_writer: CoverLetterWriter,
     threshold: float,
     telegram: TelegramNotifier,
     jd_cache: JDCache | None = None,
     german_policy: str = "accept_all",
-    create_cv: bool = False,
 ) -> dict:
-    """Evaluate a single job and generate CV/cover letter if score is high enough."""
+    """Evaluate a single job (no automatic CV/cover letter creation per DEC-019)."""
 
     logger.info(f"Evaluating: {job['company']} -- {job['title']}")
 
@@ -295,91 +309,12 @@ async def evaluate_job(
     except Exception as e:
         logger.debug(f"Excel export skipped: {e}")
 
-    # 4. Generate CV + Cover Letter if score >= threshold
-    pdf_path = None
-    if score >= threshold:
-        if create_cv and cv_tailor:
-            logger.info(f"Score {score} >= {threshold} -> Generating CV and cover letter")
-            cv_result = cv_tailor.tailor(job)
-            if cv_result.get("success"):
-                logger.info(f"Tailored CV: {cv_result['output_path']}")
-                evaluation["cv_path"] = cv_result["output_path"]
-
-                # Generate PDF from tailored CV
-                md_path = cv_result["output_path"]
-                pdf_out = md_path.replace("-cv.md", "-cv.pdf")
-                try:
-                    pdf_result = generate_cv_pdf(
-                        md_content=cv_result.get("content", ""),
-                        output_path=pdf_out,
-                        subtitle=cv_result.get("subtitle"),
-                    )
-                    if pdf_result.get("success"):
-                        pdf_path = pdf_result["output_path"]
-                        evaluation["cv_pdf_path"] = pdf_path
-                        logger.info(f"CV PDF: {pdf_path}")
-                    else:
-                        logger.warning(f"PDF generation failed: {pdf_result.get('error')}")
-                except Exception as e:
-                    logger.warning(f"PDF skipped (WeasyPrint not available): {e}")
-            else:
-                logger.warning(f"CV tailoring failed: {cv_result.get('error')}")
-        else:
-            logger.info(f"Score {score} >= {threshold} -> CV creation skipped (linking base cv.md)")
-            evaluation["cv_path"] = "cv.md"
-            if Path("cv.pdf").exists():
-                evaluation["cv_pdf_path"] = "cv.pdf"
-            else:
-                evaluation["cv_pdf_path"] = "cv.md"
-
-        cover_result = cover_writer.generate(job, evaluation)
-        if cover_result.get("success"):
-            logger.info(f"Cover letter: {cover_result['output_path']}")
-            evaluation["cover_letter_path"] = cover_result["output_path"]
-        else:
-            logger.warning(f"Cover letter failed: {cover_result.get('error')}")
-
-        # Send CV via Telegram if created
-        if create_cv and (pdf_path or evaluation.get("cv_path")):
-            send_path = pdf_path or evaluation.get("cv_path")
-            telegram.notify_cv_generated(evaluation, send_path)
-
-        # Generate cover letter PDF
-        cover_pdf_path = None
-        if cover_result.get("success"):
-            cover_pdf_out = cover_result["output_path"].replace("-cover.md", "-cover.pdf")
-            try:
-                cl_pdf_result = generate_cover_letter_pdf(
-                    md_content=cover_result.get("content", ""),
-                    output_path=cover_pdf_out,
-                    company=job.get("company", "Unknown"),
-                    role=job.get("title", "Unknown"),
-                )
-                if cl_pdf_result.get("success"):
-                    cover_pdf_path = cl_pdf_result["output_path"]
-                    evaluation["cover_letter_pdf_path"] = cover_pdf_path
-                    logger.info(f"Cover letter PDF: {cover_pdf_path}")
-                else:
-                    logger.warning(f"Cover letter PDF failed: {cl_pdf_result.get('error')}")
-            except Exception as e:
-                logger.warning(f"Cover letter PDF skipped (WeasyPrint not available): {e}")
-
-        # Send cover letter via Telegram (PDF if available, otherwise markdown)
-        if evaluation.get("cover_letter_path"):
-            send_cover_path = cover_pdf_path or evaluation["cover_letter_path"]
-            telegram.notify_cover_letter(evaluation, send_cover_path)
-    else:
-        if evaluation.get("recommendation") == "skip_german":
-            logger.info(f"German required -> Skipping CV/cover letter generation")
-        else:
-            logger.info(f"Score {score} < {threshold} -> Skipping CV/cover letter generation")
-        # Log below-threshold for review
-        log_below_threshold(evaluation, threshold)
+    # Log evaluation for review — no automatic document creation per DEC-019.
+    # CVs and cover letters are created explicitly via --url --create-cv only.
+    log_below_threshold(evaluation, threshold)
 
     # 4b. Append to JSON evaluations store (canonical input for the UAA
-    # queue exporter). Persisted AFTER document generation so the record
-    # carries the generated cv_pdf_path / cover_letter_pdf_path values.
-    # This is the persistence hook that connects
+    # queue exporter). This is the persistence hook that connects
     # run_evaluate.py -> run_export_queue.py -> application_queue.jsonl.
     try:
         from utils.evaluation_store import append_evaluation
@@ -406,17 +341,14 @@ async def run_evaluate(
     profile = load_profile()
     threshold = threshold_override if threshold_override is not None else profile.get("evaluation", {}).get("auto_cv_threshold", 3.5)
     german_policy_resolved = german_policy if german_policy else profile.get("evaluation", {}).get("german_filter", "accept_all")
-    create_cv = profile.get("evaluation", {}).get("create_cv", False) if create_cv_override is None else create_cv_override
 
     evaluator = Evaluator()
-    cv_tailor = CVTailor() if create_cv else None
-    cover_writer = CoverLetterWriter()
     telegram = TelegramNotifier()
     jd_cache = JDCache()
 
     if mode == "url" and url:
         job = {"url": url, "company": "Unknown", "title": "Unknown"}
-        result = await evaluate_job(job, evaluator, cv_tailor, cover_writer, threshold, telegram, jd_cache, german_policy=german_policy_resolved, create_cv=create_cv)
+        result = await evaluate_job(job, evaluator, threshold, telegram, jd_cache, german_policy=german_policy_resolved)
         return [result]
 
     # Get pending jobs
@@ -440,7 +372,7 @@ async def run_evaluate(
         logger.info(f"Job {i+1}/{len(jobs_to_evaluate)}")
         logger.info(f"{'='*60}")
 
-        result = await evaluate_job(job, evaluator, cv_tailor, cover_writer, threshold, telegram, jd_cache, german_policy=german_policy_resolved, create_cv=create_cv)
+        result = await evaluate_job(job, evaluator, threshold, telegram, jd_cache, german_policy=german_policy_resolved)
         results.append(result)
 
         # Rate limit delay between evaluations
@@ -492,24 +424,21 @@ def main():
     group.add_argument("--batch", type=int, help="Evaluate next N unchecked jobs")
     parser.add_argument("--threshold", type=float, default=None, help="Override auto_cv_threshold (e.g. --threshold 4.0)")
     parser.add_argument("--german-policy", type=str, choices=["reject_b1_plus", "reject_b2_plus_only", "reject_unless_bilingual", "accept_all"], default=None, help="Override German filter policy for this run")
-    parser.add_argument("--no-cv", action="store_true", help="Do not create/tailor CVs (use base cv.md)")
-    parser.add_argument("--create-cv", action="store_true", help="Force creation of tailored CVs")
+    parser.add_argument("--create-cv", action="store_true", help="Create tailored CV (only valid with --url)")
     args = parser.parse_args()
 
-    create_cv_override = None
-    if args.no_cv:
-        create_cv_override = False
-    elif args.create_cv:
-        create_cv_override = True
+    # DEC-019: --create-cv is valid only with --url.
+    if args.create_cv and not args.url:
+        parser.error("--create-cv requires --url")
 
     if args.url:
-        asyncio.run(run_evaluate(mode="url", url=args.url, threshold_override=args.threshold, german_policy=args.german_policy, create_cv_override=create_cv_override))
+        asyncio.run(run_evaluate(mode="url", url=args.url, threshold_override=args.threshold, german_policy=args.german_policy))
     elif args.all:
-        asyncio.run(run_evaluate(mode="all", threshold_override=args.threshold, german_policy=args.german_policy, create_cv_override=create_cv_override))
+        asyncio.run(run_evaluate(mode="all", threshold_override=args.threshold, german_policy=args.german_policy))
     elif args.batch:
-        asyncio.run(run_evaluate(mode="batch", batch_size=args.batch, threshold_override=args.threshold, german_policy=args.german_policy, create_cv_override=create_cv_override))
+        asyncio.run(run_evaluate(mode="batch", batch_size=args.batch, threshold_override=args.threshold, german_policy=args.german_policy))
     else:
-        asyncio.run(run_evaluate(mode="next", threshold_override=args.threshold, german_policy=args.german_policy, create_cv_override=create_cv_override))
+        asyncio.run(run_evaluate(mode="next", threshold_override=args.threshold, german_policy=args.german_policy))
 
 
 if __name__ == "__main__":
