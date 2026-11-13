@@ -173,6 +173,14 @@ class AtsScanner(BaseScanner):
                 continue
             if board.get("enabled", True) is False:
                 continue
+            # SmartRecruiters requires explicit authorization before scanning.
+            if kind == "smartrecruiters" and board.get("authorized") is not True:
+                result.errors.append(f"{label}: not authorized (set authorized: true to enable)")
+                continue
+            # disabled_by_policy: board is disabled by policy decision, report but skip.
+            if board.get("disabled_by_policy") is True:
+                result.errors.append(f"{label}: disabled_by_policy (skipped per policy)")
+                continue
             wait = self.cooldown.remaining(f"ats:{label}", COOLDOWN_SECONDS[kind])
             if wait:
                 result.errors.append(f"{label}: cooldown active, wait {wait}s (skipped, not an error)")

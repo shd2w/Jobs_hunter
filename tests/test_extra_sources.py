@@ -185,7 +185,7 @@ def test_smartrecruiters_detail_budget_and_title_filter(tmp_path):
     detail = {"postingUrl": "https://jobs.smartrecruiters.com/acme/x", "jobAd": {"sections": {"a": {"text": "desc"}}}}
     routes = {"/postings/1": (200, detail, JSON), "/postings?limit": (200, {"content": content}, JSON)}
     calls = []
-    res = run(make_ats(tmp_path, [{"kind": "smartrecruiters", "id": "acme"}], routes, calls).scan())
+    res = run(make_ats(tmp_path, [{"kind": "smartrecruiters", "id": "acme", "authorized": True}], routes, calls).scan())
     detail_calls = [c for c in calls if "/postings/" in c]
     assert len(detail_calls) == ats.SR_MAX_DETAILS            # bounded
     assert not any("9999" in c for c in calls)                 # filtered-out title costs no request
