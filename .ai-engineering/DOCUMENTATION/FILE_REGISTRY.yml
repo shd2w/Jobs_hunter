@@ -98,7 +98,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "02b7ba372cf8da35d4efdde81b8f00acb7383ef8cb3d0ab7732ff6db33ad801d"
+    entry_sha256: "ac91c597eddd84b615f614d65bc328be7161b32c538a1d151b59b742f30b48aa"
     untrusted_input: false
   - path: ".ai-engineering/CONFIG/project_profile.yml"
     type: "yml"
@@ -269,7 +269,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "8bcea75e281b51de44b418787b81ef72b74e3e2fb337d0fd05bc4dac16eab0f6"
+    entry_sha256: "70b1c55c146fef7695f86b6af43cfeae8827ac9eb36382ad0a5aa54e2263765f"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/KNOWN_ISSUES.md"
     type: "md"
@@ -287,7 +287,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "a578e85786af5edee592d88f04af046db4b497d97f554e7e4be38fb2f24d6b09"
+    entry_sha256: "ab204da28afa95e94a5e86226e5e751419285bd3f74e4cf84e894e6039fe81bf"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/RECENT_FAILURES.md"
     type: "md"

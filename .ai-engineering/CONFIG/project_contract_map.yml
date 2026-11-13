@@ -13,7 +13,7 @@ documents_read:
   # GOV-02 re-hashed 2026-11-13: owner-authorized DEC-052 (G7 Windows-only) added to section 2
   # and section 5 in the same change set as the GOV-04/GOV-05/doc-06 edits (GOV-02 section 9).
   # See .ai-engineering/MEMORY/decisions/G7_windows_only_owner_decision_record_2026-11-13.md.
-  - {id: GOV-02, path: docs/governance/02_decision_log_and_scope.md,   role: decision_authority,     sha256: 1a34fc369bb8bf76e68734943049ed882ca6b764190155225167a06b269a4f94}
+  - {id: GOV-02, path: docs/governance/02_decision_log_and_scope.md,   role: decision_authority,     sha256: 236f2bd9dfcc0fc00bd6a12eaa8756882681fbec1f6af3fad8d61b3cf7079cbd}
   - {id: GOV-03, path: docs/governance/03_security_and_credentials.md, role: security,               sha256: d9cba6aba41db6327f71f32b24eb1df40a09dd78c748a07969f38f21e397eba8}
   # GOV-04 re-hashed 2026-11-13: owner-authorized WP-00-01 scope update (dev lock) and
   # new framework WP-00-05 (run_gates manifest_names fix; owner instruction 2026-11-13);
@@ -23,10 +23,10 @@ documents_read:
   # .ai-engineering/EVIDENCE/WP-00-01/review/REVIEW_WP-00-01_20261113-124154.md.
   # Re-hashed again 2026-11-13: owner-authorized DEC-052 (G7 Windows-only) - WP-00-01 and
   # WP-00-03 exit cells amended per the accepted change proposal (same change set).
-  - {id: GOV-04, path: docs/governance/04_work_packages.md,            role: task_source,            sha256: 657bce52688410ca7f9936169fb64cce813277ef93d1b9d8e291ff425dc67612}
+  - {id: GOV-04, path: docs/governance/04_work_packages.md,            role: task_source,            sha256: 829727be91698df9133478b1fcd27a3ab5493117e7ecfb4ba8defbc62d7b8cc6}
   # GOV-05 re-hashed 2026-11-13: owner-authorized DEC-052 (G7 Windows-only) - section 3 G7 row
   # reworded and a section 8 evidence note added (GOV-02 section 9; same change set).
-  - {id: GOV-05, path: docs/governance/05_validation_matrix.md,        role: validation_gates,       sha256: 77b0809b03094c4a0ad55d5ea7ab51f0772cd3ad6da40ec523cf062614ac43ad}
+  - {id: GOV-05, path: docs/governance/05_validation_matrix.md,        role: validation_gates,       sha256: e65a8214f50650d95fa206e07e0548e866f2ff2aa9c1c7e4713fa4056052c361}
   - {id: GOV-06, path: docs/governance/06_execution_plan.md,           role: execution_procedure,    sha256: 0b79bfc89774a675664c2d717d26a332c186538aec4685cfd83b974ba2651502}
   - {id: GOV-07, path: docs/governance/07_demo_track.md,               role: demo_pilot_labels,      sha256: 305dfffa303d0e06131c84c48067b48b3e0fe365a0d96e6cceca5d35ff6a9343}
   - {id: PROMPT, path: docs/PROMPT.md,                                 role: working_prompt_and_must_keep, sha256: 43ff049a8c7afeaa407f7fed07d41063f1944a43ecec18e3ef79f01af090e178}
