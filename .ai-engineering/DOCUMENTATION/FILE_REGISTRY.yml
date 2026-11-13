@@ -98,7 +98,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "0cdc5afc8d9ea32abf0f6480a9cc0ffd2326f1407ff04f90d0842df8a8dd580d"
+    entry_sha256: "02b7ba372cf8da35d4efdde81b8f00acb7383ef8cb3d0ab7732ff6db33ad801d"
     untrusted_input: false
   - path: ".ai-engineering/CONFIG/project_profile.yml"
     type: "yml"
@@ -269,7 +269,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "ee0d42800237455558a97b9c493af1d52b970e47d27ab3883798940030321654"
+    entry_sha256: "8bcea75e281b51de44b418787b81ef72b74e3e2fb337d0fd05bc4dac16eab0f6"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/KNOWN_ISSUES.md"
     type: "md"
@@ -278,7 +278,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "4370f6707759fcd4fe3d731324d77af32a87e1d49ae6615381eaf383d02d7d53"
+    entry_sha256: "28f079efdf79ead0a5f48610acdb58406715fe60d122dc4046e4689bc5ffaef8"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/PROJECT_STATE.yml"
     type: "yml"
@@ -287,7 +287,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "054f97e52f9170b50ad0a0b6799890ef175b098972294dc9071804e2880b2038"
+    entry_sha256: "a578e85786af5edee592d88f04af046db4b497d97f554e7e4be38fb2f24d6b09"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/RECENT_FAILURES.md"
     type: "md"
@@ -297,6 +297,15 @@ files:
     status: "active"
     provenance: "generated-unreviewed"
     entry_sha256: "95dd6a7164e9a4ea627fc8c073abf5008d9749d882f5c7d6b67ebdd304c36027"
+    untrusted_input: false
+  - path: ".ai-engineering/MEMORY/decisions/G7_windows_only_owner_decision_record_2026-11-13.md"
+    type: "md"
+    purpose: "Decision record — DEC-052 (owner, 2026-11-13): G7 is Windows-only (permanent; six owner refinements recorded; change set implemented uncommitted per GOV-02 section 9)"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "02aac4548518b0858f4cc835c1a7b91b25620807c8fc5f240328afd831e3193b"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/decisions/WP-00-01_owner_decision_record_2026-11-13.md"
     type: "md"
@@ -768,7 +777,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "9224fb0ef46061a95120da93153fef1d70129f4303b0be53298a0f4a589f7db0"
+    entry_sha256: "6462772e919399fadb2768e41f443bc1b25e069d9383d66ace16f096dd2caf78"
     untrusted_input: false
   - path: "docs/07_IMPLEMENTATION_ROADMAP.md"
     type: "md"
@@ -890,7 +899,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "0e4b53dbc607891a152a5f6fa12b1b0a053f86dd747d7e14ce7452e3c0d12446"
+    entry_sha256: "1a34fc369bb8bf76e68734943049ed882ca6b764190155225167a06b269a4f94"
     untrusted_input: false
   - path: "docs/governance/03_security_and_credentials.md"
     type: "md"
@@ -908,7 +917,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "690b448bb395463402d9aadd57329018902edd0dec0150b8e1519eb17bf9eeff"
+    entry_sha256: "657bce52688410ca7f9936169fb64cce813277ef93d1b9d8e291ff425dc67612"
     untrusted_input: false
   - path: "docs/governance/05_validation_matrix.md"
     type: "md"
@@ -917,7 +926,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "5bf0fcb06b531096a38def6bc950b535bf7913f75e23d659c94a2fb68a811a69"
+    entry_sha256: "77b0809b03094c4a0ad55d5ea7ab51f0772cd3ad6da40ec523cf062614ac43ad"
     untrusted_input: false
   - path: "docs/governance/06_execution_plan.md"
     type: "md"

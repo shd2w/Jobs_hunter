@@ -10,7 +10,10 @@ documents_read:
   # suite changed: re-read it and have the owner confirm before relying on the map.
   - {id: GOV-00, path: docs/governance/00_project_charter.md,          role: charter,                sha256: fcc8d302a63f1774933ed7984a73e0957fc38e9d736711b28877417538066f8f}
   - {id: GOV-01, path: docs/governance/01_architecture_contract.md,    role: architecture,           sha256: f5695806dc5285427af4071e524e0e9b76e85635b4ebc079f4114333feb2ceb1}
-  - {id: GOV-02, path: docs/governance/02_decision_log_and_scope.md,   role: decision_authority,     sha256: 0e4b53dbc607891a152a5f6fa12b1b0a053f86dd747d7e14ce7452e3c0d12446}
+  # GOV-02 re-hashed 2026-11-13: owner-authorized DEC-052 (G7 Windows-only) added to section 2
+  # and section 5 in the same change set as the GOV-04/GOV-05/doc-06 edits (GOV-02 section 9).
+  # See .ai-engineering/MEMORY/decisions/G7_windows_only_owner_decision_record_2026-11-13.md.
+  - {id: GOV-02, path: docs/governance/02_decision_log_and_scope.md,   role: decision_authority,     sha256: 1a34fc369bb8bf76e68734943049ed882ca6b764190155225167a06b269a4f94}
   - {id: GOV-03, path: docs/governance/03_security_and_credentials.md, role: security,               sha256: d9cba6aba41db6327f71f32b24eb1df40a09dd78c748a07969f38f21e397eba8}
   # GOV-04 re-hashed 2026-11-13: owner-authorized WP-00-01 scope update (dev lock) and
   # new framework WP-00-05 (run_gates manifest_names fix; owner instruction 2026-11-13);
@@ -18,14 +21,19 @@ documents_read:
   # package count 73 -> 74; owner acknowledgment message 2026-11-13).
   # See .ai-engineering/MEMORY/decisions/WP-00-01_owner_decision_record_2026-11-13.md and
   # .ai-engineering/EVIDENCE/WP-00-01/review/REVIEW_WP-00-01_20261113-124154.md.
-  - {id: GOV-04, path: docs/governance/04_work_packages.md,            role: task_source,            sha256: 690b448bb395463402d9aadd57329018902edd0dec0150b8e1519eb17bf9eeff}
-  - {id: GOV-05, path: docs/governance/05_validation_matrix.md,        role: validation_gates,       sha256: 5bf0fcb06b531096a38def6bc950b535bf7913f75e23d659c94a2fb68a811a69}
+  # Re-hashed again 2026-11-13: owner-authorized DEC-052 (G7 Windows-only) - WP-00-01 and
+  # WP-00-03 exit cells amended per the accepted change proposal (same change set).
+  - {id: GOV-04, path: docs/governance/04_work_packages.md,            role: task_source,            sha256: 657bce52688410ca7f9936169fb64cce813277ef93d1b9d8e291ff425dc67612}
+  # GOV-05 re-hashed 2026-11-13: owner-authorized DEC-052 (G7 Windows-only) - section 3 G7 row
+  # reworded and a section 8 evidence note added (GOV-02 section 9; same change set).
+  - {id: GOV-05, path: docs/governance/05_validation_matrix.md,        role: validation_gates,       sha256: 77b0809b03094c4a0ad55d5ea7ab51f0772cd3ad6da40ec523cf062614ac43ad}
   - {id: GOV-06, path: docs/governance/06_execution_plan.md,           role: execution_procedure,    sha256: 0b79bfc89774a675664c2d717d26a332c186538aec4685cfd83b974ba2651502}
   - {id: GOV-07, path: docs/governance/07_demo_track.md,               role: demo_pilot_labels,      sha256: 305dfffa303d0e06131c84c48067b48b3e0fe365a0d96e6cceca5d35ff6a9343}
   - {id: PROMPT, path: docs/PROMPT.md,                                 role: working_prompt_and_must_keep, sha256: 43ff049a8c7afeaa407f7fed07d41063f1944a43ecec18e3ef79f01af090e178}
-suite_counts_stated_by_spec: {work_packages: 74, phases: 17, final_decisions: 51, pending_decisions: 29, invariants: 27, gates: 21}
+suite_counts_stated_by_spec: {work_packages: 74, phases: 17, final_decisions: 52, pending_decisions: 29, invariants: 27, gates: 21}
 # work_packages 73 -> 74 on 2026-11-13: WP-00-05 added per owner instruction (framework
 # work item for the run_gates manifest_names defect; KI-014).
+# final_decisions 51 -> 52 on 2026-11-13: DEC-052 added per owner instruction (G7 Windows-only).
 # Phase B/C tooling must verify these counts against the documents; they are not yet machine-checked.
 
 authority_order:

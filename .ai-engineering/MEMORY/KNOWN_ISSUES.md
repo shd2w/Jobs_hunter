@@ -47,7 +47,8 @@ Confirmed defects, limitations, unresolved root causes. Format per entry: id, st
 - Status: open, classification: manifest inconsistency (pre-existing)
 - The Dockerfile build stage runs `pip install playwright && playwright install --with-deps chromium` after installing the hash-locked core lock; `playwright` is declared in neither `pyproject.toml` nor any `requirements*.in`, so a container build's Python environment is not fully described by the manifest and that install bypasses hash-locked installation.
 - Owner decision 2026-11-13: leave unchanged in WP-00-01; track for a later work package (container/CI scope, cf. WP-00-03).
-- Related: WP-00-01 (the core-lock install line itself now uses `--require-hashes`).
+- DEC-052 (2026-11-13): G7 became Windows-only, so a container build's dependency install is no longer covered by G7. Any Docker image intended for distribution still requires Linux dependency-install validation (fresh-venv install from the locks with `--require-hashes` plus `pip check` on Linux); this requirement is retained by DEC-052 and tracked here.
+- Related: DEC-052 (Linux install validation for distributable images retained here); WP-00-01 (the core-lock install line itself now uses `--require-hashes`).
 
 ## KI-014 - run_gates.py manifest_names parses pyproject.toml as a requirements file
 - Status: open, classification: framework defect (pre-existing; first observed 2026-11-13 in WP-00-01)
@@ -61,6 +62,14 @@ Confirmed defects, limitations, unresolved root causes. Format per entry: id, st
 - The configured command (`python -m pip install --require-hashes -r requirements.txt`) proves little when the target venv already contains the pins: the gate record of 2026-11-13 13:29:25 shows every line "Requirement already satisfied", so that record alone does not demonstrate a hash-checked install.
 - Mitigations in place: the real fresh-install proof lives in `EVIDENCE/WP-00-01/proof_venv/` (exit-0 logs), and the independent review re-executed a true fresh install (`--require-hashes --no-cache-dir`, exit 0) whose freeze exactly equals the lock union; a corrected negative test (all hashes of one pin flipped) confirmed pip refuses mismatches.
 - Owner decision 2026-11-13: track as future hardening - consider a fresh-venv-per-run or `--no-cache-dir` variant of the gate command (framework item; not WP-00-01 scope).
+
+## KI-016 - G7 is Windows-only (DEC-052): Linux install parity of the lock is unverified
+- Status: open, classification: accepted risk (owner decision DEC-052, 2026-11-13)
+- The owner permanently amended G7 (GOV-05 §3) to require installation from the hash-locked files in a clean Windows environment only, for every referencing work package (WP-00-01, WP-00-03, WP-12-04). The Linux leg was never operationalized (GOV-05 §8 never had a Linux command) and never executed; no Linux install of the four locks has ever been run.
+- Residual unverified: Linux wheel availability for the compiled pins (numpy 2.5.4, pandas 3.1.1, curl-cffi 0.17.0, cryptography, brotli, pillow, pydantic-core, cffi and the other compiled pins); glibc/manylinux-tag compatibility of any future Linux environment; non-x86-64 architectures; Python 3.13/3.14 on any OS (unchanged limitation, untouched by DEC-052).
+- Compensating controls: `--require-hashes` fails closed on any artifact mismatch (a wrong-platform artifact cannot install silently); charter S1 test parity and WP-00-03's "CI on Linux and Windows" are unaffected; KI-013 retains Linux dependency-install validation for any Docker image intended for distribution.
+- Re-open triggers: the hosted-platform decision (PCD-005), any Linux deployment need, or a Docker image build (KI-013).
+- No Linux compatibility claim may be made under DEC-052 (DEC-047 unchanged).
 
 ## KI-008 - parts of the adapter facts come from third parties or are version-dependent
 - Status: open, classification: unknown
