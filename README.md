@@ -64,15 +64,31 @@ jobhunter_venv\Scripts\activate
 source jobhunter_venv/bin/activate
 ```
 
-**Install dependencies:**
+**Install dependencies (hash-locked files, per group):**
 ```bash
-pip install -r requirements.txt
+# core group - production default install (requirements.txt is a GENERATED lock file)
+pip install --require-hashes -r requirements.txt
+
+# optional groups - after the core lock
+pip install --require-hashes -r requirements-ingestion.txt   # ingestion stack (phases 04-06)
+pip install --require-hashes -r requirements-dev.txt          # pytest + pip-tools (test/CI only)
 ```
 
-> **⚠️ Python 3.13+ users:** `python-jobspy` internally pins `numpy==1.26.3`, which crashes on Python 3.13+. Our `requirements.txt` overrides this with `numpy>=2.4`, but if you still see `OverflowError: cannot convert longdouble infinity to integer`, run:
-> ```bash
-> pip install "numpy>=2.4" --force-reinstall --no-deps
-> ```
+> `requirements.txt` is **generated** and never hand-edited. Its source of truth is
+> `requirements.in`; regenerate with `pip-compile --generate-hashes requirements.in`
+> (pip-tools; development-only tool). See the lock policy below.
+
+**Supported Python versions:** 3.12–3.14 (`pyproject.toml` sets `requires-python = ">=3.12,<3.15"`). The dependency groups are declared in `pyproject.toml` (the authoritative manifest) and locked per group as hash-pinned files.
+
+**Dependency lock policy (WP-00-01):**
+
+- Groups: `core` (`requirements.txt`), `ingestion` (`requirements-ingestion.txt`), `docs` (`requirements-docs.txt`, declared empty), `dev` (`requirements-dev.txt`: pytest + pip-tools; test/CI tooling only — not part of the production manifest).
+- Deferred by owner decision (2026-11-13), therefore not locked: `stamina` (DEC-013 retry layer; wiring is WP-04-02), `parsel` ("phase when needed"), `extruct`, `crawlee`, `datasketch`/dedup.
+- Regenerate the locks **in order** (core first; the other inputs constrain shared packages to the core resolution via `-c requirements.txt`): `pip-compile --generate-hashes requirements.in`, then `requirements-ingestion.in`, `requirements-docs.in`, `requirements-dev.in --allow-unsafe`. The dev lock needs `--allow-unsafe` because pip-tools' own metadata requires an unpinned `setuptools`, which `pip install --require-hashes` rejects; the flag hash-pins `pip`/`setuptools`/`wheel` in the dev lock. Afterwards run the test suite in a clean venv before committing an updated lock.
+- **tldextract (offline Public Suffix List):** the PSL snapshot **bundled with the package** is used. Project code must construct the extractor with runtime fetching disabled — `tldextract.TLDExtract(suffix_list_urls=())` — so no network PSL fetch ever happens at runtime. PSL updates arrive only through a new tldextract release, i.e. a deliberate re-lock.
+- **pydantic-xml:** resolved to the latest version compatible with the project (requires `pydantic>=2.14.0`; project floor `pydantic>=2.14.2`; Python 3.12–3.14 supported per its metadata). Update policy: re-run the locks and the clean-venv test suite before accepting a new version.
+
+> **⚠️ Python 3.13+ note:** `python-jobspy` internally pins an old `numpy` (1.26.x) that crashes on Python 3.13+. The lock resolves one consistent numpy 2.x, so no manual workaround is needed when installing from the lock files.
 
 **WeasyPrint (PDF generation) on Windows:**
 ```bash
@@ -80,7 +96,7 @@ pip install -r requirements.txt
 # Then in MSYS2 terminal:
 pacman -S mingw-w64-x86_64-pango
 ```
-The code auto-detects the GTK libraries at `C:\msys64\mingw64\bin`.
+The code auto-detects the GTK libraries at `C:\msys64\mingw64\bin`. Without that runtime the WeasyPrint integration tests **fail rather than skip** (docs/06 §1) — on Windows the configured G1 command stays unavailable until the runtime is installed (PCD-011).
 
 ---
 

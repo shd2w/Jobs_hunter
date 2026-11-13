@@ -1,0 +1,70 @@
+# JobHunter - project manifest (PEP 621; WP-00-01).
+#
+# This file is the authoritative dependency manifest (CONFIG/project_profile.yml
+# -> stack.dependency_manifest). It declares the dependency groups per DEC-013 /
+# Decision Log D7 (register: docs/06_QUALITY_SECURITY_AND_OPERATIONS.md section 6).
+#
+# Installation happens from the GENERATED hash-locked files, never from this file:
+#   pip install --require-hashes -r requirements.txt               # core group (production default)
+#   pip install --require-hashes -r requirements-ingestion.txt     # ingestion group
+#   pip install --require-hashes -r requirements-docs.txt          # docs group (currently empty)
+#   pip install --require-hashes -r requirements-dev.txt           # test/dev tooling (pytest, pip-tools)
+#
+# Lock files are generated with pip-compile (development-only tool, owner decision
+# 2026-11-13) and are NEVER hand-maintained:
+#   pip-compile --generate-hashes requirements.in               -> requirements.txt
+#   pip-compile --generate-hashes requirements-ingestion.in     -> requirements-ingestion.txt
+#   pip-compile --generate-hashes requirements-docs.in          -> requirements-docs.txt
+#   pip-compile --generate-hashes --allow-unsafe requirements-dev.in -> requirements-dev.txt
+#     (--allow-unsafe hash-pins pip/setuptools/wheel: pip-tools' own metadata requires an
+#      unpinned setuptools, which `pip install --require-hashes` would otherwise reject)
+#
+# Deferred packages (owner decision 2026-11-13; none may be added silently):
+#   stamina            - DEC-013 retry layer; zero source imports today; wiring is WP-04-02
+#   parsel             - register: "phase when needed"; zero source imports today
+#   extruct, crawlee,  - owner-deferred (datasketch: register marks "deferred, not installed")
+#   datasketch/dedup
+#   pypdf, python-docx - register: "not in Decision Log" -> separate approval required
+#
+# pytest is test/CI tooling only (owner amendment 2026-11-13): it lives in
+# requirements-dev.txt, NOT in any production group of this manifest.
+# This manifest is not a published package; there is no [build-system] and the
+# application is not installed via `pip install .` - installs go through the locks.
+
+[project]
+name = "jobhunter"
+version = "0.1.0"
+description = "Local-first job search automation: scanning, matching, documents, local UI"
+requires-python = ">=3.12,<3.15"
+
+# core group - production default install (generated lock: requirements.txt)
+dependencies = [
+    "python-jobspy>=1.4.1",
+    "pandas>=2.0.0",
+    "numpy>=2.0.0",
+    "httpx[http2]>=0.28.1",
+    "curl_cffi>=0.17.0",
+    "pydantic>=2.14.2",
+    "pyyaml>=6.0.1",
+    "python-dotenv>=1.0.1",
+    "google-genai>=1.0.0",
+    "openpyxl>=3.1.0",
+    "rich>=13.7.0",
+    "weasyprint>=60.0",
+    "certifi>=2026.10.19",
+]
+
+[project.optional-dependencies]
+# ingestion group - approved DEC-013 stack for phases 04-06 (generated lock: requirements-ingestion.txt)
+ingestion = [
+    "ats-scrapers==0.3.0",
+    "beautifulsoup4",
+    "html2text",
+    "selectolax>=1.0.2",
+    "pydantic-xml",
+    "w3lib>=2.5.0",
+    "rapidfuzz>=3.14.6",
+    "tldextract",
+]
+# docs group - declared empty until a documentation toolchain is approved (generated lock: requirements-docs.txt)
+docs = []

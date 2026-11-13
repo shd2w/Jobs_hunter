@@ -7,9 +7,9 @@ RUN apt-get update && apt-get install -y \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python deps
+# Install Python deps (hash-locked core lock; owner decision 2026-11-13, Option 2)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --require-hashes -r requirements.txt
 
 # Install playwright browsers
 RUN pip install playwright && playwright install --with-deps chromium

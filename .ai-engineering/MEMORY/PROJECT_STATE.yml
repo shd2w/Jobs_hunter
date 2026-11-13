@@ -2,21 +2,21 @@
 # Updated at every task transition and handoff. Validated by SCRIPTS/memory/check_memory.py.
 state_version: 1
 project: JobHunter
-last_updated: "2026-11-13T07:00:58Z"
-last_updated_by: "claude.ai chat / claude-sonnet-5-5"
-active_task: null              # WP-pp-nn while a task is open, otherwise null
-task_status: null              # project status (GOV-05 section 10) of the active task
-phase: null                    # JobHunter phase NN of the active task
+last_updated: "2026-11-13T12:05:09Z"
+last_updated_by: "OpenCode CLI / glm-5.3-flash-free (implementer, WP-00-01)"
+active_task: WP-00-01           # task open: dependency lock (phase 00)
+task_status: in_progress        # GOV-05 section 10; implementation + verification done; owner authorized the commit (2026-11-13, commit only - NOT done/merge-ready); committing on wp/WP-00-01-dependency-lock; independent reviewer decides done/changes-required/not-merge-ready
+phase: "00"                     # JobHunter phase of the active task
 release: null
-branch: docs/governance-suite
-base_branch: pending_owner     # PCD-001
-head_commit: 00d6a5f5b9b8e0ba4be9d2a9ab91ffe55e0ed072
-working_tree: "untracked: .ai-engineering/ (framework Phases A-F), AGENTS.md, GEMINI.md; no tracked file modified. Not re-verified against the real repository in the session that added Phase E (uploaded copy had no .git)"
+branch: wp/WP-00-01-dependency-lock
+base_branch: pending_owner     # PCD-001. De-facto base for gate --base comparisons: bootstrap snapshot 83c423f on docs/governance-suite.
+head_commit: 83c423f55ca6c055c785ed2de31d158c765b4122
+working_tree: "WP-00-01 implementation in the working tree (pyproject.toml; requirements*.in/.txt x8; README.md; Dockerfile; .ai-engineering/CONFIG/command_profiles.yml + project_profile.yml; FILE_REGISTRY.yml; MEMORY files; EVIDENCE/WP-00-01/). Untracked by choice: config/profile.yml, CV_Example.py (KI-004, S4). Nothing committed - owner decides."
 last_verified_checkpoint:
-  commit: 00d6a5f5b9b8e0ba4be9d2a9ab91ffe55e0ed072
-  what_was_verified: "Phase A configs parse; suite documents match sha256 in the contract map; referenced paths exist"
-  not_verified: "test suite baseline (3 collection errors from missing httpx in the review container)"
-  evidence: null
+  commit: 83c423f55ca6c055c785ed2de31d158c765b4122
+  what_was_verified: "WP-00-01 implementation executed after the owner's 10:32Z mapping confirmation: pyproject.toml + requirements*.in written; four hash-locked locks generated with pip-compile 7.6.2 (--generate-hashes; dev lock with --allow-unsafe hash-pinning pip/setuptools/wheel, because pip-tools' own metadata requires an unpinned setuptools which real --require-hashes installs reject); core lock requirements.txt = 60 pins (httpx[http2]==0.28.1, certifi 2026.10.23, curl-cffi 0.17.0, numpy 2.5.4, pydantic 2.14.3, python-jobspy 1.4.1, weasyprint 70.0; rapidfuzz/stamina/pytest absent per the approved mapping); ingestion lock 30 pins incl. pydantic-xml 2.22.0, rapidfuzz 3.14.6, tldextract 5.4.0, ats-scrapers 0.3.0; cross-lock consistency check CONSISTENT (exit 0); clean-venv proof: all four locks installed with pip install --require-hashes, exit 0 each, in a fresh Python 3.12.8 venv outside the repo; supplementary diagnostic 283 passed / 0 failed (12.35 s, matches the baseline diagnostic); pydantic-xml 2.22.0 on pydantic 2.14.3 and tldextract offline-PSL checks pass; gates via run_gates.py: install_from_lock PASSED, dependency_consistency PASSED, mustkeep PASSED, protected PASSED, approvals PASSED (known framework limitation visible in its output), regressions PASSED (0 introduced, 1 pre-existing); G1 tests_all FAILED environmentally (KI-012 collection error - never passed on this machine); Dockerfile/README/CONFIG updated (dependency_manifest pyproject.toml; install_from_lock + dependency_consistency configured)"
+  not_verified: "G1 in an appropriately configured environment (GTK/Pango install deferred by the owner, KI-012); G7 formal legs (no Linux environment in session; Windows formal leg owner-only per brief - the implementer's temp-venv proof is supplementary, not the formal leg); the full 286-test configured baseline claimed by GOV-05; the pre-existing F-03 'no tests linked' docs-gate WARN (verified pre-existing via empty git diff of features/ and docs/ vs base, not fixed here); registry hash refresh + docs-gate re-run + summary (immediately pending); commit/review steps (owner + reviewer pending)"
+  evidence: ".ai-engineering/EVIDENCE/WP-00-01/ (baseline/, validation/ gate records, proof_venv/, hash_flag_test/, diagnostic txt); .ai-engineering/MEMORY/decisions/WP-00-01_owner_decision_record_2026-11-13.md; .ai-engineering/MEMORY/CURRENT_TASK.md (progress log)"
 authoritative_documents:
   contract_map: .ai-engineering/CONFIG/project_contract_map.yml   # holds path + sha256 per document
   decision_log_revision_read: "sha256 0e4b53dbc607891a152a5f6fa12b1b0a053f86dd747d7e14ce7452e3c0d12446"

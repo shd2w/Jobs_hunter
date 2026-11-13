@@ -12,12 +12,17 @@ documents_read:
   - {id: GOV-01, path: docs/governance/01_architecture_contract.md,    role: architecture,           sha256: f5695806dc5285427af4071e524e0e9b76e85635b4ebc079f4114333feb2ceb1}
   - {id: GOV-02, path: docs/governance/02_decision_log_and_scope.md,   role: decision_authority,     sha256: 0e4b53dbc607891a152a5f6fa12b1b0a053f86dd747d7e14ce7452e3c0d12446}
   - {id: GOV-03, path: docs/governance/03_security_and_credentials.md, role: security,               sha256: d9cba6aba41db6327f71f32b24eb1df40a09dd78c748a07969f38f21e397eba8}
-  - {id: GOV-04, path: docs/governance/04_work_packages.md,            role: task_source,            sha256: 012276b7f7cf25923775156997e20460bd4924ca3dd74ff75dd3a5e1dc04c6a8}
+  # GOV-04 re-hashed 2026-11-13: owner-authorized WP-00-01 scope update (dev lock) and
+  # new framework WP-00-05 (run_gates manifest_names fix; owner instruction 2026-11-13).
+  # See .ai-engineering/MEMORY/decisions/WP-00-01_owner_decision_record_2026-11-13.md.
+  - {id: GOV-04, path: docs/governance/04_work_packages.md,            role: task_source,            sha256: 3a87917b2e67a219042fbe2b991f88a78dae6c8eb58a7f23c05b3bcba94cfadc}
   - {id: GOV-05, path: docs/governance/05_validation_matrix.md,        role: validation_gates,       sha256: 5bf0fcb06b531096a38def6bc950b535bf7913f75e23d659c94a2fb68a811a69}
   - {id: GOV-06, path: docs/governance/06_execution_plan.md,           role: execution_procedure,    sha256: 0b79bfc89774a675664c2d717d26a332c186538aec4685cfd83b974ba2651502}
   - {id: GOV-07, path: docs/governance/07_demo_track.md,               role: demo_pilot_labels,      sha256: 305dfffa303d0e06131c84c48067b48b3e0fe365a0d96e6cceca5d35ff6a9343}
   - {id: PROMPT, path: docs/PROMPT.md,                                 role: working_prompt_and_must_keep, sha256: 43ff049a8c7afeaa407f7fed07d41063f1944a43ecec18e3ef79f01af090e178}
-suite_counts_stated_by_spec: {work_packages: 73, phases: 17, final_decisions: 51, pending_decisions: 29, invariants: 27, gates: 21}
+suite_counts_stated_by_spec: {work_packages: 74, phases: 17, final_decisions: 51, pending_decisions: 29, invariants: 27, gates: 21}
+# work_packages 73 -> 74 on 2026-11-13: WP-00-05 added per owner instruction (framework
+# work item for the run_gates manifest_names defect; KI-014).
 # Phase B/C tooling must verify these counts against the documents; they are not yet machine-checked.
 
 authority_order:

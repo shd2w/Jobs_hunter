@@ -1,0 +1,20 @@
+# JobHunter - test/dev dependency group (test/CI tooling ONLY; owner amendment 2026-11-13).
+# NOT part of the production manifest: pyproject.toml carries no pytest.
+# This is the "test lock" anticipated by GOV-04 WP-00-02 ("test fails when selenium
+# is added to a test lock").
+#
+# Regenerate:  pip-compile --generate-hashes --allow-unsafe requirements-dev.in   -> requirements-dev.txt
+# (--allow-unsafe hash-pins pip/setuptools/wheel: pip-tools' own metadata requires an unpinned
+#  setuptools, which `pip install --require-hashes` would otherwise reject.)
+# Install:     pip install --require-hashes -r requirements-dev.txt   (after the core lock)
+#
+# The -c line constrains shared packages to the versions resolved by the core lock.
+
+-c requirements.txt
+
+# Test runner (existing floor, carried from the legacy requirements.txt)
+pytest>=8.0.0,<9.0.0
+
+# Locking tool (development-only; owner decision 2026-11-13: pip-compile --generate-hashes;
+# no uv/Poetry)
+pip-tools

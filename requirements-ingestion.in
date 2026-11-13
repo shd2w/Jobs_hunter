@@ -1,0 +1,26 @@
+# JobHunter - ingestion dependency group (phases 04-06; DEC-013 stack).
+# Mirrors [project.optional-dependencies].ingestion in pyproject.toml.
+#
+# Regenerate:  pip-compile --generate-hashes requirements-ingestion.in   -> requirements-ingestion.txt
+# Install:     pip install --require-hashes -r requirements-ingestion.txt   (after the core lock)
+#
+# The -c line constrains shared packages to the versions resolved by the core lock,
+# so all group locks describe one consistent environment.
+
+-c requirements.txt
+
+# ATS adapters + Job model (DEC-041: pinned library, no [all] extra)
+ats-scrapers==0.3.0
+beautifulsoup4
+html2text
+
+# HTML strip/parse
+selectolax>=1.0.2
+
+# Models / XML (pydantic-xml: resolved latest-compatible at lock time, owner decision 2026-11-13)
+pydantic-xml
+
+# URL canonicalisation / fuzzy match / registered domains
+w3lib>=2.5.0
+rapidfuzz>=3.14.6
+tldextract

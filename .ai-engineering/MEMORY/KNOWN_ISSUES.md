@@ -35,6 +35,27 @@ Confirmed defects, limitations, unresolved root causes. Format per entry: id, st
 - `SCRIPTS/adapters/check_adapters.py` and its 46 tests show the entry files are well formed. They cannot show that a CLI loads or follows them. Live tests C1-C6 (`QUALITY/adapter_conformance.md`) are `not_run` for all three CLIs; spec 18 criteria 1-3 are therefore unmet.
 - Next step: the owner runs C1-C6 per CLI in a disposable clone and records `EVIDENCE/FW-E/conformance/<cli>_<date>.md`.
 
+## KI-012 - Windows: missing GTK/Pango runtime aborts the whole test suite at collection
+- Status: open, classification: environmental (pre-existing)
+- Observed 2026-11-13, WP-00-01 baseline (Windows 11, fresh Python 3.12.8 venv with `requirements.txt` installed, `pip check` clean): the configured baseline command `python -m pytest -q` exits 2 with **1 collection error and zero tests run**. `tests/test_ui_integration.py:10` calls `pytest.importorskip("weasyprint")`; WeasyPrint 70.0 raises `OSError: cannot load library 'libgobject-2.0-0'` because the GTK/Pango runtime is absent on the machine. `importorskip` catches only `ImportError`, so the `OSError` aborts collection for the entire suite.
+- Evidence: baseline record `.ai-engineering/EVIDENCE/WP-00-01/baseline/G1_tests_all_20261113-120305.md` (status failed, exit 2); diagnostic run excluding only that module: **283 passed, 0 failed** in 11.5 s (`.ai-engineering/EVIDENCE/WP-00-01/baseline/diagnostic_pytest_ignore-ui-integration_20261113-*.txt`). The Linux reference is unchanged: 286 passed (KI-001, 2026-11-12).
+- Workaround: install the GTK runtime on Windows (owner decision, PCD-011), or run pytest with `--ignore=tests/test_ui_integration.py` (diagnostic only; it is not the configured gate command).
+- Related: PCD-011; WP-00-03 ("missing WeasyPrint fails instead of skipping" is the designed behaviour per docs/06 section 1; making the skip robust against `OSError` would be a test change needing a written reason per G1).
+- Not fixed in WP-00-01 (scope is the dependency lock; G1 requires tests unchanged).
+
+## KI-013 - Dockerfile installs playwright outside the dependency manifest
+- Status: open, classification: manifest inconsistency (pre-existing)
+- The Dockerfile build stage runs `pip install playwright && playwright install --with-deps chromium` after installing the hash-locked core lock; `playwright` is declared in neither `pyproject.toml` nor any `requirements*.in`, so a container build's Python environment is not fully described by the manifest and that install bypasses hash-locked installation.
+- Owner decision 2026-11-13: leave unchanged in WP-00-01; track for a later work package (container/CI scope, cf. WP-00-03).
+- Related: WP-00-01 (the core-lock install line itself now uses `--require-hashes`).
+
+## KI-014 - run_gates.py manifest_names parses pyproject.toml as a requirements file
+- Status: open, classification: framework defect (pre-existing; first observed 2026-11-13 in WP-00-01)
+- `manifest_names` (SCRIPTS/validation/run_gates.py) extracts the leading bare token of any non-comment line, so pyproject.toml is parsed like a requirements file: quoted dependencies are skipped and bare TOML keys (dependencies, description, docs, ingestion, name, requires-python, version) are reported as if they were packages.
+- Effect: the approvals gate can miss a genuinely new quoted dependency; in WP-00-01 it passed only via the pre-existing approval record (`.ai-engineering/MEMORY/approvals/WP-00-01/add_dependency_or_external_service.md`).
+- Mitigation until fixed: every pyproject.toml dependency change requires explicit human review (owner decision 2026-11-13; also recorded in CONFIG/project_profile.yml dependency_policy).
+- Tracked: WP-00-05 (framework work item created 2026-11-13 per owner instruction; regression tests required).
+
 ## KI-008 - parts of the adapter facts come from third parties or are version-dependent
 - Status: open, classification: unknown
 - Official documentation verified 2026-11-11: Kiro steering page (updated 2026-10-21), Gemini CLI GEMINI.md page, OpenCode rules page. Unverified: whether `file://AGENTS.md` works in a Kiro custom agent's `resources`; the reported Kiro symlink limitation (user-filed GitHub issue); exact CLI versions; Gemini CLI `/memory reload` versus `/memory refresh` and the `context.fileName` versus legacy `contextFileName` key differ between documentation versions.
