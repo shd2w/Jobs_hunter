@@ -1,6 +1,6 @@
 # Current Task
 
-**Task:** WP-02-01 through WP-02-05 — Phase 02: Service layer and scheduler (R1)
+**Task:** WP-02-05
 **Status:** merged
 **Branch / base:** wp/WP-02-phase-02-service-layer from phase/00-foundations (merged into phase/00)
 **Last updated:** 2026-11-13T17:4xZ
