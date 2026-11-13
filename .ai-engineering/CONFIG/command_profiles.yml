@@ -53,8 +53,9 @@ commands:
     status: "unavailable_until:WP-04-04"
   windows_verify:
     purpose: Windows verification (G7, PCD-011)
-    run: null
-    status: "unavailable_until:WP-00-03"
+    run: "powershell -ExecutionPolicy Bypass -File scripts/verify_windows.ps1"
+    status: exists
+    source: GOV-05 section 8; configured by WP-00-03
   source_check_live:
     purpose: live source check; its output feeds G20
     run: "python run_check_sources.py"

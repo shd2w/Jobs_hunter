@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [phase/00-foundations]
+  pull_request:
+    branches: [phase/00-foundations]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install GTK/Pango runtime (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $env:MSYSTEM="MINGW64"
+          Start-Process -FilePath "C:\msys64\usr\bin\bash.exe" -ArgumentList "-lc", "pacman -S --needed --noconfirm mingw-w64-x86_64-pango mingw-w64-x86_64-gtk3" -Wait -NoNewWindow
+
+      - name: Install dependencies from hash-locked files
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r requirements.txt
+          python -m pip install --require-hashes -r requirements-ingestion.txt
+          python -m pip install --require-hashes -r requirements-docs.txt
+
+      - name: Verify dependency consistency
+        run: python -m pip check
+
+      - name: Verify WeasyPrint is importable (fail, not skip)
+        run: python -c "import weasyprint; print('weasyprint', weasyprint.__version__)"
+
+      - name: Run test suite (G1)
+        run: python -m pytest -q
+
+  windows-verify:
+    runs-on: windows-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Windows verification script (G7, PCD-011)
+        run: powershell -ExecutionPolicy Bypass -File scripts/verify_windows.ps1
