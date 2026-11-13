@@ -175,7 +175,7 @@ class CircuitBreaker:
         state = self.states.get(source)
         if state is None:
             return False
-        if time.time() > state.open_until:
+        if time.time() >= state.open_until:
             # Half-open: allow one trial request
             return False
         return True
