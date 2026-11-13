@@ -108,3 +108,27 @@ def rank(evals: list[dict], weights: dict[str, float] | None = None, threshold: 
     for i, r in enumerate(rows, 1):
         r["rank"] = i
     return rows
+
+
+def compute_domain_score(scores: dict) -> float:
+    """Recompute the global score deterministically from dimension scores.
+
+    The model's global_score is ignored; the total is the weighted average of
+    the five dimension scores (skills 30%, education 20%, location 20%,
+    language 20%, growth 10%), clamped to 1-5.
+
+    Returns 0.0 if no usable dimension scores are present.
+    """
+    total = 0.0
+    weight_sum = 0.0
+    for dim, weight in DEFAULT_WEIGHTS.items():
+        try:
+            val = float(scores.get(dim, 0))
+            if val > 0:
+                total += val * weight
+                weight_sum += weight
+        except (ValueError, TypeError):
+            continue
+    if weight_sum == 0:
+        return 0.0
+    return round(max(1.0, min(5.0, total / weight_sum)), 1)

@@ -13,6 +13,7 @@ from jobhunter.domain.scoring import (  # noqa: F401
     score_of,
     tier,
     rank,
+    compute_domain_score,
 )
 from jobhunter.domain.filters import (  # noqa: F401
     TitleFilter,
@@ -29,6 +30,7 @@ __all__ = [
     "score_of",
     "tier",
     "rank",
+    "compute_domain_score",
     "TitleFilter",
     "LocationFilter",
     "filter_jobs",

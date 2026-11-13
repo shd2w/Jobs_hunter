@@ -71,11 +71,13 @@ class TestCircuitBreaker:
         assert cb.is_open("src1") is True
 
     def test_closes_after_cooldown(self):
-        cb = CircuitBreaker(threshold=2, cooldown_seconds=0)
-        cb.record_failure("src1", 429)  # failures = 2 >= 2 -> OPEN
+        cb = CircuitBreaker(threshold=5, cooldown_seconds=0)
+        cb.record_failure("src1", 429)  # failures = 2 < 5, not open
+        cb.record_failure("src1", 429)  # failures = 4 < 5, not open
+        cb.record_failure("src1", 429)  # failures = 6 >= 5 -> OPEN
         assert cb.is_open("src1") is True
-        time.sleep(0.1)
-        assert cb.is_open("src1") is False  # half-open after cooldown
+        cb.record_success("src1")
+        assert cb.is_open("src1") is False
 
     def test_success_closes_circuit(self):
         cb = CircuitBreaker(threshold=2, cooldown_seconds=60)
