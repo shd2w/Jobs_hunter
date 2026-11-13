@@ -90,3 +90,10 @@ Confirmed defects, limitations, unresolved root causes. Format per entry: id, st
 ## KI-011 - Phase F scenarios were run in a harness, not by real agents
 - Status: open, classification: unknown
 - `SCRIPTS/stress/test_scenarios.py` drives the scripts through their command lines to stage each scenario. It shows the scripts detect the violations. It does not show that a real agent, on a real CLI, follows the protocol; that remains the live conformance suite (KI-007). Scenarios 5 and 6 simulate the CLI switch inside one process; a switch between two real CLIs was not run.
+
+## KI-017 - test_queue_exporter.py contains owner S4 contact data
+- Status: open, classification: pre-existing (S4, GOV-03)
+- `tests/test_queue_exporter.py` contains the owner's real email (`mohammed.abd.elrhman.azzam@gmail.com`) and phone (`+49 152 5617 2336`) in test fixtures and assertions. This is pre-existing PII in a tracked test file, related to KI-004 (config/profile.yml and CV_Example.py S4 data).
+- Excluded from the G12 secret/PII scan via SKIP_FILES_KNOWN_ISSUE with recorded justification.
+- Workaround: excluded from scan; real fix requires replacing with fixture data without changing test behavior (G1/DEC-042 requires existing tests pass unchanged).
+- Related: KI-004 (config/profile.yml and CV_Example.py S4 data, fixed in WP-00-02 via gitignore + profile.example.yml).

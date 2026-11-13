@@ -1,0 +1,46 @@
+# Candidate profile template (EXAMPLE - copy to config/profile.yml and fill in real values).
+# config/profile.yml is intentionally untracked (contains S4 personal data). This file is tracked.
+
+candidate:
+  full_name: "Your Full Name"
+  short_name: "First Last"
+  subtitle: "Your Title | Working-Student Candidate"
+  email: "your@email.com"
+  phone: "+49 ..."
+  location: "Your City, Germany"
+  university: "Your University, Country"
+  degree_current: "Your Degree (GPA x.x)"
+  degree_bachelor: "Your Degree"
+  linkedin: "https://linkedin.com/in/your-profile"
+  github: "https://github.com/your-username"
+
+target_roles:
+  primary:
+    - "AI Engineer"
+    - "Working Student"
+  scope: "all"
+
+skills:
+  technical:
+    - "Python, SQL, Machine Learning"
+  non_technical:
+    - "Communication, Teamwork"
+
+preferences:
+  language: "English"
+  german_required: false
+  hours_per_week: 40
+  locations:
+    - "Remote"
+    - "Hybrid"
+    - "Germany"
+
+evaluation:
+  auto_cv_threshold: 3.5
+  create_cv: false
+  german_filter: reject_b1_plus
+  openrouter_models: []
+  google_models: []
+
+queue_export:
+  output_path: data/application_queue.jsonl
