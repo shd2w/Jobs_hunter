@@ -29,6 +29,40 @@ from utils.telegram import TelegramNotifier
 from utils.jd_cache import JDCache
 from utils.utf8_logging import get_utf8_stream_handler
 
+# Domain-scoring weights (mirrors the evaluation prompt dimensions).
+DOMAIN_WEIGHTS = {
+    "skills_match": 0.30,
+    "education_match": 0.20,
+    "location": 0.20,
+    "language": 0.20,
+    "growth": 0.10,
+}
+
+
+def compute_domain_score(scores: dict) -> float:
+    """Recompute the global score deterministically from dimension scores.
+
+    The model's global_score is ignored; the total is the weighted average of
+    the five dimension scores (skills 30%, education 20%, location 20%,
+    language 20%, growth 10%), clamped to 1-5.
+
+    Returns 0.0 if no usable dimension scores are present.
+    """
+    total = 0.0
+    weight_sum = 0.0
+    for dim, weight in DOMAIN_WEIGHTS.items():
+        try:
+            val = float(scores.get(dim, 0))
+            if val > 0:
+                total += val * weight
+                weight_sum += weight
+        except (ValueError, TypeError):
+            continue
+    if weight_sum == 0:
+        return 0.0
+    return round(max(1.0, min(5.0, total / weight_sum)), 1)
+
+
 # Setup logging — use UTF-8 safe handler so job titles containing chars
 # like \ufeff (BOM) do not crash logging on Windows cp1252 consoles.
 logging.basicConfig(
@@ -226,16 +260,12 @@ async def evaluate_job(
         mark_job_checked(job["url"])
         return evaluation
 
-    score = evaluation.get("global_score", 0)
-
-    # Clamp score to valid 1-5 range (guard against AI returning out-of-range values)
-    try:
-        score = max(1, min(5, float(score)))
-        evaluation["global_score"] = round(score, 1)
-    except (ValueError, TypeError):
-        score = 0
-        evaluation["global_score"] = 0
-        logger.warning(f"Invalid score from AI: {evaluation.get('global_score')}, defaulting to 0")
+    # WP-01-03: Deterministic total score — recompute from dimension scores,
+    # ignore the model's global_score.
+    score = compute_domain_score(evaluation.get("scores", {}))
+    evaluation["global_score"] = score
+    if score == 0:
+        logger.warning(f"No usable dimension scores from AI for {job['company']} - {job['title']}, defaulting to 0")
 
     # Update job dict with AI-extracted company/title if originally missing
     if not job.get("company") or job["company"] == "Unknown":
