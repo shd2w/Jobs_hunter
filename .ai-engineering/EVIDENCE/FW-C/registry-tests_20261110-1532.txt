@@ -1,0 +1,13 @@
+Ran 21 tests in 8.112s
+OK
+--- check:
+WARN  feature F-03: no tests linked (record the gap in known_limitations)
+OK: 1 finding(s)
+--- state:
+OK: 0 finding(s)
+--- memory tests:
+Ran 26 tests in 4.540s
+OK
+---
+label: automated-test; agent: claude-code / claude-sonnet-5-5; Python 3.13.18; Linux container; commit 00d6a5f + untracked .ai-engineering
+commands: test_check_registry.py, check_registry.py check, check_memory.py state, test_check_memory.py

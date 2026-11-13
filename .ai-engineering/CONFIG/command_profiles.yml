@@ -1,0 +1,116 @@
+# Command profiles - JobHunter (spec v0.1, sections 5.2 and 15)
+# Commands live here, never hard-coded in instructions (universal_standards 6.2).
+# status values: exists | unavailable_until:<WP> | owner_machine_only
+# An "unavailable" command may never be reported as passed; record the gate as `unavailable`.
+# Run from the repository root. `powershell` variants only where syntax differs.
+command_profiles_version: 1
+
+commands:
+  tests_all:
+    purpose: run the whole test suite (G1; baseline and post-change)
+    run: "python -m pytest -q"
+    status: exists
+    source: GOV-05 section 8
+    baseline_note: "GOV-05 G1 says 286 tests today; the actual baseline must be captured per task, not assumed."
+    observed_2026-11-10: >
+      Collection only (no baseline run; Phase A needs none) in the review container:
+      243 collected, 3 collection errors (tests/test_extra_sources.py, test_jd_fetcher.py,
+      test_run_all_export_integration.py) from ModuleNotFoundError: httpx. Environmental
+      (dependencies not installed there), not a code defect; classify per task baseline.
+  dependency_consistency:
+    purpose: dependency check
+    run: "pip check"
+    status: "unavailable_until:WP-00-01"
+    source: GOV-05 section 8
+  install_from_lock:
+    purpose: hash-locked install (G7)
+    run: null
+    status: "unavailable_until:WP-00-01"
+    source: GOV-05 section 8 (placeholder <install-from-lock-command>)
+  policy_test:
+    purpose: blocked-dependency policy (G3)
+    run: "python -m pytest tests/test_policy_blocked.py -q"
+    status: "unavailable_until:WP-00-02"
+  secret_pii_scan:
+    purpose: secret and PII scan (G12)
+    run: null
+    status: "unavailable_until:WP-00-02"
+    source: GOV-05 section 8 (placeholder <scan-command>)
+  layer_lint:
+    purpose: layer rules (G4)
+    run: "python -m pytest tests/test_layers.py -q"
+    status: "unavailable_until:WP-02-01"
+    note: "test name still to be confirmed by WP-02-01"
+  migration_verify:
+    purpose: migration verification (G13)
+    run: null
+    status: "unavailable_until:WP-03-04"
+  simulation_regression:
+    purpose: guard simulation (G10)
+    run: "python -m pytest tests/test_guard_simulation.py -q"
+    status: "unavailable_until:WP-04-04"
+  windows_verify:
+    purpose: Windows verification (G7, PCD-011)
+    run: null
+    status: "unavailable_until:WP-00-03"
+  source_check_live:
+    purpose: live source check; its output feeds G20
+    run: "python run_check_sources.py"
+    status: owner_machine_only      # needs real network from the owner's machine; record date/OS/network (GOV-06 section 9)
+    evidence_label: live-verification
+  app_start:
+    purpose: start the real local app for UI validation
+    run: "python run_app.py --no-browser --port 8765"
+    status: exists
+    note: "binds 127.0.0.1 only (verified in run_app.py)"
+  health_check:
+    purpose: environment/config health
+    run: "python run_health.py"
+    status: exists
+  lint:
+    run: null
+    status: unavailable             # no linter configured in the repository; do not invent one
+  type_check:
+    run: null
+    status: unavailable
+  browser_tests:
+    run: null
+    status: unavailable             # see project_profile.yml ui.browser_automation
+  golden_cli_tests:
+    purpose: CLI flags/exit codes/--json unchanged (G14)
+    run: null
+    status: "unavailable_until:WP-01-01"
+  queue_golden:
+    purpose: UAA queue byte-identical to golden (G6)
+    run: "python -m pytest tests/test_queue_exporter.py tests/test_identity_golden_contract.py tests/test_export_queue_wq2.py -q"
+    status: exists
+    note: "existing guards; the byte-identical golden file check itself is built by WP-01-03"
+  must_keep_line_count:
+    purpose: before/after line counts for MUST-KEEP files (G2)
+    run: null                       # needs --base and --task, so it is not a fixed command
+    status: exists_via_run_gates    # invoke: python .ai-engineering/SCRIPTS/validation/run_gates.py mustkeep --base <REV> --task <WP>
+    note: "Do not call `run_gates.py run must_keep_line_count`: it has no fixed command and would record unavailable."
+  adapters_check:
+    purpose: static adapter checks (spec 17 Phase E) - entry files, thinness, no copied policy, no double load, fail-closed CLI status
+    run: "python -I .ai-engineering/SCRIPTS/adapters/check_adapters.py check"
+    status: exists
+    evidence_label: automated-test
+    note: "Static only. Proves nothing about a real CLI; the live status is printed on its last line. Live runs: QUALITY/adapter_conformance.md (owner machine)."
+  stress_suite:
+    purpose: Phase F stress suite, the 15 scenarios of spec section 16 against the real scripts (about 20 s)
+    run: "python -I .ai-engineering/SCRIPTS/stress/test_scenarios.py"
+    status: exists
+    evidence_label: automated-test
+    note: "Harness only: proves the scripts detect the staged violations, not that a real agent follows the protocol (KI-011)."
+
+platform_variants:
+  windows:
+    shell: powershell
+    python: "python"
+    note: "WeasyPrint needs a GTK runtime on Windows (PCD-011); PDF-related tests may be environment-dependent"
+  linux_macos:
+    shell: sh
+    python: "python3"
+
+# Defaults a task must run when applicable (GOV-05 section 1). Applicability is justified in the task plan.
+default_gate_sequence: [tests_all, policy_test, secret_pii_scan, must_keep_line_count]

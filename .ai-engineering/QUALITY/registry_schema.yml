@@ -1,0 +1,55 @@
+# Documentation registry schema (spec 10; roadmap Phase C). Used by SCRIPTS/documentation/check_registry.py.
+registry_schema_version: 1
+
+file_registry:
+  path: .ai-engineering/DOCUMENTATION/FILE_REGISTRY.yml
+  top_level_key: files            # list of entries
+  required_fields: [path, type, purpose, component, classification, status, provenance, entry_sha256]
+  optional_fields: [features, architecture_refs, interfaces, internal_imports, side_effects, untrusted_input, tests, gates, runtime_impact, replacement, notes]
+  statuses: [active, deprecated, generated, archived]
+  # active/deprecated files must exist; archived entries may point at a file that was moved or deleted.
+  classifications: [S0, S1, S2, S3, S4]
+  provenance_values:
+    generated-unreviewed: "facts derived by the scanner (docstring, AST, rules); no human or reviewer confirmed them"
+    reviewed: "an agent or the owner read the file and confirmed purpose, features and side effects"
+  entry_sha256: "sha256 of the file when the entry was last written or confirmed. A mismatch means the file changed after the entry (stale entry warning)."
+  side_effect_values: [network, filesystem-write, subprocess, environment, none-detected]
+  side_effects_note: "scanner output is a heuristic (imports and calls); 'none-detected' is not a guarantee"
+
+feature_registry:
+  path: .ai-engineering/DOCUMENTATION/FEATURE_REGISTRY.yml
+  top_level_key: features
+  required_fields: [id, name, purpose, status, doc, files, tests]
+  optional_fields: [work_packages, decisions, gates, evidence, known_limitations, owner_visible_entry_points]
+  statuses: [active, deprecated, planned]
+  id_pattern: "^F-\\d{2}$"
+  rules:
+    - "tests must be present; an empty list is allowed but warns and must be explained in known_limitations"
+    - "doc must exist under .ai-engineering/DOCUMENTATION/features/"
+    - "every listed file and test must exist and every listed file must be registered"
+    - "every listed file must list the feature back in its `features` field (bidirectional)"
+    - "work_packages must exist in docs/governance/04_work_packages.md; decisions in 02_decision_log_and_scope.md"
+    - "evidence paths, when given, must exist"
+
+feature_doc_required_headings:
+  - Purpose and scope
+  - Users and triggers
+  - Normal workflow
+  - Alternate and failure workflows
+  - Requirements and acceptance criteria
+  - UI states
+  - Data contracts and side effects
+  - Architecture and files
+  - Security and privacy
+  - Tests and evidence
+  - Known limitations and open decisions
+  - Provenance
+
+stale_checks:
+  unregistered_maintained_file: error
+  entry_for_missing_file: error
+  missing_required_field: error
+  generated_or_excluded_path_registered: error
+  broken_cross_reference: error
+  file_changed_since_entry: warn      # --strict makes it an error
+  change_set_without_registry_update: error   # check --since <rev>: added/deleted/renamed files need registry changes

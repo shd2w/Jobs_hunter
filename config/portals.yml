@@ -1,0 +1,226 @@
+title_filter:
+  positive:
+    - "AI"
+    - "ML"
+    - "AI Engineer"
+    - "Artificial Intelligence Engineer"
+    - "AI Developer"
+    - "Machine Learning Engineer"
+    - "Machine Learning Developer"
+    - "Generative AI Engineer"
+    - "Generative AI Developer"
+    - "LLM Engineer"
+    - "LLM Developer"
+    - "NLP Engineer"
+    - "NLP Developer"
+    - "Conversational AI Engineer"
+    - "Conversational AI Developer"
+    - "AI Specialist"
+    - "AI Consultant"
+    - "AI Solutions Engineer"
+    - "Data Scientist"
+    - "Data Analyst"
+    - "Software Engineer"
+    - "Software Developer"
+    - "Full Stack Developer"
+    - "Full Stack Engineer"
+    - "Python Developer"
+    - "Backend Developer"
+    - "Backend Engineer"
+    - "Application Developer"
+    - "Solutions Engineer"
+    - "Technical Consultant"
+    - "AI Trainer"
+    - "AI Instructor"
+    - "Technical Trainer"
+    - "IT Trainer"
+    - "Technology Trainer"
+    - "Programming Instructor"
+    - "Computer Science Instructor"
+    - "Computer Science Teacher"
+    - "IT Instructor"
+    - "Technical Instructor"
+    - "Full-Stack Programmer"
+    - "Programmer"
+    - "Artificial Intelligence Specialist"
+    - "AI Product Manager"
+    - "Applied AI"
+    - "Applied AI Engineer"
+    - "Web Developer"
+    - "Softwareentwickler"
+    - "Datenanalyst"
+    - "Werkstudent"
+    - "KI Entwickler"
+  negative:
+    - "Senior"
+    - "Lead"
+    - "Principal"
+    - "Staff"
+    - "Director"
+    - "Head of"
+    - "Architect"
+    - "5+ years"
+    - "7+ years"
+    - "10+ years"
+
+location_filter:
+  allow:
+    # Oman
+    - "Oman"
+    - "Muscat"
+    - "Sohar"
+    - "Salalah"
+    - "Nizwa"
+    - "Duqm"
+    # Egypt
+    - "Egypt"
+    - "Cairo"
+    - "Alexandria"
+    - "Giza"
+    # Germany
+    - "Germany"
+    - "Deutschland"
+    - "Berlin"
+    - "Munich"
+    - "München"
+    - "Frankfurt"
+    - "Hamburg"
+    - "Erlangen"
+    - "Nürnberg"
+    - "Nuremberg"
+    - "Stuttgart"
+    - "Bavaria"
+    - "Bayern"
+    # UAE
+    - "UAE"
+    - "United Arab Emirates"
+    - "Dubai"
+    - "Abu Dhabi"
+    - "Sharjah"
+    # Switzerland
+    - "Switzerland"
+    - "Swiss"
+    - "Schweiz"
+    - "Suisse"
+    - "Zurich"
+    - "Zürich"
+    - "Geneva"
+    - "Genève"
+    - "Bern"
+    - "Basel"
+    - "Lausanne"
+    # Austria
+    - "Austria"
+    - "Österreich"
+    - "Vienna"
+    - "Wien"
+    - "Graz"
+    - "Linz"
+    - "Salzburg"
+    - "Innsbruck"
+    # Remote / Worldwide
+    - "Remote"
+    - "Worldwide"
+    - "Global"
+    - "Anywhere"
+    - "Home-office"
+    - "Homeoffice"
+    - "Telecommute"
+    - "Work from home"
+    - "Hybrid"
+  block: []
+
+tracked_companies: []
+
+# ── JobSpy Search Configuration ──
+jobspy_searches:
+  terms:
+    - "AI Engineer"
+    - "Machine Learning"
+    - "Generative AI"
+    - "Data Scientist"
+    - "Data Analyst"
+    - "Software Engineer"
+    - "Python Developer"
+    - "Full Stack"
+    - "AI Trainer"
+    - "Technical Trainer"
+    - "Softwareentwickler"
+    - "Datenanalyst"
+    - "Werkstudent Informatik"
+    - "KI Entwickler"
+  locations:
+    - "Oman"
+    - "Egypt"
+    - "United Arab Emirates"
+    - "Germany"
+    - "Switzerland"
+    - "Austria"
+    - "Remote"
+  sites: ["linkedin", "indeed", "google"]
+  results_wanted: 30
+  distance_km: 100
+
+# ── Extra JobSpy providers (Tier 1) ──
+# All providers the pinned python-jobspy supports. Every one is OFF by default:
+# they are regionally scoped and several block automated access. Switch on one
+# at a time and read the scan log. "Remote" here is a source flag, never proof
+# that you are eligible from your country. Google Jobs currently fails upstream
+# and Bayt/Glassdoor returned HTTP 403 in the repo's tests, so they stay off.
+jobspy_providers:
+  glassdoor:
+    enabled: false
+    locations: ["Germany", "Austria", "Switzerland"]
+    pages: 2
+    scope_notice: "Germany/Austria/Switzerland; not Egypt/Oman/UAE. Returned 403 in earlier tests"
+  bayt:
+    enabled: false
+    locations: ["United Arab Emirates", "Egypt", "Oman"]
+    pages: 2
+    scope_notice: "Middle East board; returned 403 in earlier tests"
+  zip_recruiter:
+    enabled: false
+    locations: ["USA"]
+    country_indeed: "USA"
+    is_remote: true
+    scope_notice: "US/Canada remote; verify country eligibility"
+    pages: 2
+  naukri:
+    enabled: false
+    locations: ["India"]
+    country_indeed: "India"
+    is_remote: true
+    scope_notice: "India-focused remote; not Naukrigulf"
+    pages: 2
+  bdjobs:
+    enabled: false
+    locations: ["Bangladesh"]
+    country_indeed: "USA"   # JobSpy country enum lacks Bangladesh; provider fixes its own country
+    is_remote: true
+    scope_notice: "Bangladesh work-from-home; verify country eligibility"
+    pages: 2
+  hellowork:
+    enabled: false
+    locations: ["France"]
+    country_indeed: "France"
+    is_remote: true
+    scope_notice: "France full remote; verify country eligibility"
+    pages: 2
+
+# ── Extra public sources (Tier 2): employer ATS boards + remote-job feeds ──
+# Master switch. Jobs found here go through the same title/location filters,
+# dedup, scoring, CV and queue steps as every other source.
+extra_sources:
+  enabled: true
+  # Employer boards. Add the companies YOU want to watch; the list ships empty
+  # because a slug that does not exist just returns 404 (reported, harmless).
+  #   kind: greenhouse | lever | ashby | smartrecruiters
+  #   id:   the slug in the company's public careers URL
+  ats: []
+  #  - {kind: greenhouse, id: "examplecompany", name: "Example Company"}
+  feeds:
+    remotive:       {enabled: true, category: "software-dev"}   # max ~4 fetches/day (enforced: 6 h cooldown)
+    jobicy:         {enabled: true}
+    arbeitnow:      {enabled: true, region: "de"}
+    remoteok:       {enabled: true}
+    weworkremotely: {enabled: false}   # RSS URL not independently verified; try it and read the log

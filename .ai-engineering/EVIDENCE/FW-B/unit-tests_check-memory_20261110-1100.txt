@@ -1,0 +1,37 @@
+test_exit_codes (__main__.CliTests.test_exit_codes) ... ok
+test_claimed_change_not_in_git (__main__.HandoffTests.test_claimed_change_not_in_git) ... ok
+test_declared_untracked_file_accepted (__main__.HandoffTests.test_declared_untracked_file_accepted) ... ok
+test_handoff_disagrees_with_git_head (__main__.HandoffTests.test_handoff_disagrees_with_git_head) ... ok
+test_handoff_wrong_branch (__main__.HandoffTests.test_handoff_wrong_branch) ... ok
+test_missing_evidence_file (__main__.HandoffTests.test_missing_evidence_file) ... ok
+test_missing_field (__main__.HandoffTests.test_missing_field) ... ok
+test_missing_section (__main__.HandoffTests.test_missing_section) ... ok
+test_passed_gate_without_evidence (__main__.HandoffTests.test_passed_gate_without_evidence) ... ok
+test_secret_detected (__main__.HandoffTests.test_secret_detected) ... ok
+test_simulated_cli_switch_resume (__main__.HandoffTests.test_simulated_cli_switch_resume)
+SIMULATION of spec 6.2/9.3: agent A hands off dirty; user commits; agent B must detect, reconcile, pass. ... ok
+test_skipped_counted_as_passed_style_status_rejected (__main__.HandoffTests.test_skipped_counted_as_passed_style_status_rejected) ... ok
+test_stale_work_package (__main__.HandoffTests.test_stale_work_package) ... ok
+test_template_matches_schema (__main__.HandoffTests.test_template_matches_schema) ... ok
+test_unexpected_user_change (__main__.HandoffTests.test_unexpected_user_change) ... ok
+test_unfilled_template_rejected (__main__.HandoffTests.test_unfilled_template_rejected) ... ok
+test_valid_handoff_passes_with_git (__main__.HandoffTests.test_valid_handoff_passes_with_git) ... ok
+test_active_task_disagrees_with_current_task (__main__.StateTests.test_active_task_disagrees_with_current_task) ... ok
+test_missing_index_file (__main__.StateTests.test_missing_index_file) ... ok
+test_missing_required_key (__main__.StateTests.test_missing_required_key) ... ok
+test_stale_handoff_directory (__main__.StateTests.test_stale_handoff_directory) ... ok
+test_stale_task_reference (__main__.StateTests.test_stale_task_reference) ... ok
+test_suite_document_changed (__main__.StateTests.test_suite_document_changed) ... ok
+test_unknown_head_commit_detected (__main__.StateTests.test_unknown_head_commit_detected) ... ok
+test_valid_state_passes (__main__.StateTests.test_valid_state_passes) ... ok
+test_subset_parser_reads_state_files_like_pyyaml (__main__.SubsetParserTests.test_subset_parser_reads_state_files_like_pyyaml) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 3.337s
+
+OK
+---
+label: automated-test (SIMULATION for test_simulated_cli_switch_resume)
+command: python -I .ai-engineering/SCRIPTS/memory/test_check_memory.py
+env: Python 3.13.18, PyYAML present, Linux container, commit 00d6a5f + untracked .ai-engineering
+agent: claude-code / claude-sonnet-5-5

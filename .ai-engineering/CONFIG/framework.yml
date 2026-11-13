@@ -1,0 +1,60 @@
+# AI Engineering Framework - framework settings (spec v0.1, section 4)
+# Framework-level policy only. Project facts live in project_profile.yml.
+framework:
+  name: ai-engineering
+  spec_version: "0.1"
+  constitution_version: "1.0"
+  config_schema_version: 1
+
+execution:
+  mode: prompt_driven            # owner names the task / work package
+  max_concurrent_tasks: 1        # sequential only (spec 7.3)
+  max_active_branches: 1
+  model_switching: manual        # never automatic (spec 6.2)
+  auto_select_backlog: false
+  auto_merge: false
+  auto_deploy: false
+
+fail_closed:
+  # Statuses that can never count as "passed" (constitution 1.6)
+  never_counts_as_passed: [failed, skipped, unavailable, partial, mocked, unverified]
+  gate_statuses: [passed, failed, skipped, unavailable, not-applicable]
+
+approval:
+  required_for_production_deploy: always
+  # Specific, not transferable (constitution 5). The project adds its own list.
+  base_operations:
+    - delete_or_overwrite_user_data_or_backups
+    - destructive_migration_or_data_reset
+    - force_push_or_history_rewrite
+    - change_credentials_or_access_or_consent
+    - add_dependency_or_external_service
+    - send_sensitive_data_to_external_service
+    - enable_restricted_source_or_production_integration
+    - production_deploy_or_release
+
+repair:
+  # Spec 11.3: no unchanged retries. 0 would mean unlimited; the project may set it.
+  require_new_hypothesis_before_retry: true
+  max_attempts_per_failure: 3    # advisory; hitting it forces "blocked", never a downgrade
+
+paths:
+  # All repository-relative, forward slashes (universal_standards 6.1)
+  framework_root: .ai-engineering
+  evidence_root: .ai-engineering/EVIDENCE
+  memory_root: .ai-engineering/MEMORY
+  registry_root: .ai-engineering/DOCUMENTATION
+
+implementation_status:
+  # Which spec 17 roadmap phases exist in this installation. Agents must not
+  # assume a file or script from a phase that is not listed as done.
+  phase_A_contract_and_configuration: delivered_pending_owner_review
+  phase_B_memory_and_handoff: delivered_pending_owner_review
+  phase_C_documentation_registry: delivered_pending_owner_review
+  phase_D_quality_gates_and_scripts: delivered_pending_owner_review
+  phase_E_agent_adapters: delivered_pending_owner_review
+  # Live runs of the C1-C6 suite (QUALITY/adapter_conformance.md) through real CLIs. Derived from the
+  # Status line of each AGENTS/adapters/*.md and cross-checked by SCRIPTS/adapters/check_adapters.py.
+  # not_run | partial | passed. Never anything but not_run without an EVIDENCE/FW-E record.
+  phase_E_live_cli_conformance: not_run
+  phase_F_stress_test: delivered_pending_owner_review

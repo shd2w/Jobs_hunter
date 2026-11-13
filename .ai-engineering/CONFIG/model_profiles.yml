@@ -1,0 +1,14 @@
+# Model profiles (spec v0.1, section 6.3) - ADVISORY ONLY.
+# Grants no authority to switch models, relax a gate or lower an evidence standard.
+# Capability claims are not recorded here without current verification.
+model_profiles_version: 1
+switching: manual
+profiles: []        # owner fills in; no model or CLI facts are assumed
+supported_cli_targets:
+  # Each target needs AGENTS/adapters/<target>.md (checked by SCRIPTS/adapters/check_adapters.py).
+  # Loading mechanisms were checked against official documentation on 2026-11-11 (see each adapter file).
+  # Names only: no model or CLI behaviour is claimed, and live conformance is not_run.
+  - kiro
+  - gemini-cli
+  - opencode
+reviewer_preference: "a different model/family from the implementer where available; separate context is the minimum"

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JobHunter</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="logo" aria-hidden="true">◎</span> JobHunter</div>
+  <nav id="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" data-tab="jobs" aria-selected="true">Jobs</button>
+    <button role="tab" data-tab="run" aria-selected="false">Find &amp; score</button>
+    <button role="tab" data-tab="setup" aria-selected="false">Setup</button>
+  </nav>
+  <div id="pills" class="pills" aria-live="polite"></div>
+</header>
+<main>
+  <div id="banner" class="banner" hidden></div>
+  <section id="view-jobs"></section>
+  <section id="view-run" hidden></section>
+  <section id="view-setup" hidden></section>
+</main>
+<div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+== PHASE F EVIDENCE (label: automated-test; agent: claude.ai chat / claude-sonnet-5-5; Python 3.12.3; Linux container)
+
+== 1. RED RUN: 15-scenario suite against the UNMODIFIED Phase A-E scripts (written first, before any fix)
+Ran 55 tests in 12.670s
+FAILED (failures=37)
+   Of the failures, 3 were mistakes in my own tests (handoff evidence path, unregistered new file, missing task-start state update);
+   the rest were genuine absent or weak enforcement, listed in section 2.
+
+== 2. GAPS AND BUGS FOUND, ALL CLOSED (each has a scenario test that failed before the fix)
+ gap  S11/S1  no task-start gate: status, merged dependencies and PCD handling were not enforced     -> check_memory.py start
+ gap  S12     no separation of pre-existing failures from regressions                                -> run_gates.py regressions + G1 rule
+ gap  S2      regression test never required to fail BEFORE the fix                                   -> REG pseudo-gate
+ gap  S9      UI change could close with no UI evidence / missing viewport                            -> UI pseudo-gate, --base auto-detect
+ gap  S10     no check for high-risk operations without owner approval                                -> run_gates.py approvals
+ gap  S13     live-verification: required fields were explicitly exempted; mock/fixture/demo not rejected -> validate_record
+ gap  S4      status passed accepted with a non-zero exit_code                                        -> validate_record
+ gap  S8      source of a feature changed, feature doc not: never flagged (stale was warn-only)        -> check_registry.py check --since
+ bug  S15     non-ASCII file names were quoted by git and mis-registered                              -> core.quotepath=off, utf-8 decoding
+ bug  S15     CRLF checkout changed every registry hash                                               -> line-ending-independent hash
+ bug  S15     command output that is not UTF-8 crashed the gate runner without recording              -> encoding utf-8, errors=replace
+ bug  found   two records in the same second: the older one was treated as latest (found twice: first fix was itself wrong) -> sequence key, plus a deterministic test and a mutation check
+ bug  found   task board / decision log paths hardcoded to JobHunter's docs/governance                -> read from the contract map
+ note         CRLF evidence records and BOM files are now tolerated (not covered by a dedicated test)
+
+== 3. FINAL RUN (fresh scratch git snapshot of the delivered tree)
+== memory/test_check_memory
+Ran 26 tests in 3.000s
+OK
+== documentation/test_check_registry
+Ran 21 tests in 9.508s
+OK
+== validation/test_run_gates
+Ran 45 tests in 15.723s
+OK
+== adapters/test_check_adapters
+Ran 46 tests in 4.629s
+OK
+== stress/test_scenarios
+Ran 56 tests in 26.025s
+OK
+== bootstrap/test_install_framework
+Ran 10 tests in 3.044s
+OK
+== stress/test_scenarios (repeat 2)
+Ran 56 tests in 24.630s
+OK
+== stress/test_scenarios (repeat 3)
+Ran 56 tests in 24.542s
+OK
+== registry check
+WARN  feature F-03: no tests linked (record the gap in known_limitations)
+OK: 1 finding(s)
+exit=0
+== adapters check --strict
+OK: 0 finding(s)
+LIVE CLI CONFORMANCE: kiro=not_run gemini-cli=not_run opencode=not_run  (a static pass is not evidence that any CLI loads the contract)
+exit=0
+
+== 4. REAL PROJECT BASELINE (KI-001): fresh venv, pip install -r requirements.txt, pip check clean
+python -m pytest -q  ->  286 passed in 14.91s (0 failed, 0 skipped). Linux, Python 3.12.3.
+
+== SUMMARY
+204 tests: memory 26 + registry 21 + gates 45 + adapters 46 + stress 56 + installer 10; all passing; stress suite stable over 3 runs.
+Mutation check: re-introducing the same-second ordering bug makes its deterministic test fail; fix restores pass.
+commit: NOT VERIFIABLE HERE (uploaded tree has no .git; PROJECT_STATE records HEAD 00d6a5f5b9b8e0ba4be9d2a9ab91ffe55e0ed072; runs used scratch snapshot commits).
+NOT VERIFIED: any run by a real agent or real CLI (KI-007, KI-011); Windows and macOS; the template on a real second project; independent review; authenticity of approval/evidence records (KI-009).

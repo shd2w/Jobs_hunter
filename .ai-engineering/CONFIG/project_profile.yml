@@ -1,0 +1,190 @@
+# Project profile - JobHunter (spec v0.1, section 5.2)
+# Describes the project; it does not change any project contract.
+# Value markers:  (no marker) = verified in the repository or stated in the suite
+#                 pending_owner = the suite does not define it; owner must decide
+#                 unavailable   = no such command/tool exists yet (never "passed")
+project:
+  name: JobHunter
+  type: python-application      # local CLI pipeline + stdlib web UI
+  repository_root: .            # the JobHunter-friendly repository
+  base_branch:
+    value: pending_owner        # PCD-001 interim default: clean line, feature/extra-sources lineage
+    note: "Never commit directly to the base. Current checkout: docs/governance-suite."
+  work_package_source: docs/governance/04_work_packages.md   # the only task board (spec 5.3)
+
+platforms:
+  primary: windows
+  supported: [windows, linux, macos]
+
+stack:
+  languages: [python]
+  runtime_observed_in_dev_container: "3.13"   # owner's Windows version not recorded: pending_owner
+  frameworks: [stdlib-http-server, weasyprint, pytest]
+  dependency_manifest: requirements.txt
+  dependency_policy: >
+    New dependencies need an approved decision. Approved set: docs/02 D7 plus
+    tldextract offline mode (docs/PROMPT.md section 3; PCD-018). Lock files arrive with WP-00-01.
+
+paths:
+  source_roots: [agents, scanners, utils, jobhunter_ui]
+  root_entry_points:
+    - run_scan.py
+    - run_evaluate.py
+    - run_all.py
+    - run_export_queue.py
+    - run_health.py
+    - run_check_sources.py
+    - run_app.py
+    - CV_Example.py
+  test_roots: [tests]
+  config_roots: [config]
+  docs_roots: [docs, .ai-engineering]
+  # Excluded from the file registry by explicit rule, not agent judgment (spec 10.1)
+  generated: [__pycache__, .pytest_cache, "*.egg-info", dist, build]
+  runtime_data: [data, output, reports, logs]        # S2-S4 content: never committed, never printed
+  vendor: [venv, .venv, jobhunter_venv]
+  ignored: [.git]
+
+protected:
+  # A change here needs the recorded reason, failing test or bug, and before/after line counts
+  # (docs/PROMPT.md section 2). Any file shrinking > 20 percent is a stop-and-ask (DEC-042, G2).
+  must_keep:
+    source: docs/PROMPT.md#2-must-keep
+    shrink_stop_and_ask_percent: 20
+    files:
+      - run_scan.py
+      - run_evaluate.py
+      - run_all.py
+      - run_export_queue.py
+      - run_health.py
+      - scanners/            # whole directory
+      - utils/filters.py
+      - utils/dedup.py
+      - agents/evaluator.py
+      - agents/smart_router.py
+      - agents/google_client.py
+      - agents/openrouter_client.py
+      - agents/cv_tailor.py
+      - utils/pdf_generator.py
+      - agents/cover_letter.py
+      - utils/telegram.py
+      - utils/excel_export.py
+      - utils/jd_cache.py
+      - utils/queue_exporter.py
+    guard_tests:
+      - tests/test_filters.py
+      - tests/test_dedup.py
+      - tests/test_bridge.py
+      - tests/test_extra_sources.py
+      - tests/test_german_policy.py
+      - tests/test_queue_exporter.py
+      - tests/test_identity_golden_contract.py
+      - tests/test_export_queue_wq2.py
+    note: >
+      Router row says "key rotation": agents/google_client.py and openrouter_client.py are
+      listed because PROMPT.md names "*_client.py". Confirm the exact set in review.
+  project_governance:
+    - docs/governance/          # change only through GOV-02 section 9 (owner)
+    - docs/PROMPT.md
+  framework_rules:
+    - .ai-engineering/CORE/   # amend only through constitution section 10
+  secrets_and_private:
+    - .env
+    - cv.md
+    - data/
+    - output/
+    - reports/
+    - logs/
+
+approval_sensitive_operations:
+  # GOV-03 section 3 "privileged operations" plus PROMPT.md section 3
+  - enable a restricted source or set authorized
+  - confirm a skill or language level
+  - request, create or export a document (never automatic: DEC-019, G5)
+  - export the queue file
+  - change AI keys or consent
+  - restore a backup
+  - delete all data
+  - add a dependency outside the approved set
+  - any browser or stealth technique to bypass a site's blocking (forbidden, not approvable: DEC-033)
+
+data_classification:
+  source: docs/governance/03_security_and_credentials.md#2
+  classes:
+    S0: public job data
+    S1: operational data
+    S2: user activity
+    S3: personal profile and documents
+    S4: restricted (contact, nationality, work authorisation, credentials)
+  never_in_memory_handoffs_evidence_fixtures: [S3, S4]
+  rule: Prefer ids and hashes over copying payloads (spec 9.2).
+
+task_lifecycle:
+  status_source: docs/governance/05_validation_matrix.md#10-status-rules
+  mapping: see project_contract_map.yml -> status_mapping
+  id_schemes: {work_package: "WP-pp-nn", decision: "DEC-nnn", pending: "PCD-nnn", invariant: "INV-nn", gate: "G<n>"}
+
+git:
+  branch_scheme:    # GOV-06 section 2; stricter than the framework default, so it wins
+    phase: "phase/NN-<slug>"
+    work_package: "wp/WP-pp-nn-<slug>"
+    pilot: "pilot/<slug>"
+    docs_only: "docs/<slug>"
+  commit_prefix: "WP-pp-nn"        # GOV-06 section 2; framework commit format is adapted, not replaced
+  phase_exit_tag: "phase-NN-merged"
+  review_before_merge: true
+  merge_to_phase_branch_without_squash: true
+
+validation:
+  gate_source: docs/governance/05_validation_matrix.md#3
+  commands: see command_profiles.yml
+  evidence_labels: see QUALITY/evidence_schema.yml
+  default_gate_ref: docs/governance/05_validation_matrix.md#1-default-gate-every-work-package
+  report_format_ref: docs/governance/06_execution_plan.md#7-exact-report-format
+
+ui:
+  applicable: true
+  start_command_ref: command_profiles.yml -> app_start
+  base_url: "http://127.0.0.1:8765"
+  viewports:
+    status: pending_owner       # not defined by the suite; proposal below is NOT active
+    # To activate: status: active, then  active: {desktop: "WxH", tablet: "WxH", mobile: "WxH"}  (owner only).
+    # run_gates.py close-check then requires a passed UI-<WxH> screenshot record per viewport for any UI-affecting change.
+    proposed: {desktop: "1920x1080", tablet: "820x1180", mobile: "390x844"}
+  browser_automation: unavailable   # no approved tool recorded yet; Phase D decides
+  workflows: pending_owner          # to be derived from docs/05_USER_EXPERIENCE_AND_WORKFLOWS.md in Phase C
+
+# File-registry rules (spec 10.1: exclusions are explicit project-profile rules, not agent guesswork).
+# The maintained set = files Git tracks or would track (not ignored), minus exclude_globs.
+registry:
+  exclude_globs:
+    - ".ai-engineering/EVIDENCE/**"            # evidence records, governed by evidence_schema.yml
+    - ".ai-engineering/MEMORY/handoffs/**"     # session records, governed by checkpoint_schema.yml
+    - "**/__pycache__/**"
+    - "**/.pytest_cache/**"
+    - "**/*.pyc"
+    - "data/**"
+    - "output/**"
+    - "reports/**"
+    - "logs/**"
+    - ".ai-engineering/MEMORY/approvals/**"      # owner approval records, governed by run_gates.py approvals
+    - "venv/**"
+    - ".venv/**"
+    - "jobhunter_venv/**"
+  # First matching rule wins. classification uses GOV-03 classes of the data the FILE handles
+  # (source code that handles S0-S4 data is S0 unless it is itself private data).
+  component_rules:
+    - {glob: "agents/**",               component: ai-agents,        untrusted_input: true}
+    - {glob: "scanners/**",             component: source-scanners,  untrusted_input: true}
+    - {glob: "utils/**",                component: utilities,        untrusted_input: false}
+    - {glob: "jobhunter_ui/static/**",  component: ui-frontend,      untrusted_input: true}
+    - {glob: "jobhunter_ui/**",         component: ui-backend,       untrusted_input: true}
+    - {glob: "run_*.py",                component: cli-entrypoints,  untrusted_input: false}
+    - {glob: "CV_Example.py",           component: cli-entrypoints,  untrusted_input: false}
+    - {glob: "tests/**",                component: tests,            untrusted_input: false}
+    - {glob: "config/**",               component: configuration,    untrusted_input: false}
+    - {glob: "docs/governance/**",      component: project-governance, untrusted_input: false}
+    - {glob: "docs/**",                 component: project-docs,     untrusted_input: false}
+    - {glob: ".ai-engineering/**",      component: framework,        untrusted_input: false}
+    - {glob: "*",                       component: repository-root,  untrusted_input: false}
+  default_classification: S0

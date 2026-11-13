@@ -1,0 +1,30 @@
+# Checkpoint / handoff schema (spec 9.2). Used by SCRIPTS/memory/check_memory.py.
+checkpoint_schema_version: 1
+handoff:
+  path_pattern: ".ai-engineering/MEMORY/handoffs/<task-id>/<YYYYMMDD-HHmmss>_<agent-label>.md"
+  task_id_patterns: ["^WP-\\d{2}-\\d{2}$", "^FW-[A-Z0-9]+$"]   # FW-* = framework work, not a JobHunter WP
+  required_sections:
+    - Identification
+    - Repository state
+    - File changes
+    - Implementation progress
+    - Validation state
+    - Last verified checkpoint
+    - Blockers and open items
+    - Unresolved questions
+    - Pending decisions
+    - Required approvals
+    - Failed approaches
+    - Documentation status
+    - Exact next actions
+    - Recovery instructions
+  required_fields:
+    Identification: [Task, Work package, Date/time, Agent, Trigger]
+    Repository state: [Branch, Base branch, HEAD commit]
+  gate_statuses: [passed, failed, skipped, unavailable, not-applicable]
+  passed_gate_requires_evidence_path: true
+  forbid_placeholders: true        # no unfilled <...> text
+  forbid_secret_patterns: true
+project_state:
+  required_keys: [state_version, project, last_updated, last_updated_by, active_task, task_status, branch, base_branch, head_commit, last_verified_checkpoint, authoritative_documents, framework, indexes]
+  last_verified_checkpoint_keys: [commit, what_was_verified, not_verified, evidence]

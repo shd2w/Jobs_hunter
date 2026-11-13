@@ -1,0 +1,109 @@
+# Feature registry (spec 10.2). Validated by SCRIPTS/documentation/check_registry.py.
+# Links to WPs are derived by name mention in GOV-04; all docs are unreviewed drafts (see each doc's Provenance).
+features:
+  - id: "F-01"
+    name: "Job scanning, filtering and de-duplication"
+    purpose: "Find postings from JobSpy providers, Workday-style APIs, public ATS boards and remote feeds, keep those matching the configured title and location filters, and skip jobs already seen."
+    status: "active"
+    doc: "F-01_scan-filter-dedup.md"
+    files: ["run_scan.py", "scanners/__init__.py", "scanners/base.py", "scanners/bridge.py", "scanners/jobspy_scanner.py", "scanners/jobspy_registry.py", "scanners/workday.py", "scanners/ats.py", "scanners/feeds.py", "scanners/net.py", "utils/filters.py", "utils/dedup.py", "utils/jd_cache.py", "config/portals.yml"]
+    tests: ["tests/test_filters.py", "tests/test_dedup.py", "tests/test_bridge.py", "tests/test_extra_sources.py"]
+    work_packages: ["WP-01-07", "WP-02-03", "WP-04-03", "WP-05-03", "WP-06-01", "WP-10-03"]
+    decisions: ["DEC-033"]
+    gates: ["G8", "G17"]
+    known_limitations: ["Extra sources (ATS boards, feeds, extra JobSpy providers) are tested with mocked responses only; no live verification record exists (G20, PCD-002/PCD-028).", "Tests/test_extra_sources.py could not be collected in the review container (httpx missing, KI-001)."]
+  - id: "F-02"
+    name: "AI scoring and evaluation"
+    purpose: "Score each posting 1-5 on five weighted dimensions (30/20/20/20/10) against the candidate CV, apply the German-language policy, and persist the evaluation."
+    status: "active"
+    doc: "F-02_ai-scoring-evaluation.md"
+    files: ["run_evaluate.py", "agents/evaluator.py", "utils/evaluation_store.py", "utils/json_extract.py", "utils/jd_fetcher.py"]
+    tests: ["tests/test_german_policy.py", "tests/test_evaluation_store.py", "tests/test_jd_fetcher.py"]
+    work_packages: ["WP-01-01", "WP-01-02", "WP-02-03"]
+    decisions: ["DEC-034"]
+    gates: ["G1", "G16"]
+    known_limitations: ["tests/test_german_policy.py replicates the policy logic instead of importing it (KI-005), so it does not guard run_evaluate.py.", "agents/evaluator.py hard-codes the candidate's language levels (docs/PROMPT.md section 4; scheduled for change in WP-01-02, PCD-006).", "README names reject_b1_plus as the German default but run_evaluate.py falls back to accept_all if the profile has no key (KI-006, to verify)."]
+  - id: "F-03"
+    name: "Multi-provider AI routing and key rotation"
+    purpose: "Route AI calls across Google AI Studio and OpenRouter and rotate keys when one is rate-limited."
+    status: "active"
+    doc: "F-03_ai-provider-routing.md"
+    files: ["agents/smart_router.py", "agents/google_client.py", "agents/openrouter_client.py"]
+    tests: []
+    decisions: ["DEC-034"]
+    gates: ["G16"]
+    known_limitations: ["No dedicated tests exist for routing or key rotation (docs/PROMPT.md section 2 says 'add tests, never remove keys support'). UI tests fake the router.", "Provider limits and the terms for multi-key rotation are unverified (PCD-010, PCD-028)."]
+  - id: "F-04"
+    name: "CV tailoring (JSON patch)"
+    purpose: "Adapt the base CV to a job by applying AI-proposed structured edits (subtitle, objective keywords, skills order, bullet rephrasing, project selection) with code, never touching dates, education, languages or contact data."
+    status: "active"
+    doc: "F-04_cv-tailoring.md"
+    files: ["agents/cv_tailor.py"]
+    tests: ["tests/test_ui_integration.py", "tests/test_ui_service.py"]
+    work_packages: ["WP-09-01"]
+    decisions: ["DEC-019"]
+    gates: ["G5"]
+    known_limitations: ["Only covered through the app's integration test with a faked AI call; no direct unit tests of the patch logic were found.", "Current code still has an opt-in automatic path (`create_cv` / `evaluation.auto_cv_threshold`) in run_evaluate.py; DEC-019 requires no automatic creation and WP-01-01 removes it. README still describes automatic tailoring above the threshold."]
+  - id: "F-05"
+    name: "PDF CV generation"
+    purpose: "Render a tailored or original CV as an ATS-friendly A4 PDF with WeasyPrint."
+    status: "active"
+    doc: "F-05_pdf-generation.md"
+    files: ["utils/pdf_generator.py", "CV_Example.py"]
+    tests: ["tests/test_ui_integration.py"]
+    work_packages: ["WP-00-03"]
+    decisions: ["DEC-019"]
+    gates: ["G5", "G7"]
+    known_limitations: ["WeasyPrint needs a GTK runtime on Windows; the Windows result is unverified (PCD-011, WP-00-03).", "CV_Example.py is a stand-alone sample script with the owner's contact details (KI-004); it is not part of the pipeline."]
+  - id: "F-06"
+    name: "Cover letter generation"
+    purpose: "Write a targeted cover letter for one job with the AI router and render it to PDF."
+    status: "active"
+    doc: "F-06_cover-letters.md"
+    files: ["agents/cover_letter.py"]
+    tests: ["tests/test_ui_integration.py", "tests/test_ui_service.py"]
+    decisions: ["DEC-019"]
+    gates: ["G5"]
+    known_limitations: ["Covered only through the app integration test with a faked AI call.", "Same automatic-path caveat as F-04 until WP-01-01 is merged."]
+  - id: "F-07"
+    name: "Telegram notifications, Excel database and description cache"
+    purpose: "Notify the owner of evaluations, keep a colour-coded Excel database of evaluated jobs and cache job descriptions."
+    status: "active"
+    doc: "F-07_notifications-and-records.md"
+    files: ["utils/telegram.py", "utils/excel_export.py", "utils/jd_cache.py"]
+    tests: ["tests/test_ui_service.py"]
+    work_packages: ["WP-03-02", "WP-05-04", "WP-10-03"]
+    gates: ["G12"]
+    known_limitations: ["No dedicated tests for Telegram or Excel export; the UI service test fakes them.", "Telegram sends title, company, score and link only under the suite's rules for S2 (GOV-03); the current code was not checked against that."]
+  - id: "F-08"
+    name: "UniversalAutoApplier queue export"
+    purpose: "Write `data/application_queue.jsonl` with only eligible jobs, deterministically and atomically, with identity hashes that match UniversalAutoApplier."
+    status: "active"
+    doc: "F-08_uaa-queue-export.md"
+    files: ["utils/queue_exporter.py", "run_export_queue.py"]
+    tests: ["tests/test_queue_exporter.py", "tests/test_identity_golden_contract.py", "tests/test_export_queue_wq2.py", "tests/test_uaa_contract.py", "tests/test_candidate_profile_truthful.py", "tests/test_evaluation_store.py"]
+    work_packages: ["WP-02-03", "WP-03-03"]
+    decisions: ["DEC-035", "DEC-046"]
+    gates: ["G6"]
+    known_limitations: ["The suite keeps the hand-off to the separate auto-applier under PCD-007 (interim default: keep the explicit export, never submit).", "Byte-identical golden file check (G6) is built by WP-01-03; existing tests are the interim guard."]
+  - id: "F-09"
+    name: "Pipeline CLI orchestration, health and source check"
+    purpose: "Run the full scan -> evaluate -> generate cycle, check system health, and try each enabled extra source once."
+    status: "active"
+    doc: "F-09_pipeline-cli-and-health.md"
+    files: ["run_all.py", "run_health.py", "run_check_sources.py", "utils/utf8_logging.py"]
+    tests: ["tests/test_run_all_export_integration.py", "tests/test_utf8_logging.py"]
+    work_packages: ["WP-00-04", "WP-02-03"]
+    gates: ["G14", "G20"]
+    known_limitations: ["run_health.py and run_check_sources.py have no tests; run_check_sources.py needs the owner's network and its output feeds the live-verification record (G20).", "tests/test_run_all_export_integration.py could not be collected in the review container (httpx missing, KI-001)."]
+  - id: "F-10"
+    name: "Local JobHunter app (ranked jobs, per-job actions)"
+    purpose: "Provide a local web app for ranked jobs, per-job creation of documents by click, running the original scripts, and setup."
+    status: "active"
+    doc: "F-10_local-app.md"
+    files: ["run_app.py", "jobhunter_ui/__init__.py", "jobhunter_ui/server.py", "jobhunter_ui/service.py", "jobhunter_ui/runner.py", "jobhunter_ui/ranking.py", "jobhunter_ui/static/index.html", "jobhunter_ui/static/app.js", "jobhunter_ui/static/style.css", "jobhunter_ui/static/cv.example.md"]
+    tests: ["tests/test_ui_ranking.py", "tests/test_ui_server.py", "tests/test_ui_service.py", "tests/test_ui_integration.py"]
+    work_packages: ["WP-02-04"]
+    decisions: ["DEC-019"]
+    gates: ["G5", "G15"]
+    known_limitations: ["No browser-level or responsive tests exist; viewports and UI workflows are not defined (contract map GAP-4). UI tests use real HTTP round-trips with fake AI and PDF.", "The suite plans a shared service layer so CLI and UI use one code path (WP-02-04, G15); today the service wraps the original modules."]

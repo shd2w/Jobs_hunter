@@ -1,0 +1,17 @@
+== memory/test_check_memory
+Ran 26 tests in 4.593s
+OK
+== documentation/test_check_registry
+Ran 21 tests in 8.869s
+OK
+== validation/test_run_gates
+Ran 45 tests in 20.578s
+OK
+== state
+OK: 0 finding(s)
+== registry
+WARN  feature F-03: no tests linked (record the gap in known_limitations)
+OK: 1 finding(s)
+== evidence records validate
+OK: 0 finding(s)
+label: automated-test; agent: claude-code / claude-sonnet-5-5; Python 3.13.18; Linux container; commit 00d6a5f + untracked .ai-engineering

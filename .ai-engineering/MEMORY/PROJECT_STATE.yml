@@ -1,0 +1,36 @@
+# Project state (spec 9.1). References authoritative documents; never copies decisions.
+# Updated at every task transition and handoff. Validated by SCRIPTS/memory/check_memory.py.
+state_version: 1
+project: JobHunter
+last_updated: "2026-11-13T07:00:58Z"
+last_updated_by: "claude.ai chat / claude-sonnet-5-5"
+active_task: null              # WP-pp-nn while a task is open, otherwise null
+task_status: null              # project status (GOV-05 section 10) of the active task
+phase: null                    # JobHunter phase NN of the active task
+release: null
+branch: docs/governance-suite
+base_branch: pending_owner     # PCD-001
+head_commit: 00d6a5f5b9b8e0ba4be9d2a9ab91ffe55e0ed072
+working_tree: "untracked: .ai-engineering/ (framework Phases A-F), AGENTS.md, GEMINI.md; no tracked file modified. Not re-verified against the real repository in the session that added Phase E (uploaded copy had no .git)"
+last_verified_checkpoint:
+  commit: 00d6a5f5b9b8e0ba4be9d2a9ab91ffe55e0ed072
+  what_was_verified: "Phase A configs parse; suite documents match sha256 in the contract map; referenced paths exist"
+  not_verified: "test suite baseline (3 collection errors from missing httpx in the review container)"
+  evidence: null
+authoritative_documents:
+  contract_map: .ai-engineering/CONFIG/project_contract_map.yml   # holds path + sha256 per document
+  decision_log_revision_read: "sha256 0e4b53dbc607891a152a5f6fa12b1b0a053f86dd747d7e14ce7452e3c0d12446"
+framework:
+  phase_A: delivered_pending_owner_review
+  phase_B: delivered_pending_owner_review
+  phase_C: delivered_pending_owner_review
+  phase_D: delivered_pending_owner_review
+  phase_E: delivered_pending_owner_review
+  phase_E_live_cli_conformance: not_run
+  phase_F: delivered_pending_owner_review
+indexes:
+  current_task: .ai-engineering/MEMORY/CURRENT_TASK.md
+  known_issues: .ai-engineering/MEMORY/KNOWN_ISSUES.md
+  completed_work: .ai-engineering/MEMORY/COMPLETED_WORK.md
+  recent_failures: .ai-engineering/MEMORY/RECENT_FAILURES.md
+  handoffs: .ai-engineering/MEMORY/handoffs

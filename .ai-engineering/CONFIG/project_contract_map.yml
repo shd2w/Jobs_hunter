@@ -1,0 +1,126 @@
+# Project contract map - JobHunter (spec v0.1, sections 5.1 and 5.3)
+# Maps the existing governance suite to framework concepts. The suite is preserved
+# unchanged; this file only points at it. Agents never edit the mapped documents
+# (changes go through GOV-02 section 9, owner only).
+contract_map_version: 1
+
+documents_root: docs/governance
+documents_read:
+  # sha256 of each document as read when this map was written. A mismatch means the
+  # suite changed: re-read it and have the owner confirm before relying on the map.
+  - {id: GOV-00, path: docs/governance/00_project_charter.md,          role: charter,                sha256: fcc8d302a63f1774933ed7984a73e0957fc38e9d736711b28877417538066f8f}
+  - {id: GOV-01, path: docs/governance/01_architecture_contract.md,    role: architecture,           sha256: f5695806dc5285427af4071e524e0e9b76e85635b4ebc079f4114333feb2ceb1}
+  - {id: GOV-02, path: docs/governance/02_decision_log_and_scope.md,   role: decision_authority,     sha256: 0e4b53dbc607891a152a5f6fa12b1b0a053f86dd747d7e14ce7452e3c0d12446}
+  - {id: GOV-03, path: docs/governance/03_security_and_credentials.md, role: security,               sha256: d9cba6aba41db6327f71f32b24eb1df40a09dd78c748a07969f38f21e397eba8}
+  - {id: GOV-04, path: docs/governance/04_work_packages.md,            role: task_source,            sha256: 012276b7f7cf25923775156997e20460bd4924ca3dd74ff75dd3a5e1dc04c6a8}
+  - {id: GOV-05, path: docs/governance/05_validation_matrix.md,        role: validation_gates,       sha256: 5bf0fcb06b531096a38def6bc950b535bf7913f75e23d659c94a2fb68a811a69}
+  - {id: GOV-06, path: docs/governance/06_execution_plan.md,           role: execution_procedure,    sha256: 0b79bfc89774a675664c2d717d26a332c186538aec4685cfd83b974ba2651502}
+  - {id: GOV-07, path: docs/governance/07_demo_track.md,               role: demo_pilot_labels,      sha256: 305dfffa303d0e06131c84c48067b48b3e0fe365a0d96e6cceca5d35ff6a9343}
+  - {id: PROMPT, path: docs/PROMPT.md,                                 role: working_prompt_and_must_keep, sha256: 43ff049a8c7afeaa407f7fed07d41063f1944a43ecec18e3ef79f01af090e178}
+suite_counts_stated_by_spec: {work_packages: 73, phases: 17, final_decisions: 51, pending_decisions: 29, invariants: 27, gates: 21}
+# Phase B/C tooling must verify these counts against the documents; they are not yet machine-checked.
+
+authority_order:
+  # Highest first. "documented" = stated by the suite itself; "derived" = my reading,
+  # owner to confirm. Within the project layer, GOV-02 explicitly wins (its header, DEC-001).
+  - {rank: 1, source: ".ai-engineering/CORE/engineering_constitution.md", basis: framework}
+  - {rank: 2, source: GOV-03, basis: derived, note: "framework layer 2 = project security rules"}
+  - {rank: 3, source: GOV-02, basis: documented, note: "single authority for decided / pending / scope; wins over any other document, prompt, WP or code comment"}
+  - {rank: 4, source: GOV-01, basis: documented, note: "binding; implementation is changed, not the contract; change via PCD"}
+  - {rank: 5, source: GOV-05, basis: documented, note: "binding definition of proof; nothing passed unless executed (DEC-047)"}
+  - {rank: 6, source: GOV-04, basis: documented, note: "binding implementation plan"}
+  - {rank: 7, source: GOV-06, basis: documented, note: "binding procedure"}
+  - {rank: 8, source: GOV-00, basis: documented, note: "binding for scope and intent"}
+  - {rank: 9, source: GOV-07, basis: derived}
+  - {rank: 10, source: PROMPT, basis: derived, note: "older working prompt; MUST-KEEP table and per-session rules"}
+  - {rank: 11, source: ".ai-engineering/CONFIG/*", basis: framework}
+  - {rank: 12, source: "task assignment", basis: framework}
+conflict_rule: >
+  DEC-001: repository state, then Decision Log, then research, then older documents;
+  a later numbered revision wins. If two sources at the same rank conflict and this does
+  not resolve it, stop and raise it (constitution 3, 7). Never edit GOV-02 to resolve it.
+owner_confirmation_needed_for_derived_ranks: true
+
+framework_concept_mapping:
+  project_purpose_scope: GOV-00
+  architecture_invariants: {document: GOV-01, ids: "INV-nn", count_stated: 27}
+  decisions: {document: GOV-02, final: "DEC-nnn", pending: "PCD-nnn", rule: "reference, never copy, into MEMORY/decisions"}
+  security_and_data_classes: GOV-03
+  backlog: {document: GOV-04, ids: "WP-pp-nn"}
+  validation_gates: {document: GOV-05, ids: "G1..G21", default_gate: "GOV-05 section 1"}
+  procedure_prompts_reports: GOV-06
+  evidence_labels_demo_track: GOV-07
+  must_keep: PROMPT
+
+pending_decision_handling:
+  source: GOV-02 section 3 "PCD handling"
+  modes:
+    non_blocking_default_applies: "proceed with the interim default; write it in the report field 'PCD impact'"
+    blocking_for_guarded_behaviour: "leave the guarded behaviour out of scope and say so; whole-package dependence stays blocked"
+  agent_must_not: [resolve a PCD, edit GOV-02, treat a default as a decision]
+  agent_may: [propose a new PCD, record the default used]
+
+# Framework lifecycle stage -> project status (spec section 8: map, do not invent transitions).
+# Transition rules stay GOV-05 section 10; the framework adds none.
+status_mapping:
+  project_statuses: [blocked, ready_for_implementation, in_progress, ready_for_validation, ready_for_review, ready_for_merge, merged]
+  stages:
+    - {stage: "1 Bootstrap and understand",           project_status: "ready_for_implementation", entry_check: "all dependencies merged; no blocking PCD for the whole package; scope unambiguous"}
+    - {stage: "2 Inspect and baseline",               project_status: "in_progress", entry_check: "implementer assigned; wp/ branch exists"}
+    - {stage: "3 Plan and define proof",              project_status: "in_progress"}
+    - {stage: "4 Test-first implementation",          project_status: "in_progress"}
+    - {stage: "5 Continuous validation",              project_status: "in_progress -> ready_for_validation", exit_check: "scope code-complete"}
+    - {stage: "6 Real application / UX validation",   project_status: "ready_for_validation"}
+    - {stage: "7 Documentation and memory sync",      project_status: "ready_for_validation -> ready_for_review", exit_check: "every required gate executed, evidence attached, skipped gates listed"}
+    - {stage: "8 Independent review",                 project_status: "ready_for_review -> ready_for_merge", exit_check: "reviewer checklist complete, no open finding, reviewer is not the implementer"}
+    - {stage: "9 Integrate and close",                project_status: "ready_for_merge -> merged", exit_check: "merged into phase branch; post-merge default gate re-run green"}
+  any_stage_to_blocked: "contradiction found, dependency reopened, or blocking PCD raised"
+  never_advance_when: "a required validation is skipped, unavailable, partially executed, mocked where a real run is required, or lacks evidence (GOV-05 section 10, DEC-047)"
+  # Framework gate statuses are a superset of what GOV-06 reports; map without loss:
+  framework_to_project_report: {passed: passed, failed: failed, skipped: "skipped (lists reason)", unavailable: "unavailable (never 'passed')", not-applicable: "n/a"}
+
+verdict_mapping:
+  # Reviewer verdict vocabularies differ; both are accepted, mapped one-to-one.
+  framework: [approved, approved-with-conditions, changes-required, blocked]
+  project_gov06: [merge, changes required, blocked]
+  map: {approved: merge, approved-with-conditions: "changes required until conditions met", changes-required: "changes required", blocked: blocked}
+  note: "GOV-05 section 10 allows ready_for_merge only with no open finding, so approved-with-conditions cannot reach ready_for_merge until the conditions are closed."
+
+prompt_and_report_templates:
+  implementation_prompt: docs/governance/06_execution_plan.md#4-implementation-prompt-template
+  reviewer_prompt: docs/governance/06_execution_plan.md#5-reviewer-prompt-template
+  report_format: docs/governance/06_execution_plan.md#7-exact-report-format
+  rule: >
+    The GOV-06 report format is controlling for JobHunter. The framework's report
+    (IMPLEMENTER.md section 4) is satisfied by it; framework-only items (handoff, registry,
+    memory updates) are appended, not substituted.
+
+evidence_label_mapping:
+  # GOV-07 labels -> framework labels (QUALITY/evidence_schema.yml). None of the left column is "live".
+  Fixture: fixture
+  Simulation: simulation
+  Designer-written: {framework: fixture, note: "framework has no separate label; record the project label in the evidence note"}
+  Prototype: {framework: manual-verification, live: false}
+  Demo: {framework: manual-verification, live: false, note: "synthetic data"}
+  Pilot: {framework: live-verification, only_if: "run live and dated (G20)"}
+  Production: {framework: automated-test, note: "merged work package passing its gates"}
+
+checkpoints:
+  stop_and_ask_after_phases: ["01", "05"]     # GOV-06 section 1: owner reviews report, answers PCDs, says "go"
+  one_stage_per_session: true
+  phase_exit_requires_owner_go: true
+
+known_contract_gaps:
+  # Raised, not resolved. Owner decision needed before anything depends on them.
+  - id: GAP-1
+    text: "Authority ranks 2, 9, 10 are derived, not stated by the suite."
+  - id: GAP-2
+    text: "GOV-06 requires the report and branch rules but the suite has no persistent cross-session memory or file/feature registry; these are framework additions (spec 5.3)."
+  - id: GAP-3
+    text: "PCD-001 (base branch) is only an interim default; project_profile.git base_branch stays pending_owner."
+  - id: GAP-4
+    text: "UI viewport sizes, supported UI workflows and an approved browser-automation tool are not defined anywhere."
+  - id: GAP-5
+    text: "Several GOV-05 commands are placeholders until their work package merges (see command_profiles.yml)."
+  - id: GAP-6
+    text: "docs/governance/ is the in-repo copy of the suite, byte-identical to the supplied archive's top-level copy on 2026-11-10; the suite says its source revised_system_v2.md was never supplied (ASM-001)."

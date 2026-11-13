@@ -1,0 +1,74 @@
+# Evidence schema (spec v0.1, sections 11.2 and 9.2; evidence_and_claims.md)
+# Defines what a valid evidence record contains. Phase D scripts will validate against it.
+evidence_schema_version: 1
+
+labels:
+  # Mandatory labels (constitution section 4). `live` = may support a "verified against the real world" claim.
+  automated-test:      {live: false, note: "live only if it ran against a live service"}
+  mocked:              {live: false}
+  simulation:          {live: false}
+  fixture:             {live: false}
+  manual-verification: {live: depends_on_target}
+  # In a record: date = timestamp, machine_or_os = environment, exact_command = command; network and provider_or_service are their own fields.
+  live-verification:   {live: true, requires: [date, machine_or_os, network, exact_command, provider_or_service]}
+  screenshot-evidence: {live: true, scope: "the UI state only", requires: [viewport, commit]}
+  unavailable:         {live: false, counts_as_passed: false}
+  skipped:             {live: false, counts_as_passed: false, requires: [justification]}
+no_upgrade_rule: "Evidence is never recorded under a higher label than its actual verification level."
+
+gate_statuses: [passed, failed, skipped, unavailable, not-applicable]
+passed_requires: [evidence_file, label, commit]
+
+record:
+  # One record per executed check. Stored as a file under EVIDENCE/<task-id>/<area>/ ; front matter or YAML.
+  required_fields:
+    - task_id               # WP-pp-nn
+    - gate_id               # G<n> or framework check name
+    - label                 # one of labels above
+    - status                # one of gate_statuses
+    - timestamp             # ISO 8601 with UTC offset
+    - agent_label           # agent/CLI/model label, no secrets
+    - commit                # HEAD the evidence was produced against
+    - command               # exact command, or action performed
+    - environment           # OS, runtime versions, network where relevant
+    - output_ref            # complete output or excerpt; truncation noted
+    - verdict_rationale
+  optional_fields: [project_label, pcd_defaults_used, baseline_ref, notes]
+  forbidden_content: [S3, S4, credentials, tokens, full URLs containing tokens]
+  project_label_values: [Fixture, Simulation, Designer-written, Prototype, Demo, Pilot, Production]  # GOV-07; see contract map
+
+storage:
+  root: .ai-engineering/EVIDENCE/<task-id>/
+  areas: [baseline, validation, browser, review]
+  filename: "<gate-type>_<description>_<YYYYMMDD-HHmmss>.<ext>"
+  project_evidence_folder_note: "GOV-06 leaves the evidence folder [configurable]; this path is the configured value."
+
+staleness:
+  stale_when: [source_changed_after_evidence, config_changed, dependencies_or_environment_changed_materially]
+  rule: "Stale evidence is refreshed before it supports a completion claim (evidence_and_claims.md 4.3)."
+
+baseline:
+  required_before_edit: true
+  contents: [full_test_results, lint_or_type_results_if_configured, health_if_applicable, ui_screenshots_if_ui_task, git_status_and_head]
+  classify_failures: [pre-existing, introduced-by-task, environmental, flaky, unknown]
+
+review_report:
+  required_fields: [reviewer_label, date, commit_reviewed, scope, findings, verdict, independent_checks_run]
+  finding_fields: [severity, file, line, description, required_action]
+  severities: [critical, major, minor, suggestion]
+  verdicts: [approved, approved-with-conditions, changes-required, blocked]
+  independence: [separate_context, reran_subset_of_checks, inspected_actual_diff]
+
+by_gate_type_minimum:
+  # Mirrors evidence_and_claims.md section 2
+  unit_tests: [command, output, counts]
+  integration_tests: [command, output, components_exercised]
+  end_to_end: [command, output, workflow_steps, screenshots_if_ui]
+  lint_type: [command, output]
+  security_scan: [command, output, findings_classified]
+  build_package: [command, output, artifact]
+  app_startup: [command, output, health_result, url_or_port]
+  browser_ui: [screenshots_per_viewport, console_log, workflow_steps]
+  documentation_check: [registry_diff, feature_doc_diff, consistency_output]
+  independent_review: [review_report]
+  regression_test: [failing_before_evidence, passing_after_evidence]

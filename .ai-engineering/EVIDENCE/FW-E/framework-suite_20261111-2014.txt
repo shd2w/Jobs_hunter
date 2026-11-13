@@ -1,0 +1,48 @@
+== BASELINE (before any Phase E change): scratch git snapshot of the uploaded tree
+== memory/test_check_memory
+Ran 26 tests in 1.806s
+OK
+== documentation/test_check_registry
+Ran 21 tests in 5.194s
+OK
+== validation/test_run_gates
+Ran 45 tests in 7.749s
+OK
+== registry check
+WARN  feature F-03: no tests linked (record the gap in known_limitations)
+OK: 1 finding(s)
+== baseline note: the same three suites run directly in the uploaded tree (no .git) fail with 66 errors:
+   'git ls-files' exits 128 (not a git repository). Classification: environmental. The checks pass in a git snapshot.
+
+== POST-CHANGE (scratch git snapshot of the uploaded tree plus Phase E)
+== memory/test_check_memory
+Ran 26 tests in 1.421s
+OK
+== documentation/test_check_registry
+Ran 21 tests in 4.727s
+OK
+== validation/test_run_gates
+Ran 45 tests in 6.651s
+OK
+== adapters/test_check_adapters
+Ran 46 tests in 3.098s
+OK
+== registry check
+WARN  feature F-03: no tests linked (record the gap in known_limitations)
+OK: 1 finding(s)
+exit=0
+== adapters check
+OK: 0 finding(s)
+LIVE CLI CONFORMANCE: kiro=not_run gemini-cli=not_run opencode=not_run  (a static pass is not evidence that any CLI loads the contract)
+exit=0
+== adapters check --strict
+OK: 0 finding(s)
+LIVE CLI CONFORMANCE: kiro=not_run gemini-cli=not_run opencode=not_run  (a static pass is not evidence that any CLI loads the contract)
+exit=0
+
+== SUMMARY
+baseline: 92 tests (26 + 21 + 45), all passing; post-change: 138 tests (26 + 21 + 45 + 46 new), all passing; no regression.
+label: automated-test; agent: claude.ai chat / claude-sonnet-5-5; Python 3.12.3; Linux container
+commit: NOT VERIFIABLE HERE. The uploaded tree has no .git. PROJECT_STATE.yml records HEAD 00d6a5f5b9b8e0ba4be9d2a9ab91ffe55e0ed072; the runs above used a scratch snapshot commit, not that commit.
+NOT VERIFIED: any live Kiro, Gemini CLI or OpenCode session (conformance C1-C6 are not_run); check_memory state against the real repository; Windows and macOS runs; independent review.
+adapter facts sources (read 2026-11-11): https://kiro.dev/docs/steering/ ; https://geminicli.com/docs/cli/gemini-md ; https://opencode.ai/docs/rules/

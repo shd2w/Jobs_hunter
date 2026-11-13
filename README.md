@@ -1,0 +1,591 @@
+# JobHunter — Autonomous Job Search Pipeline
+
+Fully automated job search, evaluation, CV tailoring, and notification system for working student positions in Germany. Scans multiple job boards, evaluates matches with AI, generates tailored CVs as PDFs, and sends results to your Telegram.
+
+## Easy mode: the JobHunter app (no commands to remember)
+
+```bash
+python run_app.py
+```
+
+Your browser opens at `http://127.0.0.1:8765` (only your computer can reach it). It has three tabs:
+
+- **Jobs** — every scored job ranked best first (score, why it fits, gaps). Re-rank with your own priorities (skills / education / location / language / growth). Click a job, then **Create tailored CV**, **Use my CV as is**, **Write cover letter**, or **Create both**. Download the PDFs, open the posting, send to Telegram, and track your progress (applied, interview, ...).
+- **Find & score** — one-click buttons for scan, score, run everything, export the application queue, and health check, with live output.
+- **Setup** — paste your CV, set your details and score threshold, paste AI keys (kept in `.env`, never shown again), see whether PDF support works.
+
+Everything the app does uses the original pipeline code and data files; the command-line scripts below keep working exactly as before. Creating a CV or letter in the app saves the file paths into `data/evaluations.json`, so **Export application queue** includes that job. Rules: tailoring never changes dates, education or languages; your `cv.md` is never modified (a backup `cv.md.bak` is kept if you edit it in Setup). See [docs/PROMPT.md](docs/PROMPT.md) for the contract used when changing this project with an AI assistant.
+
+## How It Works
+
+```
+┌─────────┐     ┌──────────┐     ┌───────────┐     ┌────────────┐     ┌──────────┐
+│  Scan   │────▶│  Filter  │────▶│ Evaluate  │────▶│ Tailor CV  │────▶│ Telegram │
+│ JobSpy  │     │ + Dedup  │     │ Google AI │     │ + PDF Gen  │     │   Bot    │
+└─────────┘     └──────────┘     └───────────┘     └────────────┘     └──────────┘
+  Indeed          Title +          Gemma 4           JSON-patch         Score + PDF
+  LinkedIn        Location         2-key rotation    controlled         + Cover Letter
+  Google Jobs     History          OpenRouter         WeasyPrint        + Excel DB
+                                   4-key rotation
+```
+
+### Pipeline Steps
+
+1. **Scan** (`run_scan.py`) — Uses [python-jobspy](https://github.com/Bunsly/JobSpy) to search Indeed, LinkedIn, and Google Jobs for configured search terms and locations. Results are saved to `data/pipeline.md`.
+
+2. **Filter & Dedup** — Title keywords (e.g. "Working Student", "Werkstudent") and location (e.g. Erlangen, Nürnberg, Munich) are checked. Jobs already seen are skipped. Descriptions are cached in `data/jd_cache.json` for evaluation.
+
+3. **Evaluate** (`run_evaluate.py`) — Each job is scored 1-5 across 5 dimensions using Google AI Studio (Gemma 4, 1,500+ free requests/day with dual keys). Scores below threshold are logged. **Jobs requiring German B2+ are auto-rejected.**
+
+4. **Tailor CV** — For jobs scoring ≥ threshold (default 3.5), the AI proposes targeted JSON edits (subtitle, objective keywords, skills reorder, bullet rephrasings, project selection). Code applies these edits programmatically — **the AI never touches dates, headers, or formatting.**
+
+5. **Generate PDF** — Tailored CV is converted to an ATS-friendly A4 PDF using WeasyPrint. Dates are right-aligned using table layout.
+
+6. **Telegram** — Every evaluation is sent as a notification. High-scoring jobs include the PDF CV and cover letter as attachments.
+
+7. **Excel Database** — Every evaluated job is recorded in `data/jobs_database.xlsx` with scores, reasoning, and status.
+
+## Quick Start
+
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/MohamedAzzam4/JobHunter.git
+cd JobHunter
+python -m venv jobhunter_venv
+```
+
+**Activate the virtual environment:**
+```bash
+# Windows
+jobhunter_venv\Scripts\activate
+
+# Linux / macOS
+source jobhunter_venv/bin/activate
+```
+
+**Install dependencies:**
+```bash
+pip install -r requirements.txt
+```
+
+> **⚠️ Python 3.13+ users:** `python-jobspy` internally pins `numpy==1.26.3`, which crashes on Python 3.13+. Our `requirements.txt` overrides this with `numpy>=2.4`, but if you still see `OverflowError: cannot convert longdouble infinity to integer`, run:
+> ```bash
+> pip install "numpy>=2.4" --force-reinstall --no-deps
+> ```
+
+**WeasyPrint (PDF generation) on Windows:**
+```bash
+# Install MSYS2 from https://www.msys2.org/
+# Then in MSYS2 terminal:
+pacman -S mingw-w64-x86_64-pango
+```
+The code auto-detects the GTK libraries at `C:\msys64\mingw64\bin`.
+
+---
+
+### 2. Configure API Keys (`.env`)
+
+Copy the example and fill in your keys:
+```bash
+cp .env.example .env
+```
+
+**`.env` contents:**
+```env
+# OpenRouter API keys — use keys from different free accounts to increase daily quota
+OpenRouter=sk-or-v1-...
+OpenRouter2=sk-or-v1-...
+OpenRouter3=sk-or-v1-...
+OpenRouter4=sk-or-v1-...
+
+# Google AI Studio — use keys from different Google accounts to increase daily limit
+# The system rotates to the next key automatically when one hits its rate limit
+GOOGLE_AI_API_KEY=AIza...
+GOOGLE_AI_API_KEY2=AIza...
+
+# Telegram Bot (see Telegram Setup below)
+TELEGRAM_BOT_TOKEN=123456:ABC...
+TELEGRAM_CHAT_ID=your-chat-id
+```
+
+> ⚠️ **Never commit your `.env` file.** It is already in `.gitignore`.
+
+---
+
+### 3. Configure Your Profile (`config/profile.yml`)
+
+Edit your candidate info, target roles, skills, and preferences:
+
+```yaml
+candidate:
+  full_name: "Your Full Name"
+  short_name: "First Last"              # Used for PDF filenames
+  subtitle: "Your Title | Working-Student Candidate"
+  email: "your@email.com"
+  phone: "+49 ..."
+  location: "Your City, Germany"
+  linkedin: "https://linkedin.com/in/your-profile"
+  github: "https://github.com/your-username"
+
+evaluation:
+  auto_cv_threshold: 3.5               # Minimum score to generate CV (1-5)
+  # German filter policy (see German Language Detection section below)
+  german_filter: reject_b1_plus         # reject_b1_plus | reject_b2_plus_only | reject_unless_bilingual | accept_all
+```
+
+---
+
+### 4. Set Up Your CV (`cv.md`)
+
+Your base CV must follow this exact markdown format. The pipeline parses section headers, bold titles, italic subtitles, and bullet points — **changing the format will break the parser.**
+
+```markdown
+# **YOUR NAME**
+
+**Your Title | Working-Student Candidate**
+
+**Location:** City, Country
+**Email:** your@email.com
+**Phone:** +49 ...
+**Links:** [LinkedIn](https://...) | [GitHub](https://...)
+
+## **OBJECTIVE**
+
+A 1-2 sentence objective tailored by the AI for each job.
+
+## **EDUCATION**
+
+**M.Sc. in Your Degree**
+
+*Your University, Country*
+
+*Start Date – End Date (Expected)*
+
+**B.Sc. in Your Degree**
+
+*Your University, Country*
+
+*Start Date – End Date*
+
+* **Honors:** Your honors
+* **Relevant Coursework:** Course1, Course2, ...
+
+## **TECHNICAL SKILLS**
+
+* **Category 1:** Skill1, Skill2, Skill3
+* **Category 2:** Skill4, Skill5, Skill6
+
+## **EXPERIENCE**
+
+**Your Job Title**
+
+*Company, Location | Start – End*
+
+* Achievement bullet point 1
+* Achievement bullet point 2
+
+## **PROJECTS**
+
+**Project Name**
+
+* Description bullet point
+* *Stack:* Tech1, Tech2, Tech3
+
+## **CERTIFICATIONS & TRAINING**
+
+* **Certificate Name** (Provider)
+
+## **LANGUAGES**
+
+* **Language1:** Level
+* **Language2:** Level
+```
+
+**Important format rules:**
+- Section headers must be `## **SECTION NAME**`
+- Job/degree titles must be `**Bold Title**`
+- Dates must be `*Italic with a year*` (e.g., `*2024 – Present*`)
+- For experience, combine company and date on one line with `|`: `*Company, Location | 2024 – Present*`
+- For education, put university and date on separate italic lines
+- Bullet points use `* ` (asterisk + space)
+- **EDUCATION**, **CERTIFICATIONS & TRAINING**, and **LANGUAGES** sections are never modified by the AI
+
+> 💡 **Don't want to write it manually?** Copy-paste this prompt to any AI (ChatGPT, Claude, Gemini) along with your existing CV:
+>
+> *"Convert my CV into this exact markdown format. Keep all section headers as `## **SECTION NAME**`. Use `**bold**` for job titles and degree names. Use `*italic*` for dates and company names. Use `* ` for bullet points. For experience entries, combine company and date on one line like `*Company, Location | 2024 – Present*`. For education, put university and date on separate italic lines."*
+>
+> Then paste the output into `cv.md`.
+
+---
+
+### 5. Telegram Setup
+
+You need a Telegram bot to receive job notifications. Setup takes 30 seconds:
+
+1. Open Telegram and message [@BotFather](https://t.me/BotFather) → send `/newbot` → follow the prompts → copy the **bot token**
+2. Message [@userinfobot](https://t.me/userinfobot) → copy your **chat ID**
+3. Add both to your `.env`:
+   ```
+   TELEGRAM_BOT_TOKEN=123456:ABC-your-token
+   TELEGRAM_CHAT_ID=your-chat-id
+   ```
+
+**What you'll receive:**
+- Score notification for every evaluated job (with German level)
+- PDF CV attachment for high-scoring matches (≥ 3.5)
+- Cover letter attachment
+- German auto-skip notifications with `[DE]` prefix
+
+---
+
+### 6. Configure Search Queries (`config/portals.yml`)
+
+This file controls **what jobs get scanned**, **how they're filtered**, and **which companies are tracked**. The defaults below are configured for working student positions in the Erlangen/Nuremberg/Munich area — **edit them to match your target roles and locations.**
+
+> ⚠️ **You must customize this file.** The default locations, companies, and search terms are examples. Replace them with your own target cities, companies, and job titles.
+
+#### Title & Location Filters
+
+These filters run **after** scanning to remove irrelevant jobs before they enter the pipeline:
+
+```yaml
+title_filter:
+  positive:                              # Job must contain at least one of these
+    - "Working Student"
+    - "Werkstudent"
+    - "Werkstudentin"
+    - "Student Assistant"
+    - "Studentische Hilfskraft"
+    - "HiWi"
+    - "Studentenjob"
+    - "Student Worker"
+    - "Thesis Student"
+    - "Intern"
+  negative:                              # Job is rejected if it contains any of these
+    - "Senior Engineer"
+    - "Staff Engineer"
+    - "Principal"
+    - "Director"
+    - "VP "
+    - "Head of"
+    - "Ausbildung"
+    - "Vollzeit"
+    - "Full-time"
+    - "C-Level"
+
+location_filter:
+  allow:                                 # Job must be in one of these locations
+    - "Erlangen"
+    - "Nürnberg"
+    - "Nuremberg"
+    - "Munich"
+    - "München"
+    - "Bavaria"
+    - "Bayern"
+    - "Remote"
+    - "Hybrid"
+    - "Germany"
+    - "Deutschland"
+  block: []                              # Jobs in these locations are always rejected
+```
+
+#### Tracked Companies
+
+Companies scanned via direct API. Only `scan_method: workday` entries are actively scanned. Companies using Eightfold.ai (Adidas, Puma, Siemens) are discovered via JobSpy instead:
+
+```yaml
+tracked_companies:
+  - name: Adidas
+    careers_url: "https://careers.adidas-group.com"
+    scan_method: jobspy   # Eightfold.ai — no direct API, covered by JobSpy
+    enabled: true
+
+  - name: Puma
+    careers_url: "https://careers.puma.com"
+    scan_method: jobspy   # Eightfold.ai — no direct API, covered by JobSpy
+    enabled: true
+
+  - name: Bosch
+    careers_url: "https://www.bosch.com/careers/"
+    scan_method: workday
+    search_terms: ["working student"]
+    enabled: true
+
+  - name: Siemens
+    scan_method: jobspy
+    enabled: true
+```
+
+#### JobSpy Searches (LinkedIn, Indeed, Google Jobs)
+
+Define your search terms and locations as separate lists. The scanner **automatically generates the cross-product** — every term is searched in every location. To add a new city or keyword, just append it to the list:
+
+```yaml
+# 3 terms × 2 locations = 6 searches automatically
+jobspy_searches:
+  terms:
+    - "Working Student"
+    - "Werkstudent"
+    - "Student Assistant"
+  locations:
+    - "Erlangen, Germany"
+    - "Munich, Germany"
+  sites: ["indeed", "linkedin", "google"]
+  results_wanted: 50
+  distance_km: 50
+```
+
+> The legacy per-entry format (list of individual search blocks) is still supported for backward compatibility.
+
+#### Extra JobSpy providers (`jobspy_providers`)
+
+Glassdoor, Bayt, ZipRecruiter, Naukri, BDJobs and HelloWork are registered but **all off by default**
+(regionally scoped; several block automated access). Set `enabled: true` for one provider at a time and read
+the scan log. A provider that fails now shows up as an error instead of a silent "0 results". "Remote" is only
+a source flag, never proof you may work from your country.
+
+#### Extra public sources (`extra_sources`)
+
+Employer ATS boards (Greenhouse, Lever, Ashby, SmartRecruiters) and remote-job feeds (Remotive, Jobicy,
+Arbeitnow, Remote OK, We Work Remotely). They feed the same filter -> dedup -> `pipeline.md` -> scoring path.
+
+* Add the companies you want to watch under `extra_sources.ats` (`kind` + the slug from their careers URL).
+* Each feed has a cooldown (Remotive: 6 h, it asks for at most 4 fetches a day). Blocked or rate-limited
+  (401/403/429) sources are reported and skipped; there is no proxy, stealth or retry-bypass.
+* Provider terms apply (attribution, no republishing). Every job keeps its original link and a "Source:" line.
+* Check what works from your network, without touching your pipeline: `python run_check_sources.py`
+* Turn everything off with `extra_sources.enabled: false`.
+
+---
+
+### 7. Run
+
+```bash
+# Scan for new jobs
+python run_scan.py
+
+# Evaluate next job
+python run_evaluate.py --next
+
+# Evaluate a batch of 10
+python run_evaluate.py --batch 10
+
+# Evaluate all pending jobs
+python run_evaluate.py --all
+
+# Full automated cycle (scan + evaluate all)
+python run_all.py
+```
+
+#### Override threshold and German policy per run
+
+Both `run_evaluate.py` and `run_all.py` accept these optional flags:
+
+```bash
+# Only generate CVs for jobs scoring 4.0 or higher
+python run_evaluate.py --all --threshold 4.0
+
+# Accept German-requiring jobs if they also require English
+python run_evaluate.py --all --german-policy reject_unless_bilingual
+
+# Accept all jobs regardless of German requirements
+python run_all.py --german-policy accept_all
+
+# Combine both flags
+python run_evaluate.py --batch 10 --threshold 4.0 --german-policy reject_b2_plus_only
+```
+
+These flags override the values in `config/profile.yml` for that run only.
+
+## Application Queue Export (UniversalAutoApplier handoff)
+
+After a successful `scan → evaluate → document generation` cycle, `run_all.py`
+publishes a ready-to-apply queue consumed by
+[UniversalAutoApplier](https://github.com/MohamedAzzam4/UniversalAutoApplier).
+
+The queue is written atomically to `data/application_queue.jsonl` (one
+`ApplicationJob` per line, matching UAA's JSONL contract):
+
+- **Only eligible jobs are exported** — every excluded job is counted with a
+  structured skip reason so the handoff is auditable:
+
+  | Skip reason | Meaning |
+  |---|---|
+  | `evaluation_failed` | The evaluation itself errored |
+  | `missing_url` | Record has no URL (also the identity fallback) |
+  | `invalid_url` | URL scheme is not HTTP(S) or has no hostname (UAA rejects it) |
+  | `invalid_score` | `global_score` is not numeric |
+  | `below_threshold` | Score below `evaluation.auto_cv_threshold` |
+  | `not_recommended` | Recommendation is not `apply` |
+  | `duplicate_url` | Same URL already exported once in this queue |
+  | `missing_required_fields` | Missing company/title (never fabricated) |
+  | `missing_documents` | CV/cover-letter PDFs not referenced by the record |
+  | `document_not_found` | Referenced PDF does not exist on disk |
+  | `duplicate_application_id` | Same `application_id` already exported once |
+
+- **Deterministic & idempotent** — identical input produces byte-identical
+  output (no timestamps) and re-running replaces the file (never appends).
+- **Atomic** — the queue is written to a temp file in the destination
+  directory and swapped with `os.replace`. A failed export leaves the previous
+  queue intact **and fails the pipeline** instead of silently shipping a stale
+  queue.
+- **Exact identity match** — `application_id` is `sha256(platform:external_id)`
+  when the external id is set and non-blank, else `sha256(canonical URL)`.
+  The canonical URL mirrors UAA `core/identity.py` in full: lowercase scheme
+  and host only, userinfo preserved, fragment + default ports + trailing slash
+  removed (except host root), `utm_*`/tracking keys stripped case-insensitively
+  while **kept keys keep their original case** (e.g. `jobId`), remaining query
+  pairs sorted by key then value. Fixed golden SHA-256 vectors pin this in
+  `tests/test_identity_golden_contract.py`.
+- **Safe external-ID normalization** — the raw external id accepts non-boolean
+  strings and integers (`512492` and `"512492"` produce the same identity,
+  and `"0"`/`0` are valid ids, never lost to truthiness). Whitespace-only
+  values, `None`, booleans, dicts, lists, and other unsupported types are
+  treated as **absent**: identity falls back to the canonical URL and the
+  emitted `external_job_id` is `null` — the export never crashes on a bad id
+  and never emits a field UAA would reject.
+- **Truthful candidate snapshot** — `metadata.candidate_profile` carries only
+  values explicitly present in `config/profile.yml`. Absent/null/blank values
+  are omitted; `requires_sponsorship` is exported only when the profile
+  explicitly stores a real boolean; nothing is invented (no `website`,
+  `work_authorization`, or `years_of_experience`, and no forced `False`).
+- **Never invents facts** — missing company/title skips the job rather than
+  emitting `"Unknown"`, and `tailored_at` is not fabricated (the current
+  pipeline never persists it).
+
+Export only happens after the evaluation stage succeeded (`run_all.py` skips
+it in `--dry-run`, `--scan-only`, and no-new-jobs paths). You can also run the
+export standalone:
+
+```bash
+python run_export_queue.py                          # default: data/application_queue.jsonl
+python run_export_queue.py --threshold 4.0          # override threshold for this run
+python run_export_queue.py --output /custom/path.jsonl
+```
+
+Set the destination under `queue_export.output_path` in `config/profile.yml`
+(default `data/application_queue.jsonl`).
+
+**Known limitations (WQ-2):** this pipeline has no standalone
+document-generation stage — tailored CV and cover letter are generated inside
+`run_evaluate.py` when the score clears the threshold. Evaluations are now
+persisted to `data/evaluations.json` **after** document generation so the
+record carries the produced PDF paths. A **partial candidate snapshot** is
+safe but may cause UniversalAutoApplier to raise interventions for missing
+facts (e.g. visa/sponsorship): JobHunter deliberately never answers with
+invented values, and solving UAA's profile-merging behavior is a UAA-side
+workpackage. Nothing in this repository consumes the queue yet; importing it
+into UniversalAutoApplier is a later workpackage.
+
+## Architecture
+
+```
+job_apply/
+├── agents/                    # AI Agent Layer
+│   ├── evaluator.py           #   Job scoring (5 dimensions + German detection)
+│   ├── cv_tailor.py           #   JSON-patch CV adaptation
+│   ├── cover_letter.py        #   Cover letter generation
+│   ├── google_client.py       #   Google AI Studio (2-key rotation)
+│   ├── smart_router.py        #   Multi-provider AI routing
+│   └── openrouter_client.py   #   OpenRouter (4-key rotation)
+├── scanners/                  # Data Collection Layer
+│   ├── jobspy_scanner.py      #   Indeed/LinkedIn/Google Jobs via python-jobspy
+│   ├── bridge.py              #   Filter → Dedup → Pipeline writer + JD cache
+│   ├── workday.py             #   Direct Workday/SmartRecruiters API
+│   └── base.py                #   Base scanner interface
+├── utils/                     # Utility Layer
+│   ├── telegram.py            #   Push notifications + file attachments
+│   ├── pdf_generator.py       #   WeasyPrint PDF with table date layout
+│   ├── excel_export.py        #   XLSX export with color-coded scores
+│   ├── jd_cache.py            #   Cache JDs from scan time (solves Indeed 403)
+│   ├── jd_fetcher.py          #   Fetch job descriptions via HTTP/Playwright
+│   ├── filters.py             #   Title and location filtering
+│   ├── dedup.py               #   URL + company/role deduplication
+│   └── queue_exporter.py      #   Atomic, deterministic application queue export
+├── config/
+│   ├── profile.yml            #   Candidate info, skills, thresholds
+│   └── portals.yml            #   Search queries and job sites
+├── data/
+│   ├── pipeline.md            #   Job queue ([ ] pending, [x] checked)
+│   ├── jd_cache.json          #   Cached job descriptions
+│   ├── jobs_database.xlsx     #   All evaluated jobs (Excel)
+│   ├── below_threshold.md     #   Low-scoring jobs for review
+│   ├── applications.md        #   Evaluation tracker
+│   ├── application_queue.jsonl #   UAA-ready queue (written atomically)
+│   └── scan-history.tsv       #   All seen jobs with status
+├── output/                    #   Generated CVs (.md + .pdf) and cover letters
+├── reports/                   #   Evaluation reports per job
+├── tests/                     #   180 tests (dedup, filters, bridge, German policies, queue export)
+├── cv.md                      #   Your base CV (see format above)
+├── .env.example               #   Template for API keys
+├── run_scan.py                #   Scanner entry point
+├── run_evaluate.py            #   Evaluator entry point
+├── run_all.py                 #   Full pipeline (scan + evaluate + export queue)
+└── requirements.txt
+```
+
+## AI Routing Strategy
+
+The system uses multiple API keys from different free accounts to maximize daily quotas. When one key hits its rate limit, the system automatically rotates to the next.
+
+| Task | Primary Provider | Fallback |
+|------|-----------------|----------|
+| **Evaluation** | Google AI Studio (Gemma 4 26B) | Gemma 4 31B → next key → OpenRouter |
+| **CV Tailoring** | OpenRouter (multi-key rotation) | Key1 → Key2 → Key3 → Key4 |
+| **Cover Letter** | OpenRouter (multi-key rotation) | Same rotation |
+
+> 💡 **The more accounts/keys you add, the higher your daily quota.** Check your limits at [aistudio.google.com](https://aistudio.google.com) and [openrouter.ai](https://openrouter.ai).
+
+## CV Tailoring Strategy
+
+The AI uses a **JSON-patch approach** — it proposes specific edits and the code applies them:
+
+- **Modified by AI:** Subtitle, Objective, Technical Skills order, Experience bullets, Projects selection
+- **Never touched:** Education, Certifications, Languages, Header/Contact info, Dates, Company names
+
+This prevents hallucination and keeps your CV consistent.
+
+## German Language Detection
+
+Jobs are classified into 4 levels:
+
+| Level | German Required? | Example Phrases |
+|-------|-----------------|------------------|
+| **none** | No | No mention of German |
+| **A1-A2** | No | "German is a plus", "Grundkenntnisse Deutsch" |
+| **B1** | Yes | "Deutschkenntnisse B1" |
+| **B2+** | Yes | "fliessende Deutschkenntnisse", "gute Deutschkenntnisse" |
+
+Generic phrases like "gute Deutschkenntnisse" are classified as B2+ and rejected by default.
+
+### German Filter Policies
+
+Set the default in `config/profile.yml` under `evaluation.german_filter`, or override per run with `--german-policy`:
+
+| Policy | Behavior |
+|--------|----------|
+| `reject_b1_plus` | **(Default)** Reject B1 and B2+. Only A1-A2 or no German pass through. |
+| `reject_b2_plus_only` | Reject only B2+. B1 jobs are kept. |
+| `reject_unless_bilingual` | Reject German jobs **unless** the JD also mentions English as a requirement. If both German and English are listed, the job is kept. |
+| `accept_all` | Don't auto-reject any German level. |
+
+## Excel Database
+
+All evaluated jobs are tracked in `data/jobs_database.xlsx`:
+- Auto-updated after each evaluation
+- Color-coded scores (green ≥4.0, yellow ≥3.5, orange ≥3.0, red <3.0)
+- Deduplicated by URL
+- Includes all 5 scoring dimensions + reasoning
+
+## Docker (Automated Scheduling)
+
+```bash
+docker-compose up -d
+```
+
+Runs `run_all.py` every 6 hours automatically.
+
+## License
+
+MIT

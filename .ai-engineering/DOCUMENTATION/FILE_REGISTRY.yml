@@ -1,0 +1,1627 @@
+# File registry (spec 10.1). One entry per maintained file. Validated by SCRIPTS/documentation/check_registry.py.
+# provenance generated-unreviewed = scanner-derived facts; reviewed = confirmed by a reader. See QUALITY/registry_schema.yml.
+files:
+  - path: ".ai-engineering/AGENTS/HANDOFF_AND_RESUME.md"
+    type: "md"
+    purpose: "Handoff and Resume Protocol"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "88ecca4a28b729f66235023f6999535752a61c6b87d5171d190d6acd1b65e744"
+    untrusted_input: false
+  - path: ".ai-engineering/AGENTS/IMPLEMENTER.md"
+    type: "md"
+    purpose: "Implementer Role Contract"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "e8fbdd4597bd8f5e3dec1c781222e8acc2a0b6f073750280605564acf7472fd0"
+    untrusted_input: false
+  - path: ".ai-engineering/AGENTS/REVIEWER.md"
+    type: "md"
+    purpose: "Reviewer Role Contract"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "850d9d9fa245faed02c2dd980d3c1424594e484c525ac6fdc7b75d5f8957d6af"
+    untrusted_input: false
+  - path: ".ai-engineering/AGENTS/UNIVERSAL_AGENT.md"
+    type: "md"
+    purpose: "Universal Agent Protocol"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "2f9759952affb262c8948cd54053c9c547b76806e8dd0963f00ad7df1720edee"
+    untrusted_input: false
+  - path: ".ai-engineering/AGENTS/adapters/gemini-cli.md"
+    type: "md"
+    purpose: "Gemini CLI adapter document: how GEMINI.md imports AGENTS.md, the loading mechanism verified 2026-11-11 from official documentation, how to confirm it loaded (/memory show), caveats, live conformance status (not_run). Loading facts only, no policy."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "f4f79f47924daaac5924258e8e148353885d2704a27c227ddf4389f235b6aa2b"
+    untrusted_input: false
+  - path: ".ai-engineering/AGENTS/adapters/kiro.md"
+    type: "md"
+    purpose: "Kiro adapter document: how Kiro reads the root AGENTS.md, the loading mechanism verified 2026-11-11 from official documentation, caveats (custom agents do not auto-load steering, symlinks), live conformance status (not_run). Loading facts only, no policy."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "5536dee9c87783f495ac262e85d14e765bbc8d14602d80b19e8316564005047d"
+    untrusted_input: false
+  - path: ".ai-engineering/AGENTS/adapters/opencode.md"
+    type: "md"
+    purpose: "OpenCode adapter document: how OpenCode reads the root AGENTS.md, the loading mechanism verified 2026-11-11 from official documentation, caveats (read-by-instruction, optional opencode.json instructions not used), live conformance status (not_run). Loading facts only, no policy."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "8a743ba7dc239ff6009d96b72fb71e705071366bd15c2d973887514fd8e5b170"
+    untrusted_input: false
+  - path: ".ai-engineering/CONFIG/command_profiles.yml"
+    type: "yml"
+    purpose: "Command profiles - JobHunter (spec v0.1, sections 5.2 and 15)"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "a3ed1e0ae6ac683529615d038fc61db70c9e1a268389c5088e21bbf5e003d056"
+    untrusted_input: false
+  - path: ".ai-engineering/CONFIG/framework.yml"
+    type: "yml"
+    purpose: "AI Engineering Framework - framework settings (spec v0.1, section 4)"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "5cf2f038a177a736ee012e3f6ab5951ef9c20649d57ee6be3d67be2c8fc9ec8c"
+    untrusted_input: false
+  - path: ".ai-engineering/CONFIG/model_profiles.yml"
+    type: "yml"
+    purpose: "Model profiles (spec v0.1, section 6.3) - ADVISORY ONLY."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "bdbe88a9822f8a95915584cb01130ee7fbfbdfcd60f81fcf17da0a993556f213"
+    untrusted_input: false
+  - path: ".ai-engineering/CONFIG/project_contract_map.yml"
+    type: "yml"
+    purpose: "Project contract map - JobHunter (spec v0.1, sections 5.1 and 5.3)"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "6b691a0d469d01801575ebe41fec0e685e4f54830f78d76dd1eaabf862c16b6d"
+    untrusted_input: false
+  - path: ".ai-engineering/CONFIG/project_profile.yml"
+    type: "yml"
+    purpose: "Project profile - JobHunter (spec v0.1, section 5.2)"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "30e765246238e7903b69c6f2bb98b1f4268496de84146d4da75ebe24acd9345d"
+    untrusted_input: false
+  - path: ".ai-engineering/CORE/definition_of_done.md"
+    type: "md"
+    purpose: "Definition of Done"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "de9f00c5d745e18465c5158bfe25b0a913e2c566e6127257b0ac319ba345bb17"
+    untrusted_input: false
+  - path: ".ai-engineering/CORE/engineering_constitution.md"
+    type: "md"
+    purpose: "Engineering Constitution"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "70c55ab10f929429c9d2900e7506b4ef328cb9999a55e709eb449bdb6d20c71d"
+    untrusted_input: false
+  - path: ".ai-engineering/CORE/evidence_and_claims.md"
+    type: "md"
+    purpose: "Evidence and Claims Policy"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "c6c72e4c6f1bab3d04a7c2775e4f3b990c470bb46b80b03f4724376b48664ed5"
+    untrusted_input: false
+  - path: ".ai-engineering/CORE/universal_standards.md"
+    type: "md"
+    purpose: "Universal Standards"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "3b0ddaf8f7536e68f9e4910228fd1b6be54f7c6839e24b0a21ad78416f4ecb97"
+    untrusted_input: false
+  - path: ".ai-engineering/DOCUMENTATION/FEATURE_REGISTRY.yml"
+    type: "yml"
+    purpose: "Feature registry (spec 10.2). Validated by SCRIPTS/documentation/check_registry.py."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "0559c5a9ae8b0eee43e52bb6438712911f57570a36ce8011734a9b8acd33e90c"
+    untrusted_input: false
+  - path: ".ai-engineering/DOCUMENTATION/FILE_REGISTRY.yml"
+    type: "yml"
+    purpose: "File registry (spec 10.1). One entry per maintained file. Validated by SCRIPTS/documentation/check_registry.py."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "822ce945ddb32c5cfef7fd46610db4991f5f04407107cf80eefdd77657799142"
+    untrusted_input: false
+  - path: ".ai-engineering/DOCUMENTATION/features/F-01_scan-filter-dedup.md"
+    type: "md"
+    purpose: "F-01 - Job scanning, filtering and de-duplication"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "230811598a62eb36a7f9e3607abb8f724adea07bceec92a71d1f1ea081db742e"
+    untrusted_input: false
+  - path: ".ai-engineering/DOCUMENTATION/features/F-02_ai-scoring-evaluation.md"
+    type: "md"
+    purpose: "F-02 - AI scoring and evaluation"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "9a0431e6317d9c5e8149b8fd39c204cba7faf252443af70be4b63dd9788d3b60"
+    untrusted_input: false
+  - path: ".ai-engineering/DOCUMENTATION/features/F-03_ai-provider-routing.md"
+    type: "md"
+    purpose: "F-03 - Multi-provider AI routing and key rotation"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "89b291716c80686b635fe95794f286b9833d202a96ac1732149ae24a749fbbd4"
+    untrusted_input: false
+  - path: ".ai-engineering/DOCUMENTATION/features/F-04_cv-tailoring.md"
+    type: "md"
+    purpose: "F-04 - CV tailoring (JSON patch)"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "e09174b3d4860be342c48c619a5310aaaf7e6aa8ff793fead45c41c814fa2194"
+    untrusted_input: false
+  - path: ".ai-engineering/DOCUMENTATION/features/F-05_pdf-generation.md"
+    type: "md"
+    purpose: "F-05 - PDF CV generation"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "02d8d191b50bcfcd18cff629076cd3521bce164dffbd65a42cd386bc9dc12f9d"
+    untrusted_input: false
+  - path: ".ai-engineering/DOCUMENTATION/features/F-06_cover-letters.md"
+    type: "md"
+    purpose: "F-06 - Cover letter generation"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "fd11295c51d17338ecbc1e91f9b4d8e009bb264d45b2993a419a0f42ef3ca17d"
+    untrusted_input: false
+  - path: ".ai-engineering/DOCUMENTATION/features/F-07_notifications-and-records.md"
+    type: "md"
+    purpose: "F-07 - Telegram notifications, Excel database and description cache"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "affa5c610cbeb2ffecd8a3a4fdb0448a17157d8933914f622f8268af91035db8"
+    untrusted_input: false
+  - path: ".ai-engineering/DOCUMENTATION/features/F-08_uaa-queue-export.md"
+    type: "md"
+    purpose: "F-08 - UniversalAutoApplier queue export"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "4baa38ee628b4f54f1bcaa35bcd37c0a417b60f0a3d987a30e0faf72e071a3dc"
+    untrusted_input: false
+  - path: ".ai-engineering/DOCUMENTATION/features/F-09_pipeline-cli-and-health.md"
+    type: "md"
+    purpose: "F-09 - Pipeline CLI orchestration, health and source check"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "2496d37223f0a5f65853cfcb77119fb428af07c5894874ac04487ec1f92e99f5"
+    untrusted_input: false
+  - path: ".ai-engineering/DOCUMENTATION/features/F-10_local-app.md"
+    type: "md"
+    purpose: "F-10 - Local JobHunter app (ranked jobs, per-job actions)"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "aa97d3b80998e5ea8c88819924369ab19ed84e5c76f4d6cc8b8c2bb6fea3f660"
+    untrusted_input: false
+  - path: ".ai-engineering/MEMORY/COMPLETED_WORK.md"
+    type: "md"
+    purpose: "Completed Work (append-only)"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "94b9775653d73900c1f449bbdd92bcaf805b64150566c3d84077e199fa3e2279"
+    untrusted_input: false
+  - path: ".ai-engineering/MEMORY/CURRENT_TASK.md"
+    type: "md"
+    purpose: "Current Task"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "5a223c99b60d34c107af17bf0008c3d48baca277be335887ad7cf37af2b2b995"
+    untrusted_input: false
+  - path: ".ai-engineering/MEMORY/KNOWN_ISSUES.md"
+    type: "md"
+    purpose: "Known Issues"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "9e2a0f0730d371371e031747e0aa49ade83c6a0dd1d8ea85a77f0c9dfccf47b9"
+    untrusted_input: false
+  - path: ".ai-engineering/MEMORY/PROJECT_STATE.yml"
+    type: "yml"
+    purpose: "Project state (spec 9.1). References authoritative documents; never copies decisions."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "dab01242f2c5645faab9f65ad572d3733c341ebc73e055b815755261df2413fb"
+    untrusted_input: false
+  - path: ".ai-engineering/MEMORY/RECENT_FAILURES.md"
+    type: "md"
+    purpose: "Recent Failures"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "95dd6a7164e9a4ea627fc8c073abf5008d9749d882f5c7d6b67ebdd304c36027"
+    untrusted_input: false
+  - path: ".ai-engineering/QUALITY/adapter_conformance.md"
+    type: "md"
+    purpose: "Adapter conformance suite: separates the static layer (check_adapters.py, automated-test) from live CLI sessions, defines tests C1-C6 (load canary, bootstrap order, scope discipline, fail-closed reporting, handoff write, resume on a different CLI with a planted discrepancy) with expected results and the live-verification record format. Live runs are not_run."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "f2740a76f992e884770f344c74a3b8df6e12ed8eceea245b39625323e733dbcc"
+    untrusted_input: false
+  - path: ".ai-engineering/QUALITY/checkpoint_schema.yml"
+    type: "yml"
+    purpose: "Checkpoint / handoff schema (spec 9.2). Used by SCRIPTS/memory/check_memory.py."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "9deff54df04dc73b63ec46039f03879452d722fe09e0824300a3ded2eff83566"
+    untrusted_input: false
+  - path: ".ai-engineering/QUALITY/evidence_schema.yml"
+    type: "yml"
+    purpose: "Evidence schema (spec v0.1, sections 11.2 and 9.2; evidence_and_claims.md)"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "10020b8bfeef2a6a4063121d404c0c02288c2924830a6e8fe65921ef19930a58"
+    untrusted_input: false
+  - path: ".ai-engineering/QUALITY/quality_gates.md"
+    type: "md"
+    purpose: "Quality gates: runner reference"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "9710b64fc29b56ce5e6db984c0152670cbb045297b6580db7e6b288dfb2a1f78"
+    untrusted_input: false
+  - path: ".ai-engineering/QUALITY/registry_schema.yml"
+    type: "yml"
+    purpose: "Documentation registry schema (spec 10; roadmap Phase C). Used by SCRIPTS/documentation/check_registry.py."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "294a3db04eecab97b564a17b25cea6f3544081083b3e3f39e7d1a1da1595d55f"
+    untrusted_input: false
+  - path: ".ai-engineering/README.md"
+    type: "md"
+    purpose: "AI Engineering Framework - installation for JobHunter"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "c9feb49ab352698fbe6cbad3db998f62e90b7ac003a4672b216244f68bdb1742"
+    untrusted_input: false
+  - path: ".ai-engineering/SCRIPTS/adapters/check_adapters.py"
+    type: "py"
+    purpose: "Static adapter checker. Run: python -I .ai-engineering/SCRIPTS/adapters/check_adapters.py check [--strict]. Verifies the root AGENTS.md and GEMINI.md exist, are thin and UTF-8 without BOM, point to real canonical files in order, copy or weaken no policy, do not double-load, use no symlinks, and that no CLI is recorded as conformant without a live-verification evidence file. Always prints the live CLI status; a static pass is not live evidence."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "04bc2bbfd77e388605ad7a06323738bc049db9fdfab0d587c0da02bf049721ba"
+    untrusted_input: false
+    interfaces: ["rd", "canon_lines", "norm", "policy_free", "no_symlink", "check_entry", "gemini_names", "check_gemini", "check_other_surfaces", "adapter_status", "check_adapter_docs", "check_evidence"]
+    side_effects: ["none-detected"]
+  - path: ".ai-engineering/SCRIPTS/adapters/test_check_adapters.py"
+    type: "py"
+    purpose: "Tests for check_adapters.py. Run: python -I .ai-engineering/SCRIPTS/adapters/test_check_adapters.py Each test copies the entry files, the framework and the governance paths the entry file references into a throw-away directory, introduces ONE deliberate violation (or one legitimate variation) and asserts the checker's verdict. No Git repository is needed. All results are 'automated-test' evidence. They show the STATIC layer works; they say nothing about whether Kiro, Gemini CLI or OpenCode load the contract."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "44d12cdc1aa2032365dc92620f55f112e4491e1749b1ba9c754fbedbee61b00c"
+    untrusted_input: false
+    interfaces: ["Base", "EntryFileTests", "PolicyLeakTests", "GeminiTests", "OtherSurfaceTests", "AdapterDocumentTests", "FailClosedTests"]
+    side_effects: ["filesystem-write", "subprocess"]
+  - path: ".ai-engineering/SCRIPTS/bootstrap/install_framework.py"
+    type: "py"
+    purpose: "Installs the framework into another project: copies the project-neutral parts, generates blank configuration, memory and registries with every owner decision set to pending_owner, never overwrites an existing AGENTS.md or GEMINI.md (writes .aef-proposed), and registers the target's files as generated-unreviewed."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "f4494fa581573ed968f7c853189bf4ba791623d2fb26c04a830952651ed83cf5"
+    untrusted_input: false
+    interfaces: ["git", "write", "install", "main"]
+    side_effects: ["filesystem-write", "subprocess"]
+  - path: ".ai-engineering/SCRIPTS/bootstrap/test_install_framework.py"
+    type: "py"
+    purpose: "Tests for the installer on throw-away toy projects: fresh install, refusal to overwrite, --force keeps project state, migration keeps existing agent files, nothing guessed, unusual paths, gates run outside JobHunter. Linux only."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "1819ef7745a51cbbd168ab86f72a60f123ab8c85896ffcb7cb6bec89df624280"
+    untrusted_input: false
+    interfaces: ["sh", "Toy", "InstallTests", "UnusualPathTests"]
+    side_effects: ["filesystem-write", "subprocess"]
+  - path: ".ai-engineering/SCRIPTS/documentation/check_registry.py"
+    type: "py"
+    purpose: "Documentation registry scanner and stale-entry checker (spec 10, roadmap Phase C)."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "7cc27fd92c7f070480ebe1480093b2dfeace213a656db5842cfd680c02cf72cd"
+    untrusted_input: false
+    interfaces: ["dump_entry", "write_registry", "sha", "glob_match", "excluded", "maintained_files", "rule_for", "py_facts", "other_purpose", "test_refs", "skeleton", "load_all"]
+    side_effects: ["network", "filesystem-write", "subprocess", "environment"]
+  - path: ".ai-engineering/SCRIPTS/documentation/test_check_registry.py"
+    type: "py"
+    purpose: "Tests for check_registry.py. Run: python -I .ai-engineering/SCRIPTS/documentation/test_check_registry.py Each test copies the repository (tracked files + .ai-engineering) into a throw-away Git repo, introduces ONE deliberate violation and asserts the checker reports it. Label: automated-test."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "e423469f847f2168248a1aa735f03414fb12f30e9c08d89e2eb10b3beadac166"
+    untrusted_input: false
+    interfaces: ["run", "Base", "RegistryTests", "FeatureTests", "ChangeSetTests", "TraceTests"]
+    side_effects: ["filesystem-write", "subprocess"]
+  - path: ".ai-engineering/SCRIPTS/memory/check_memory.py"
+    type: "py"
+    purpose: "Validate AI Engineering Framework memory records (spec 9, roadmap Phase B)."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "c7e0b0bfad9311316ade2265bb1f04763a18418bc379faa416f6797f6be0366f"
+    untrusted_input: false
+    interfaces: ["parse_yaml_subset", "load_yaml", "Findings", "git", "repo_root", "known_wp_ids", "task_id_ok", "check_task_ref", "check_state", "sections", "bold_fields", "claimed_paths"]
+    side_effects: ["subprocess"]
+  - path: ".ai-engineering/SCRIPTS/memory/test_check_memory.py"
+    type: "py"
+    purpose: "Tests for check_memory.py. Run: python -I .ai-engineering/SCRIPTS/memory/test_check_memory.py Each test builds a throw-away Git repository holding a copy of the framework and the governance documents, introduces ONE deliberate violation and asserts it is detected. All results are 'automated-test' evidence; the CLI-switch scenario is a SIMULATION (two sequential script invocations), not a run through two real coding CLIs."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "73bfbd479841da42f6b545f7506a866147910bb63652d083a9bb1c27699d7515"
+    untrusted_input: false
+    interfaces: ["run", "Base", "StateTests", "HandoffTests", "CliTests", "SubsetParserTests"]
+    side_effects: ["filesystem-write", "subprocess"]
+  - path: ".ai-engineering/SCRIPTS/stress/test_scenarios.py"
+    type: "py"
+    purpose: "Phase F stress suite: stages each of the 15 scenarios of spec section 16 (successful feature, defect with failing-before regression test, skipped tests, skipped reported as passed, quota interruption and switch, handoff versus git, undocumented file, stale feature doc, UI viewports, high-risk operations without approval, unresolved decision, pre-existing failure versus regression, fake live verification, missing service, Windows and encoding edge cases) against the real scripts in a throw-away Git repository. Harness only: proves detection, not agent behaviour."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "3814d0fe196160bce921516ecea0b211f4397e438b11ae5af4d90200b056711d"
+    untrusted_input: false
+    interfaces: ["git", "png", "Scenario", "S01SimpleFeature", "S02DefectRegression", "S03SkippedTests", "S04SkippedReportedAsPassed", "good_handoff", "S05_06Handoff", "S07_08Documentation", "S09UiValidation", "S10Approvals"]
+    side_effects: ["filesystem-write", "subprocess", "environment"]
+  - path: ".ai-engineering/SCRIPTS/validation/run_gates.py"
+    type: "py"
+    purpose: "Quality-gate runner and evidence tools (spec 11, roadmap Phase D). Standard library only."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "145501647d1f7a27addf5088050ba2739739eb5d1459fc97003b0c4221733dc9"
+    untrusted_input: false
+    interfaces: ["now", "load", "redact", "source_fingerprint", "head", "safe", "write_record", "read_record", "base_record", "cmd_run", "line_count", "cmd_mustkeep"]
+    side_effects: ["filesystem-write", "subprocess", "environment"]
+  - path: ".ai-engineering/SCRIPTS/validation/test_run_gates.py"
+    type: "py"
+    purpose: "Tests for run_gates.py. Run: python -I .ai-engineering/SCRIPTS/validation/test_run_gates.py Each test copies the repository (tracked files + .ai-engineering) into a throw-away Git repo, swaps in trivial project commands (so no real test suite is invoked) and checks one behaviour. Label: automated-test. The browser/UI test uses a generated PNG, not a real browser."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "7da53aa5102329bc79938a1a9998336ae0b4fb165ca731b9cd7fe1ea75eafdd1"
+    untrusted_input: false
+    interfaces: ["git", "png", "Base", "RunTests", "EvidenceValidationTests", "CloseCheckTests", "MustKeepTests", "ProtectedTests", "ReviewTests", "UiTests", "DocsGateAndBaselineTests"]
+    side_effects: ["filesystem-write", "subprocess"]
+  - path: ".ai-engineering/WORKFLOW/browser_ux_workflow.md"
+    type: "md"
+    purpose: "Browser / UX evidence workflow (spec 11.1, roadmap Phase D)"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "b5a749e23482c0549e6db3b4a4fd514a2a0490e3f155b1a5fa0a3962a6edee01"
+    untrusted_input: false
+  - path: ".ai-engineering/WORKFLOW/current_task_template.md"
+    type: "md"
+    purpose: "Current Task"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "5c2388b771ed53f4114767b60f395fbbf6cae0cead0d561a3e6a1e1690d4b502"
+    untrusted_input: false
+  - path: ".ai-engineering/WORKFLOW/defect_repair.md"
+    type: "md"
+    purpose: "Defect repair protocol (spec 11.3, operational)"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "7889b995b57a8135911feb1eabcd33b951bcfd1583b57088e7a5581dfffac0dc"
+    untrusted_input: false
+  - path: ".ai-engineering/WORKFLOW/handoff_protocol.md"
+    type: "md"
+    purpose: "Handoff protocol (operational summary)"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "6b131f8f9173d5934fc8a6cf541f29c8b93a2f133aadbc925a398acbccc5a237"
+    untrusted_input: false
+  - path: ".ai-engineering/WORKFLOW/handoff_template.md"
+    type: "md"
+    purpose: "Handoff Record"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "bff67dde4db022e85be9534a1bc3e5aeb8772e2b60a3f4de7251ed9342be8290"
+    untrusted_input: false
+  - path: ".ai-engineering/WORKFLOW/installation_and_migration.md"
+    type: "md"
+    purpose: "Guide for installing the framework into a new or existing project and migrating existing agent instruction files: what the installer does and does not do, the owner's steps, upgrade procedure and the known limits of the template."
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "e1963253cf5e3d0d46832d3640ec1019d5d87cbd1060540cdf92e4755d4355f3"
+    untrusted_input: false
+  - path: ".env.example"
+    type: "example"
+    purpose: "Template listing the credential variable names expected in .env; placeholders only"
+    component: "repository-root"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "ad8d29078ef70955decb6377c80b2e39dd3daec9041cd70c4230bcc0970f9a3c"
+    untrusted_input: false
+  - path: ".gitignore"
+    type: ".gitignore"
+    purpose: "Git ignore rules keeping .env, data, output, reports, logs and caches out of the repository"
+    component: "repository-root"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "dc5e7bb89c418c03a79bda953a51dd2e5766309b653e3b6a37a9af042e001571"
+    untrusted_input: false
+  - path: "AGENTS.md"
+    type: "md"
+    purpose: "Thin loader at the repository root, read natively by Kiro and OpenCode (and by Gemini CLI through GEMINI.md): lists the canonical framework files in reading order, the project context files, the role contracts, bootstrap/resume pointers and where records go. States no policy. Carries the AEF-ADAPTER-MARKER line used by conformance test C1."
+    component: "repository-root"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "8fce5ab711c944c8160fcae54a960c24a9a2c66a4e47872e56d57f378da069f2"
+    untrusted_input: false
+  - path: "CV_Example.py"
+    type: "py"
+    purpose: "Standalone sample script that renders a hard-coded HTML CV to PDF with WeasyPrint; no module in the repository imports it"
+    component: "cli-entrypoints"
+    classification: "S4"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "dec11c2dbec570b5521b4a1f1fdab70e78ca4d52848743e8445d0029140b9cc3"
+    untrusted_input: false
+    side_effects: ["none-detected"]
+    notes: "Contains the owner's real contact details in a tracked file (GOV-03: contact data belongs in an untracked file; fixed by WP-00-02). docs/01 RC list marks it REFACTOR to examples/."
+    features: ["F-05"]
+  - path: "Dockerfile"
+    type: "dockerfile"
+    purpose: "Container image definition (python:3.12-slim plus system dependencies) for scheduled runs"
+    component: "repository-root"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "1ec8ccc2af221f8bdd26aae8180a484b11d8de5905943556076be23742c68168"
+    untrusted_input: false
+  - path: "GEMINI.md"
+    type: "md"
+    purpose: "Gemini CLI loader: one import line (@./AGENTS.md) so Gemini CLI reads the same canonical instructions as the other agents. States no policy."
+    component: "repository-root"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "9e69fddb10a483812bd0a2348c84ef7c134635cdf9f6afd43cc6d6d921a46f0e"
+    untrusted_input: false
+  - path: "README.md"
+    type: "md"
+    purpose: "JobHunter — Autonomous Job Search Pipeline"
+    component: "repository-root"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "bc8a96f5231c7c7d3f3fdf493913538d6f3116c55da8f37698efec0e956e8352"
+    untrusted_input: false
+  - path: "agents/__init__.py"
+    type: "py"
+    purpose: "Package marker"
+    component: "ai-agents"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "292e5568623e68f22bdeb569fc3930b8d353b6e7c21d48a85360bd82e4ec9413"
+    untrusted_input: true
+    side_effects: ["none-detected"]
+  - path: "agents/cover_letter.py"
+    type: "py"
+    purpose: "Cover Letter agent — generates a targeted cover letter for a specific job."
+    component: "ai-agents"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "2d0e47bd59de1d3ce8c14552826d6dcff20c868a685d38fc88ff62cdc6a227b7"
+    untrusted_input: true
+    interfaces: ["CoverLetterWriter"]
+    side_effects: ["filesystem-write"]
+    features: ["F-06"]
+  - path: "agents/cv_tailor.py"
+    type: "py"
+    purpose: "CV Tailor agent — adapts the base CV for specific job postings."
+    component: "ai-agents"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "a943d16781f7a34d31f3b998923e4eb8a043049d361c12af693c820f53c89ec9"
+    untrusted_input: true
+    interfaces: ["CVTailor"]
+    internal_imports: ["utils.json_extract"]
+    side_effects: ["filesystem-write"]
+    features: ["F-04"]
+  - path: "agents/evaluator.py"
+    type: "py"
+    purpose: "Evaluator agent — scores a job posting against the candidate's CV."
+    component: "ai-agents"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "57140cd54a5981a049b1ee22705455d50b6a323df9eec0c3c1a2a8b01937cb1b"
+    untrusted_input: true
+    interfaces: ["Evaluator"]
+    internal_imports: ["utils.json_extract"]
+    side_effects: ["filesystem-write"]
+    features: ["F-02"]
+  - path: "agents/google_client.py"
+    type: "py"
+    purpose: "Google AI Studio client for Gemma models."
+    component: "ai-agents"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "6ec2d3d46ee852b08e0a4ce35ca3ab964b2034d4ab8eb616f0694a4e64c39c0d"
+    untrusted_input: true
+    interfaces: ["GoogleAIResponse", "GoogleAIClient", "test_google_connection"]
+    side_effects: ["environment"]
+    features: ["F-03"]
+  - path: "agents/openrouter_client.py"
+    type: "py"
+    purpose: "OpenRouter API client."
+    component: "ai-agents"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "756d9fafa7cf8c4390ef3f4dd9a935e0d0cc57a916c10c5153d74eec33e4e83a"
+    untrusted_input: true
+    interfaces: ["ChatResponse", "OpenRouterClient", "test_connection"]
+    side_effects: ["network", "environment"]
+    features: ["F-03"]
+  - path: "agents/smart_router.py"
+    type: "py"
+    purpose: "Smart AI Router — orchestrates across multiple providers and API keys."
+    component: "ai-agents"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "641e863bd15a57f9847a30b5c0c3b1f12a020703de779d2ce670f7cc99c57962"
+    untrusted_input: true
+    interfaces: ["SmartResponse", "SmartRouter"]
+    internal_imports: ["agents.google_client"]
+    side_effects: ["network", "environment"]
+    features: ["F-03"]
+  - path: "config/portals.yml"
+    type: "yml"
+    purpose: "Scanner configuration: title and location filters, tracked companies, JobSpy searches, extra sources"
+    component: "configuration"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "4eea41d2ac2156bb71e88bdbbdc2570576249aa3d180ed997e41050f77a5ee51"
+    untrusted_input: false
+    features: ["F-01"]
+  - path: "config/profile.yml"
+    type: "yml"
+    purpose: "Candidate profile and evaluation/AI settings read by the pipeline"
+    component: "configuration"
+    classification: "S4"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "b93bc4768385baef8c24346b94e71a8dad30378313fa49c302b9de1eadfe0ff7"
+    untrusted_input: false
+    notes: "Contains the owner's real contact details in a tracked file (GOV-03 section 4 'Contact data'; fixed by WP-00-02, which moves them to an untracked file with a tracked example)."
+  - path: "docker-compose.yml"
+    type: "yml"
+    purpose: "Compose service 'job-search': builds the image, loads .env, mounts data"
+    component: "repository-root"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "d3b2fe38564da5edba2fa97c8a81568cc06003fd7111336103ad502d44be74a6"
+    untrusted_input: false
+  - path: "docs/01_EXISTING_SYSTEM_ASSESSMENT.md"
+    type: "md"
+    purpose: "01 — Existing System Assessment"
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "eed87b71e79df7c596a87eb2de1a978ce80fcd29fc2d60cb3c617aea8c308d49"
+    untrusted_input: false
+  - path: "docs/02_DECISION_TO_ARCHITECTURE_TRACEABILITY.md"
+    type: "md"
+    purpose: "02 — Decision-to-Architecture Traceability"
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "a742f047200e1a6b1cfa9118e7a3ebab9960f120abca674fddaa9b4620583c8c"
+    untrusted_input: false
+  - path: "docs/03_TARGET_ARCHITECTURE.md"
+    type: "md"
+    purpose: "03 — Target Architecture"
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "a4e160968a4a1cecc6c1bc5be335378a9c03fd93fe0c693fd4a9936d35e5f58a"
+    untrusted_input: false
+  - path: "docs/04_DATA_AND_INTEGRATION_DESIGN.md"
+    type: "md"
+    purpose: "04 — Data and Integration Design"
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "be8b07c898099b11087153818f1f0a4429e84fe6a817245a0742f69caaa1e1a8"
+    untrusted_input: false
+  - path: "docs/05_USER_EXPERIENCE_AND_WORKFLOWS.md"
+    type: "md"
+    purpose: "05 — User Experience and Workflows"
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "7ef651c876878ec69e10d808fea3297f6a2c21c010f8bdbd7f33008cd834d148"
+    untrusted_input: false
+  - path: "docs/06_QUALITY_SECURITY_AND_OPERATIONS.md"
+    type: "md"
+    purpose: "06 — Quality, Security and Operations"
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "9224fb0ef46061a95120da93153fef1d70129f4303b0be53298a0f4a589f7db0"
+    untrusted_input: false
+  - path: "docs/07_IMPLEMENTATION_ROADMAP.md"
+    type: "md"
+    purpose: "07 — Implementation Roadmap"
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "fe4cae2a40d57d6d6f3252d9b9c617dd9513a5e9c04bc53e362cb6a66ad7bb8b"
+    untrusted_input: false
+  - path: "docs/08_REVISION_1_PLATFORM_SCOPE_AND_REVIEW_RESPONSE.md"
+    type: "md"
+    purpose: "08 — Revision 1: Platform Scope, Review Response and Comparison Findings"
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "8af8c3fb0c701cf6f885ff918bdf1bc63e98700ec5208b8b73ee8680910b1588"
+    untrusted_input: false
+  - path: "docs/09_REVIEW_AND_METHODOLOGY_SPECIFICATION.md"
+    type: "md"
+    purpose: "09 — Adversarial Review of the Plan and Methodology Specification"
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "d15cf51fd4c2f561c382c30921b5654668ba7fb26c882ae56c0cccc0e62dec1c"
+    untrusted_input: false
+  - path: "docs/10_METHODOLOGY_FEASIBILITY_REVIEW.md"
+    type: "md"
+    purpose: "10 — Methodology Feasibility Review"
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "6c85db1106bbed86c8aca1c489a6df60d45985c9074f1a06e592194cdd47bb5d"
+    untrusted_input: false
+  - path: "docs/FINAL_SYSTEM_STRATEGY_AND_DESIGN.md"
+    type: "md"
+    purpose: "JobHunter — Final System Strategy, Architecture and Technical Design"
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "ff44e7433fadcfb4603ae1491c0b815c902f34cedcef4e95419d9e44158ba7e0"
+    untrusted_input: false
+  - path: "docs/PROMPT.md"
+    type: "md"
+    purpose: "JobHunter — working prompt (contract version)"
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "43ff049a8c7afeaa407f7fed07d41063f1944a43ecec18e3ef79f01af090e178"
+    untrusted_input: false
+  - path: "docs/README.md"
+    type: "md"
+    purpose: "JobHunter documentation index"
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "b86f0b8964f4e3924cc26a89e9f7545335ab2bebea76da51bf63061a8f3268b8"
+    untrusted_input: false
+  - path: "docs/feasibility/exp1_resolver.py"
+    type: "py"
+    purpose: "Experiment 1: does ats_scrapers.resolve.resolve_careers_url recognise realistic URLs? Run: pip install ats-scrapers==0.3.0 beautifulsoup4 html2text ; python exp1_resolver.py URLs are hand-written in the shapes these providers use; they are NOT real tenants."
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "eb045f842a58432757ad177f65f6cccd7761692733700128c6952e8265c41d33"
+    untrusted_input: false
+    side_effects: ["none-detected"]
+  - path: "docs/feasibility/exp2_enrichment.py"
+    type: "py"
+    purpose: "Experiment 2: smoke-test the B10 enrichment rules as written in doc 09. PROTOTYPE ONLY. Test cases are hand-written by the designer, so passing proves the rules are *implementable*, not that they are *accurate* on real postings."
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "190261da20a130a25937884039c1ddd67f0c723b2c12eee4056ab56ee0f2d945"
+    untrusted_input: false
+    interfaces: ["lang", "num", "years", "seniority", "check"]
+    side_effects: ["none-detected"]
+  - path: "docs/feasibility/exp3_guard_sim.py"
+    type: "py"
+    purpose: "Experiment 3: simulate the closure guard (doc 09 B6) and the drift detector (B12). Synthetic boards: Poisson hiring, exponential job lifetimes, scans every 3 h. NOT real data; it tests whether the *rules* behave sensibly, not how real boards behave."
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "68d86bbcfeabc37e3244056bbec5d1bd3558a993e6936d62d04dd3add6ce95a5"
+    untrusted_input: false
+    interfaces: ["make_board", "run_policy", "experiment_guard", "drift", "experiment_drift"]
+    side_effects: ["none-detected"]
+  - path: "docs/governance/00_project_charter.md"
+    type: "md"
+    purpose: "00 — Project Charter"
+    component: "project-governance"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "fcc8d302a63f1774933ed7984a73e0957fc38e9d736711b28877417538066f8f"
+    untrusted_input: false
+  - path: "docs/governance/01_architecture_contract.md"
+    type: "md"
+    purpose: "01 — Architecture Contract"
+    component: "project-governance"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "f5695806dc5285427af4071e524e0e9b76e85635b4ebc079f4114333feb2ceb1"
+    untrusted_input: false
+  - path: "docs/governance/02_decision_log_and_scope.md"
+    type: "md"
+    purpose: "02 — Decision Log and Scope"
+    component: "project-governance"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "0e4b53dbc607891a152a5f6fa12b1b0a053f86dd747d7e14ce7452e3c0d12446"
+    untrusted_input: false
+  - path: "docs/governance/03_security_and_credentials.md"
+    type: "md"
+    purpose: "03 — Security and Credentials"
+    component: "project-governance"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "d9cba6aba41db6327f71f32b24eb1df40a09dd78c748a07969f38f21e397eba8"
+    untrusted_input: false
+  - path: "docs/governance/04_work_packages.md"
+    type: "md"
+    purpose: "04 — Work Packages"
+    component: "project-governance"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "012276b7f7cf25923775156997e20460bd4924ca3dd74ff75dd3a5e1dc04c6a8"
+    untrusted_input: false
+  - path: "docs/governance/05_validation_matrix.md"
+    type: "md"
+    purpose: "05 — Validation Matrix"
+    component: "project-governance"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "5bf0fcb06b531096a38def6bc950b535bf7913f75e23d659c94a2fb68a811a69"
+    untrusted_input: false
+  - path: "docs/governance/06_execution_plan.md"
+    type: "md"
+    purpose: "06 — Execution Plan"
+    component: "project-governance"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "0b79bfc89774a675664c2d717d26a332c186538aec4685cfd83b974ba2651502"
+    untrusted_input: false
+  - path: "docs/governance/07_demo_track.md"
+    type: "md"
+    purpose: "07 — Pilot, Prototype and Demo Track"
+    component: "project-governance"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "305dfffa303d0e06131c84c48067b48b3e0fe365a0d96e6cceca5d35ff6a9343"
+    untrusted_input: false
+  - path: "jobhunter_ui/__init__.py"
+    type: "py"
+    purpose: "User-friendly local interface for JobHunter. Wraps the original pipeline; never replaces it."
+    component: "ui-backend"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "cb424a9efa8aa2bcfc21ce453938c847b765a94c74875ba8791cda6a6d61ce00"
+    untrusted_input: true
+    side_effects: ["none-detected"]
+    tests: ["tests/test_ui_ranking.py", "tests/test_ui_server.py"]
+    features: ["F-10"]
+  - path: "jobhunter_ui/ranking.py"
+    type: "py"
+    purpose: "Deterministic job ranking over stored evaluations (pure functions, no I/O)."
+    component: "ui-backend"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "bd944e6bd43817e7a8c6c1de2bdc3589516c1f21473906c6d3ceca860de1fca9"
+    untrusted_input: true
+    interfaces: ["job_id", "parse_weights", "is_default", "score_of", "tier", "rank"]
+    side_effects: ["none-detected"]
+    tests: ["tests/test_ui_ranking.py"]
+    features: ["F-10"]
+  - path: "jobhunter_ui/runner.py"
+    type: "py"
+    purpose: "Runs the ORIGINAL pipeline scripts (run_scan.py, run_evaluate.py, ...) one at a time and streams output."
+    component: "ui-backend"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "d1c0193413d99c41150a1f3ccf46192284f3208e3ea1bf7b00f202167cb94786"
+    untrusted_input: true
+    interfaces: ["Runner"]
+    side_effects: ["subprocess", "environment"]
+    tests: ["tests/test_ui_server.py"]
+    features: ["F-10"]
+  - path: "jobhunter_ui/server.py"
+    type: "py"
+    purpose: "Local-only HTTP server (stdlib). Binds to 127.0.0.1; rejects foreign Host/Origin and cross-site POSTs."
+    component: "ui-backend"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "5eeb478219977e40937909862e3a29c83f1309a119e5b0811df63aaaed09be25"
+    untrusted_input: true
+    interfaces: ["make_server"]
+    side_effects: ["network"]
+    tests: ["tests/test_ui_server.py"]
+    features: ["F-10"]
+  - path: "jobhunter_ui/service.py"
+    type: "py"
+    purpose: "Application service: reads the original pipeline's data, performs on-click actions."
+    component: "ui-backend"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "4a17e57e9e4c134e0fcd18a6a0ebadaaf5c5608129994cb50bdade0fe6c81247"
+    untrusted_input: true
+    interfaces: ["ActionError", "Workspace"]
+    internal_imports: ["agents.cover_letter", "agents.cv_tailor", "agents.smart_router", "run_evaluate", "utils.evaluation_store", "utils.jd_cache", "utils.jd_fetcher", "utils.pdf_generator"]
+    side_effects: ["filesystem-write", "environment"]
+    tests: ["tests/test_ui_service.py"]
+    features: ["F-10"]
+  - path: "jobhunter_ui/static/app.js"
+    type: "js"
+    purpose: "Browser logic of the local app; inserts all dynamic text with textContent, never innerHTML"
+    component: "ui-frontend"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "b2d24bca70a2bc0f0b50b48a89392a8803ec6f15bee023bdd5034e4adbb1278e"
+    untrusted_input: true
+    features: ["F-10"]
+  - path: "jobhunter_ui/static/cv.example.md"
+    type: "md"
+    purpose: "**JANE EXAMPLE**"
+    component: "ui-frontend"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "e1289d3a7abab6b2df23d62aadec76ebf4b039f57cfa203a4e0806e8e3e1cf62"
+    untrusted_input: true
+    features: ["F-10"]
+  - path: "jobhunter_ui/static/index.html"
+    type: "html"
+    purpose: "HTML page: JobHunter"
+    component: "ui-frontend"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "88a2791884a8ca7a8639686fe7e4e109f2bf56a53d85bbf764a12b26e10e5034"
+    untrusted_input: true
+    features: ["F-10"]
+  - path: "jobhunter_ui/static/style.css"
+    type: "css"
+    purpose: "Stylesheet of the local app with light and dark colour variables"
+    component: "ui-frontend"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "a0cb7a0481964433cd18d4e547f3e1a75e439dddd7a7f861ff776ce623410d8e"
+    untrusted_input: true
+    features: ["F-10"]
+  - path: "requirements.txt"
+    type: "txt"
+    purpose: "Python dependency manifest (unpinned lower bounds; hash lock arrives with WP-00-01)"
+    component: "repository-root"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "1e288ac626ec5cdfed14ed6497590199896e1888dd57d5362c072c02e3fbf1c1"
+    untrusted_input: false
+  - path: "run_all.py"
+    type: "py"
+    purpose: "run_all.py — Full pipeline: scan → evaluate → generate."
+    component: "cli-entrypoints"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "f34fba13211f4d4b50b90aa0638463c7de04fe53d43e8ad78dbe7f7234e23fab"
+    untrusted_input: false
+    interfaces: ["run_pipeline", "main"]
+    internal_imports: ["run_evaluate", "run_scan", "utils.queue_exporter", "utils.utf8_logging"]
+    side_effects: ["filesystem-write", "environment"]
+    tests: ["tests/test_run_all_export_integration.py"]
+    features: ["F-09"]
+  - path: "run_app.py"
+    type: "py"
+    purpose: "Start the JobHunter app: python run_app.py (opens http://127.0.0.1:8765 in your browser)."
+    component: "cli-entrypoints"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "51948f3b7e13cb8e84409c598c0e7f7d11e44e56ba0ab1891029f7268e36b605"
+    untrusted_input: false
+    interfaces: ["main"]
+    internal_imports: ["jobhunter_ui.server"]
+    side_effects: ["network"]
+    features: ["F-10"]
+  - path: "run_check_sources.py"
+    type: "py"
+    purpose: "run_check_sources.py — try each enabled extra source ONCE and report what came back."
+    component: "cli-entrypoints"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "d03608b3e9f4c2ba5ac6cf6db3ba7052e9af7ab7f95e1531b3f84a74c6d66190"
+    untrusted_input: false
+    interfaces: ["NoCooldown", "main"]
+    internal_imports: ["scanners.ats", "scanners.feeds", "scanners.net"]
+    side_effects: ["none-detected"]
+    features: ["F-09"]
+  - path: "run_evaluate.py"
+    type: "py"
+    purpose: "run_evaluate.py -- Evaluate jobs from the pipeline."
+    component: "cli-entrypoints"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "275001693054157f38a3b28b34aa95a183b2a688d4e27f31de26fe44f37d9dc3"
+    untrusted_input: false
+    interfaces: ["load_profile", "get_pending_jobs", "mark_job_checked", "log_below_threshold", "evaluate_job", "run_evaluate", "main"]
+    internal_imports: ["agents.cover_letter", "agents.cv_tailor", "agents.evaluator", "utils.evaluation_store", "utils.excel_export", "utils.jd_cache", "utils.jd_fetcher", "utils.pdf_generator", "utils.telegram", "utils.utf8_logging"]
+    side_effects: ["filesystem-write", "environment"]
+    features: ["F-02"]
+  - path: "run_export_queue.py"
+    type: "py"
+    purpose: "run_export_queue.py — Export application_queue.jsonl for UniversalAutoApplier."
+    component: "cli-entrypoints"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "289a70570afb69cf3c51a79975913620b9b0d7938cb086108e91d3bf7fc88e10"
+    untrusted_input: false
+    interfaces: ["main"]
+    internal_imports: ["utils.queue_exporter"]
+    side_effects: ["none-detected"]
+    features: ["F-08"]
+  - path: "run_health.py"
+    type: "py"
+    purpose: "run_health.py — System health checker."
+    component: "cli-entrypoints"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "a2fafcb8f712bc166e1919347ad0af03ee7392fd77faeaab0df4468d9b1908b8"
+    untrusted_input: false
+    interfaces: ["check_env_vars", "check_files", "check_directories", "check_python_deps", "check_openrouter", "check_disk_space", "main"]
+    internal_imports: ["agents.openrouter_client"]
+    side_effects: ["network", "filesystem-write", "environment"]
+    features: ["F-09"]
+  - path: "run_scan.py"
+    type: "py"
+    purpose: "run_scan.py — Master scanner entry point."
+    component: "cli-entrypoints"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "0528340b4da620c573c0a00e685672234d5daf5c4c46761645300c23a8872099"
+    untrusted_input: false
+    interfaces: ["load_config", "run_scan", "main"]
+    internal_imports: ["scanners.ats", "scanners.bridge", "scanners.feeds", "scanners.jobspy_scanner", "scanners.workday", "utils.utf8_logging"]
+    side_effects: ["filesystem-write", "environment"]
+    tests: ["tests/test_extra_sources.py"]
+    features: ["F-01"]
+  - path: "scanners/__init__.py"
+    type: "py"
+    purpose: "Package marker"
+    component: "source-scanners"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "238f39b8c28e451aa47928d41e73bfc1e374fbb554cb1595c20fd4f8d77b0452"
+    untrusted_input: true
+    side_effects: ["none-detected"]
+    tests: ["tests/test_extra_sources.py"]
+    features: ["F-01"]
+  - path: "scanners/ats.py"
+    type: "py"
+    purpose: "Public employer job boards: Greenhouse, Lever, Ashby, SmartRecruiters."
+    component: "source-scanners"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "4f7eaf93753b2a72eebe11a662e67806f8825ec09ff28e84d3ba95c97d10b6f6"
+    untrusted_input: true
+    interfaces: ["board_url", "parse_greenhouse", "parse_lever", "parse_ashby", "parse_smartrecruiters_list", "parse_smartrecruiters_detail", "AtsScanner"]
+    internal_imports: ["utils.filters"]
+    side_effects: ["none-detected"]
+    tests: ["tests/test_extra_sources.py"]
+    features: ["F-01"]
+  - path: "scanners/base.py"
+    type: "py"
+    purpose: "Abstract base scanner."
+    component: "source-scanners"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "7fabd2ccf37f114c29f513d1096ba8126ee73fd5a3777bf6bd98b17b59e67bdc"
+    untrusted_input: true
+    interfaces: ["JobPosting", "ScanResult", "BaseScanner"]
+    side_effects: ["none-detected"]
+    tests: ["tests/test_bridge.py", "tests/test_extra_sources.py"]
+    features: ["F-01"]
+  - path: "scanners/bridge.py"
+    type: "py"
+    purpose: "Bridge module — merges all scanner outputs into a unified pipeline."
+    component: "source-scanners"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "dc827d5fef2cb6495c17bc20776017631f345708ea7aad4553fffb38389041d2"
+    untrusted_input: true
+    interfaces: ["PipelineBridge"]
+    internal_imports: ["utils.dedup", "utils.filters", "utils.jd_cache"]
+    side_effects: ["filesystem-write"]
+    tests: ["tests/test_bridge.py", "tests/test_extra_sources.py"]
+    features: ["F-01"]
+  - path: "scanners/feeds.py"
+    type: "py"
+    purpose: "Public remote-job feeds: Remotive, Jobicy, Arbeitnow, Remote OK, We Work Remotely."
+    component: "source-scanners"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "6ae2fcc486ccac429c8620f78872a5dc1d3c4c160a20f73b51aed77e044429c9"
+    untrusted_input: true
+    interfaces: ["feed_url", "parse_remotive", "parse_jobicy", "parse_arbeitnow", "parse_remoteok", "parse_weworkremotely", "FeedScanner"]
+    side_effects: ["network"]
+    tests: ["tests/test_extra_sources.py"]
+    features: ["F-01"]
+  - path: "scanners/jobspy_registry.py"
+    type: "py"
+    purpose: "Provider identifiers accepted by the pinned python-jobspy runtime."
+    component: "source-scanners"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "bcb380f812dac7d63973177ec10b88dcae57e3a708fb8c88f31e39e062691b68"
+    untrusted_input: true
+    side_effects: ["none-detected"]
+    features: ["F-01"]
+  - path: "scanners/jobspy_scanner.py"
+    type: "py"
+    purpose: "JobSpy scanner — wraps python-jobspy to search every provider it supports (LinkedIn, Indeed, Google, plus the optional providers in jobspy_providers)."
+    component: "source-scanners"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "6c1a30986f9534f15883399b8defd1bed0084cce4f17f73c76b5d8b05daa1acf"
+    untrusted_input: true
+    interfaces: ["ProviderFailure", "clean", "JobSpyScanner"]
+    side_effects: ["network"]
+    tests: ["tests/test_extra_sources.py"]
+    features: ["F-01"]
+  - path: "scanners/net.py"
+    type: "py"
+    purpose: "Shared helpers for the optional public-source scanners (ATS boards and feeds)."
+    component: "source-scanners"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "aca04d19fe68409e78fcfb6c77ebfe26d6ce6621137a1fd71c98be6fe207aba0"
+    untrusted_input: true
+    interfaces: ["FetchError", "fetch", "fetch_json", "html_to_text", "safe_text", "https_url", "iso_date", "Cooldown"]
+    side_effects: ["network", "filesystem-write"]
+    tests: ["tests/test_extra_sources.py"]
+    features: ["F-01"]
+  - path: "scanners/workday.py"
+    type: "py"
+    purpose: "Direct API scanner for companies using Workday, SmartRecruiters, or similar public/semi-public career APIs."
+    component: "source-scanners"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "99d419919f5b2c8ddef1a1b69c79437b00ca0a3416a63ccbc6d3ff119d79c8c1"
+    untrusted_input: true
+    interfaces: ["APIEndpoint", "DirectAPIScanner"]
+    side_effects: ["network"]
+    features: ["F-01"]
+  - path: "tests/__init__.py"
+    type: "py"
+    purpose: "Package marker"
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "5a4ef7228eb6275e41b652d5233c660120d669a26440b7af4b804b2b92c30108"
+    untrusted_input: false
+    side_effects: ["none-detected"]
+  - path: "tests/test_bridge.py"
+    type: "py"
+    purpose: "Tests for the pipeline bridge module."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "74211e7ecf7a5aacffb70388997187415608434eb075a9098fd4b3331e224088"
+    untrusted_input: false
+    interfaces: ["bridge_config", "bridge", "sample_scan_result", "TestPipelineBridge"]
+    internal_imports: ["scanners.base", "scanners.bridge"]
+    side_effects: ["none-detected"]
+  - path: "tests/test_candidate_profile_truthful.py"
+    type: "py"
+    purpose: "Tests for the truthful candidate-profile snapshot policy."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "52cba2816b7b9f2510aaf70316e29d60598b4470f1d052f2b46877aeeb66e7d5"
+    untrusted_input: false
+    interfaces: ["TestCandidateProfileTruthful", "TestCandidateProfileInExportedRow"]
+    internal_imports: ["utils.queue_exporter"]
+    side_effects: ["filesystem-write"]
+  - path: "tests/test_dedup.py"
+    type: "py"
+    purpose: "Tests for deduplication logic."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "48208d7d8cb785d8b0659857901803126f0bfbbb83621a94d1b5c6a9b27de456"
+    untrusted_input: false
+    interfaces: ["empty_dedup", "populated_dedup", "TestDeduplicator"]
+    internal_imports: ["utils.dedup"]
+    side_effects: ["filesystem-write"]
+  - path: "tests/test_evaluation_store.py"
+    type: "py"
+    purpose: "Tests for the evaluation JSON store (utils/evaluation_store.py)."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "93a5de86fd65401359f73f35dcb716f43c905101d91e68585fe7e0f63a564e40"
+    untrusted_input: false
+    interfaces: ["TestAppendEvaluation", "TestLoadEvaluations", "TestRealPersistenceRoundTrip"]
+    internal_imports: ["utils.evaluation_store", "utils.queue_exporter"]
+    side_effects: ["filesystem-write"]
+  - path: "tests/test_export_queue_wq2.py"
+    type: "py"
+    purpose: "WQ-2 unit tests for the deterministic, atomic queue exporter."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "cda0d4037363e815a176501c55e4a6f952aaabb613c9f12ae90953072ee1617f"
+    untrusted_input: false
+    interfaces: ["make_pdfs", "make_eval", "reasons_of", "TestSkipReasons", "TestDeterminism", "TestAtomicPublish"]
+    internal_imports: ["utils.queue_exporter"]
+    side_effects: ["filesystem-write"]
+  - path: "tests/test_extra_sources.py"
+    type: "py"
+    purpose: "Tests for the optional ATS + feed scanners and the JobSpy provider upgrade."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "ccd2fe2ed1e9c16e40f429908c988d1c6c566d6ca9c0a5ca72d139426bfe6f80"
+    untrusted_input: false
+    interfaces: ["run", "client_for", "test_html_to_text_handles_escaped_html_and_scripts", "test_fetch_refuses_other_hosts_http_and_redirects", "test_fetch_size_cap_and_blocked_flags", "test_cooldown_persists_and_expires", "test_cooldown_survives_corrupt_state_file", "test_parse_greenhouse", "test_parse_lever_joins_lists_and_epoch_ms", "test_parse_ashby_skips_unlisted", "test_smartrecruiters_list_and_detail", "make_ats"]
+    internal_imports: ["run_scan", "scanners", "scanners.base", "scanners.bridge", "scanners.jobspy_scanner", "scanners.net"]
+    side_effects: ["network", "filesystem-write"]
+  - path: "tests/test_filters.py"
+    type: "py"
+    purpose: "Tests for title and location filters."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "00b5ff61e6011293730123342d4ff647cb54346e841a158f3903b2e7e5e5d99b"
+    untrusted_input: false
+    interfaces: ["title_filter", "TestTitleFilter", "location_filter", "TestLocationFilter", "TestFilterJobs"]
+    internal_imports: ["utils.filters"]
+    side_effects: ["none-detected"]
+  - path: "tests/test_german_policy.py"
+    type: "py"
+    purpose: "Tests for German filter policies, score clamping, and threshold logic."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "faa06b85de4b7668416dc569a4aefed0d96acab712e98a732dcf781dd9bd950b"
+    untrusted_input: false
+    interfaces: ["apply_german_policy", "clamp_score", "TestRejectB1Plus", "TestRejectB2PlusOnly", "TestRejectUnlessBilingual", "TestAcceptAll", "TestScoreClamping", "TestThresholdLogic", "TestPolicyCrossCheck"]
+    side_effects: ["none-detected"]
+  - path: "tests/test_identity_golden_contract.py"
+    type: "py"
+    purpose: "Golden identity-contract tests for the queue exporter."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "612440a6ae92051ad9e972776117780f2a3ff92ce36297daac0496e4024e1adf"
+    untrusted_input: false
+    interfaces: ["TestGoldenCanonicalUrl", "TestGoldenApplicationId", "TestGoldenContractInExportedRow"]
+    internal_imports: ["utils.queue_exporter"]
+    side_effects: ["filesystem-write"]
+  - path: "tests/test_jd_fetcher.py"
+    type: "py"
+    purpose: "Tests for the JD fetcher LinkedIn extraction."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "26dad1129f6aaebc5e9e8a902e7be0889cc07b295fd6edb8665f2f5e2ec0f318"
+    untrusted_input: false
+    interfaces: ["TestLinkedInExtractor", "TestCleanHtmlToText"]
+    internal_imports: ["utils.jd_fetcher"]
+    side_effects: ["none-detected"]
+  - path: "tests/test_queue_exporter.py"
+    type: "py"
+    purpose: "Tests for the queue exporter (utils/queue_exporter.py)."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "03d932bbddbfa09c6965579db4b40fb529c67e8219d54070d58908080bb8e2a9"
+    untrusted_input: false
+    interfaces: ["sample_profile", "sample_profile_snapshot", "sample_evaluations", "TestExtractCandidateProfile", "TestDetectPlatform", "TestDetectSource", "TestComputeApplicationId", "TestBuildQueueRows", "TestExportQueue", "TestLoadProfile"]
+    internal_imports: ["utils.queue_exporter"]
+    side_effects: ["filesystem-write"]
+  - path: "tests/test_run_all_export_integration.py"
+    type: "py"
+    purpose: "Integration tests for the WQ-2 queue-export step inside run_all.py."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "f1303d0a94567f379f84efc51b028aa5759f09bece103fd3cfdd5816e37690df"
+    untrusted_input: false
+    interfaces: ["fake_scan", "fake_evaluate", "install_fakes", "TestRunAllQueueExport"]
+    internal_imports: ["run_all"]
+    side_effects: ["none-detected"]
+  - path: "tests/test_uaa_contract.py"
+    type: "py"
+    purpose: "Contract conformance test: exported queue rows must satisfy UniversalAutoApplier's ApplicationJob JSONL contract."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "f18716340d67470b827f32c5ba0c0575ddcbc82c09205c6cfb150f3fd811ad2e"
+    untrusted_input: false
+    interfaces: ["uaa_canonical_url", "uaa_application_id", "exported_rows", "TestUaaContract"]
+    internal_imports: ["utils.queue_exporter"]
+    side_effects: ["network", "filesystem-write"]
+  - path: "tests/test_ui_integration.py"
+    type: "py"
+    purpose: "REAL original CVTailor, CoverLetterWriter and WeasyPrint PDF code; only the AI network call (SmartRouter) is faked."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "3c26b9362e4b76616a161c47902da07080a57b62daa179a7573acc7ce8c1371c"
+    untrusted_input: false
+    interfaces: ["FakeRouter", "real_ws", "test_real_tailor_and_pdf_pipeline", "test_real_cover_letter_pdf", "test_real_base_cv_pdf"]
+    internal_imports: ["tests.test_ui_service"]
+    side_effects: ["none-detected"]
+  - path: "tests/test_ui_ranking.py"
+    type: "py"
+    purpose: "Ranking is pure and deterministic. Synthetic data only."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "185d1d34961ee53559c72b47c5960655e85c4ae6342887a64031e6b7673dd05c"
+    untrusted_input: false
+    interfaces: ["ev", "test_orders_by_score_then_skills_then_recency", "test_german_rejected_scores_zero_and_ranks_last", "test_latest_evaluation_per_url_wins_and_failures_ignored", "test_custom_weights_rerank_but_default_keeps_original_scores", "test_parse_weights_rejects_garbage", "test_tiers_and_missing_scores", "test_job_id_stable"]
+    internal_imports: ["jobhunter_ui"]
+    side_effects: ["none-detected"]
+  - path: "tests/test_ui_server.py"
+    type: "py"
+    purpose: "Real HTTP round-trips against the local server (fake AI/PDF)."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "4a1e6f373bc048c703d71122ff98b5aa6a21ebaa57c29166d625b755e0f32772"
+    untrusted_input: false
+    interfaces: ["srv", "call", "test_pages_and_security_headers", "test_html_has_no_inline_script_or_style", "test_jobs_api_ranked", "test_one_click_cv_over_http_and_download", "test_errors_are_json_with_message", "test_csrf_and_host_protection", "test_files_cannot_read_secrets", "test_setup_endpoints_never_return_key_values", "test_run_streams_output_and_rejects_parallel", "test_run_argument_validation"]
+    internal_imports: ["jobhunter_ui", "jobhunter_ui.server", "tests.test_ui_service"]
+    side_effects: ["network", "filesystem-write"]
+  - path: "tests/test_ui_service.py"
+    type: "py"
+    purpose: "Service layer with FAKE AI, PDF and Telegram (no network). Mocked: results are not live-AI verification."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "d18fc02d82441c8fdcce158e09c3980c6cd4379a5f4ca3d2180aeb975c4e039d"
+    untrusted_input: false
+    interfaces: ["FakeTailor", "FakeCover", "fake_pdf", "FakeTG", "make_ws", "jid", "test_tailored_cv_creates_files_and_updates_record", "test_missing_description_warns", "test_base_cv_needs_no_ai", "test_base_cv_prefers_existing_cv_pdf", "test_errors_are_plain_and_actionable", "test_ai_failure_is_reported_and_state_untouched"]
+    internal_imports: ["jobhunter_ui.service", "utils"]
+    side_effects: ["filesystem-write"]
+    tests: ["tests/test_ui_integration.py", "tests/test_ui_server.py"]
+  - path: "tests/test_utf8_logging.py"
+    type: "py"
+    purpose: "Tests for UTF-8 safe logging (utils/utf8_logging.py)."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "abb94a8c2379d4df96a3f230eddb23f80b69cf31b01f2269c76e3ce133556c47"
+    untrusted_input: false
+    interfaces: ["TestUtf8StreamHandler", "TestSafeLog"]
+    internal_imports: ["utils.utf8_logging"]
+    side_effects: ["none-detected"]
+  - path: "utils/__init__.py"
+    type: "py"
+    purpose: "Package marker"
+    component: "utilities"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "ed0dc1c725c44e4b77b66e6dae1b8b4f22fc3e810238ad1088afb42945404764"
+    untrusted_input: false
+    side_effects: ["none-detected"]
+    tests: ["tests/test_ui_service.py"]
+  - path: "utils/dedup.py"
+    type: "py"
+    purpose: "Deduplication logic for job postings."
+    component: "utilities"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "cda94b6850737cac13b85e56ece5397f102a746e7e106d830c4dcb023c174b30"
+    untrusted_input: false
+    interfaces: ["DeduplicatorStore"]
+    side_effects: ["none-detected"]
+    tests: ["tests/test_dedup.py"]
+    features: ["F-01"]
+  - path: "utils/evaluation_store.py"
+    type: "py"
+    purpose: "JSON evaluation persistence."
+    component: "utilities"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "f45cb99efdfc72454d1bf31861df8d9df325f9252065750b627adb65c6fc11d3"
+    untrusted_input: false
+    interfaces: ["append_evaluation", "load_evaluations"]
+    side_effects: ["filesystem-write"]
+    tests: ["tests/test_evaluation_store.py"]
+    features: ["F-02"]
+  - path: "utils/excel_export.py"
+    type: "py"
+    purpose: "excel_export.py -- Export job evaluations to an xlsx spreadsheet."
+    component: "utilities"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "f7af78613663f839959d66c6f52c9bd2553fcf4e99f90374fd027863f42c21a7"
+    untrusted_input: false
+    interfaces: ["update_job_entry"]
+    side_effects: ["filesystem-write"]
+    features: ["F-07"]
+  - path: "utils/filters.py"
+    type: "py"
+    purpose: "Title and location filters for job postings."
+    component: "utilities"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "aefa602ff85aa910989a6f0929fe9f973cbe688bf1af98437454d62d16a56924"
+    untrusted_input: false
+    interfaces: ["TitleFilter", "LocationFilter", "filter_jobs"]
+    side_effects: ["none-detected"]
+    tests: ["tests/test_filters.py"]
+    features: ["F-01"]
+  - path: "utils/jd_cache.py"
+    type: "py"
+    purpose: "Job description cache."
+    component: "utilities"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "baa20245bd9366b188ed92647d235ec23014161942fdf98fd94074a69599dcbe"
+    untrusted_input: false
+    interfaces: ["JDCache"]
+    side_effects: ["filesystem-write"]
+    features: ["F-01", "F-07"]
+  - path: "utils/jd_fetcher.py"
+    type: "py"
+    purpose: "Job description fetcher."
+    component: "utilities"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "9b9d7268abdde3370484cd6d6deeb1e156f6994f983f9f5d2ffb56ab638012ca"
+    untrusted_input: false
+    interfaces: ["FetchResult", "fetch_jd", "fetch_jd_playwright"]
+    side_effects: ["network"]
+    tests: ["tests/test_jd_fetcher.py"]
+    features: ["F-02"]
+  - path: "utils/json_extract.py"
+    type: "py"
+    purpose: "Utility for extracting JSON objects from AI-generated text."
+    component: "utilities"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "1a4fc3282f6ed70f8a739e34ad523c0085e2774f26695119a5efbe7ce11b0521"
+    untrusted_input: false
+    interfaces: ["extract_json_object"]
+    side_effects: ["none-detected"]
+    features: ["F-02"]
+  - path: "utils/pdf_generator.py"
+    type: "py"
+    purpose: "PDF CV generator using WeasyPrint."
+    component: "utilities"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "17238fd987e744b58867ab1b84dc8662eaa0fdfbef4c338f7fba68741a286a5f"
+    untrusted_input: false
+    interfaces: ["generate_cv_pdf", "generate_cover_letter_pdf"]
+    side_effects: ["filesystem-write", "environment"]
+    features: ["F-05"]
+  - path: "utils/queue_exporter.py"
+    type: "py"
+    purpose: "Queue exporter — writes application_queue.jsonl for UniversalAutoApplier."
+    component: "utilities"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "c0da124d80f3885d112bcaa7d814632efa63f818285683c179b66d664c505691"
+    untrusted_input: false
+    interfaces: ["load_profile", "extract_candidate_profile_snapshot", "load_evaluations", "canonicalize_url", "build_queue_entries", "build_queue_rows", "export_queue"]
+    side_effects: ["network", "filesystem-write"]
+    tests: ["tests/test_candidate_profile_truthful.py", "tests/test_evaluation_store.py", "tests/test_export_queue_wq2.py", "tests/test_identity_golden_contract.py", "tests/test_queue_exporter.py", "tests/test_uaa_contract.py", "tests/test_ui_service.py"]
+    features: ["F-08"]
+  - path: "utils/telegram.py"
+    type: "py"
+    purpose: "Telegram notification sender."
+    component: "utilities"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "9d990e947f3ca24572428245660d184e88c9b024cac8a9112e8ff373b731be68"
+    untrusted_input: false
+    interfaces: ["TelegramNotifier"]
+    side_effects: ["network", "environment"]
+    features: ["F-07"]
+  - path: "utils/utf8_logging.py"
+    type: "py"
+    purpose: "UTF-8 safe logging utilities."
+    component: "utilities"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "b924249333fb0244b7e706a6fb123d5262b2cdd90fc5b2d486cd1cbdd28f8d97"
+    untrusted_input: false
+    interfaces: ["get_utf8_stream_handler", "safe_log"]
+    side_effects: ["none-detected"]
+    tests: ["tests/test_utf8_logging.py"]
+    features: ["F-09"]
