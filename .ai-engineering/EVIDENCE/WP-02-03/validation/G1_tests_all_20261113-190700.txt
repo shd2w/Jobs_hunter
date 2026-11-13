@@ -1,0 +1,23 @@
+# G1 Validation Test Results — WP-02-03
+
+**Date:** 2026-11-13T19:07:00Z
+**Agent:** OpenCode CLI / glm-5.3-flash-free (implementer)
+**Command:** `python3.12 -m pytest -q`
+**Environment:** Windows 11, Python 3.12.8
+**Branch:** wp/WP-02-phase-02-service-layer
+
+## Results
+325 passed, 3 xfailed in 15.22s
+
+## CLI shim changes (WP-02-03)
+- run_health.py: Uses HealthService.check() via jobhunter.app.services.health
+- run_export_queue.py: Uses ApplicationsService.export_queue() via jobhunter.app.services.applications
+- run_evaluate.py: Uses EvaluationService.evaluate() via jobhunter.app.services.evaluation
+- run_scan.py: Reverted to direct scanner calls (ScannerService pending)
+- run_all.py: Orchestrates scan + evaluate + export (services transitively)
+
+## Flags and exit codes unchanged
+All CLI flags and exit codes preserved from original scripts.
+
+## Verdict: PASSED
+All 325 tests pass. No regressions from CLI shim changes.

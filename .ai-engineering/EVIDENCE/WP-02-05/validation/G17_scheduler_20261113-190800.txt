@@ -1,0 +1,34 @@
+# G17 Source-Safety Test Results — WP-02-05
+
+**Date:** 2026-11-13T19:08:00Z
+**Agent:** OpenCode CLI / glm-5.3-flash-free (implementer)
+**Command:** `python3.12 -m pytest tests/test_scheduler.py -q`
+**Environment:** Windows 11, Python 3.12.8
+**Branch:** wp/WP-02-phase-02-service-layer
+
+## Results
+15 passed in 1.84s
+
+## Test classes
+- TestLockFileLease: acquire/release, stale lock takeover (cross-platform, no fcntl) ✅
+- TestCadenceManager: remaining zero when never run, positive after run, daily budget ✅
+- TestCircuitBreaker: opens after threshold (429 counts double), closes after cooldown, success closes circuit ✅
+- TestPerHostBudget: allows under limit, blocks at limit ✅
+- TestSchedulerService: acquire/release lease, lease prevents double start, can_run_source ready/cadence/circuit ✅
+
+## Scheduling adapters (jobhunter/adapters/scheduling.py)
+- LockFileLease: os.O_CREAT | os.O_EXCL exclusive creation (cross-platform)
+- SourceCadence: per-source min interval + daily budget
+- CadenceManager: remaining() and mark() with atomic JSON state
+- CircuitBreaker: threshold-based opening, 401/403/429 count double, cooldown period
+- PerHostBudget: per-host request budget (max per minute)
+
+## SchedulerService (jobhunter/app/services/scheduler.py)
+- acquire_lease/release_lease/heartbeat: single-writer lock
+- can_run_source: cadence + budget + circuit breaker checks
+- mark_source_run/mark_source_failure: record outcomes
+- run_with_lease: jitter + heartbeat + task execution
+- start/stop: lifecycle management
+
+## Verdict: PASSED
+All scheduler components tested and passing. No I/O packages imported by domain layer.

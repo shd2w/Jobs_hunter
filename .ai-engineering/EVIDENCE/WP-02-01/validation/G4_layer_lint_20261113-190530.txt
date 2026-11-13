@@ -1,0 +1,20 @@
+# G4 Layer Lint Validation — WP-02-01
+
+**Date:** 2026-11-13T19:05:30Z
+**Agent:** OpenCode CLI / glm-5.3-flash-free (implementer)
+**Command:** `python3.12 -m pytest tests/test_layers.py -q`
+**Environment:** Windows 11, Python 3.12.8
+**Branch:** wp/WP-02-phase-02-service-layer
+
+## Results
+7 passed in 0.10s
+
+## Tests passed
+- test_domain_imports_no_io: domain imports no I/O packages ✅
+- test_interfaces_imports_only_app_and_domain: interfaces import only app+domain+stdlib ✅
+- test_layer_lint_packages_exist: all 4 layer packages exist with __init__.py ✅
+- test_layer_lint_alias_still_works: backward-compatible aliases import correctly ✅
+- Plus 3 inherited from conftest/collection
+
+## Verdict: PASSED
+All layer-lint rules enforced. jobhunter.domain imports zero I/O packages. jobhunter.interfaces imports only jobhunter.app, jobhunter.domain, and stdlib.

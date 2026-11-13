@@ -1,0 +1,21 @@
+# G1 Validation Test Results — WP-02-02
+
+**Date:** 2026-11-13T19:06:30Z
+**Agent:** OpenCode CLI / glm-5.3-flash-free (implementer)
+**Command:** `python3.12 -m pytest -q`
+**Environment:** Windows 11, Python 3.12.8
+**Branch:** wp/WP-02-phase-02-service-layer
+
+## Results
+325 passed, 3 xfailed in 15.22s
+
+## New tests added (WP-02-02)
+tests/test_services.py — 17 tests:
+- TestResultType: Ok/Err result type, ok/err helpers, union behavior
+- TestJobsService: get_pending_jobs (empty/file/with-jobs), mark_checked
+- TestEvaluationService: init with default and custom german_policy
+- TestApplicationsService: export_queue (no evaluations, with evaluations)
+- TestHealthService: health check (python version, config files, data dir, weasyprint, gtk runtime)
+
+## Verdict: PASSED
+All 325 tests pass (307 existing + 18 new service tests). 3 pre-existing xfailed tests unchanged.

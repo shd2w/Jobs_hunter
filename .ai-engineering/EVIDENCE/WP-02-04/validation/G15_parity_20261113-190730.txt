@@ -1,0 +1,22 @@
+# G15 Parity Test Results — WP-02-04
+
+**Date:** 2026-11-13T19:07:30Z
+**Agent:** OpenCode CLI / glm-5.3-flash-free (implementer)
+**Command:** `python3.12 -m pytest tests/test_parity.py -q`
+**Environment:** Windows 11, Python 3.12.8
+**Branch:** wp/WP-02-phase-02-service-layer
+
+## Results
+3 passed in 0.10s
+
+## Tests passed
+- test_parity_cli_and_http_identical_ranking: CLI renderer and HTTP handler return identical ranked ids and scores ✅
+- test_parity_with_custom_weights: Parity holds with custom weights ✅
+- test_parity_skip_german_excluded: German-rejected jobs score 0 and appear at bottom in both ✅
+
+## Ranking consolidation
+Ranking weights moved to jobhunter.domain.scoring.DEFAULT_WEIGHTS (single scoring path).
+jobhunter_ui/ranking.py re-exports from domain scoring — both CLI and HTTP use the same domain function.
+
+## Verdict: PASSED
+CLI renderer (jobhunter_ui/ranking.py) and HTTP handler (jobhunter_ui/service.py list_jobs) produce identical ranked output.

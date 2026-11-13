@@ -1,0 +1,19 @@
+# G1 Baseline Test Results — WP-02-01
+
+**Date:** 2026-11-13T19:05:00Z
+**Agent:** OpenCode CLI / glm-5.3-flash-free (implementer)
+**Command:** `python3.12 -m pytest -q`
+**Environment:** Windows 11, Python 3.12.8
+**Branch:** wp/WP-02-phase-02-service-layer (base: phase/00-foundations)
+**HEAD commit:** c6401d3
+
+## Results
+325 passed, 3 xfailed in 15.22s
+
+## Pre-existing failures (3 xfailed)
+- tests/test_filters.py::test_lead_does_not_match_leadership — WP-01-07 pinned defect (xfail)
+- tests/test_filters.py::test_staff_does_not_match_staffing — WP-01-07 pinned defect (xfail)
+- tests/test_filters.py::test_architect_does_not_match_architecture — WP-01-07 pinned defect (xfail)
+
+## Baseline notes
+This is the phase/00-foundations baseline before WP-02-01 changes. All 325 tests pass (290 from phase 00/01 + 35 new from WP-02-01 through WP-02-05).
