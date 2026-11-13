@@ -31,13 +31,11 @@ Score each dimension 1-5, then provide a weighted global score.
 1. **Skills Match (30%)**: Do the candidate's technical or non-technical skills match?
 2. **Education Match (20%)**: Is the candidate's degree and academic background relevant?
 3. **Location (20%)**: Is the job in the candidate's target locations ({target_locations}) or Remote/Hybrid?
-4. **Language (20%)**: The candidate is multilingual: Arabic (Native), English (C2 / Bilingual), and German (C1 / Fluent). Never penalize jobs for requiring German or English, as the candidate is fully proficient. Language score = 5 for roles in English, Arabic, or German.
+4. **Language (20%)**: {languages_list} Never penalize jobs for requiring languages the candidate speaks, as the candidate is proficient. Language score = 5 for roles in a language the candidate knows.
 5. **Growth (10%)**: Learning opportunity, career relevance, impact?
 
 ## LANGUAGE RULES
-- The candidate speaks Arabic (Native), English (C2), and German (C1).
-- Never reject or lower the score for German requirements, as the candidate possesses professional C1 fluency.
-- Classify german_level_required as one of: "none", "A1-A2", "B1", "B2+". Mark german_required=false (candidate qualifies).
+{language_rules}
 
 ## OTHER RULES
 - Be honest and precise. Don't inflate scores.
@@ -121,12 +119,66 @@ class Evaluator:
             f"Education: {candidate.get('degree_current', 'B.Sc. in Artificial Intelligence')} at {candidate.get('university', 'Nile University')}",
             f"Bachelor: {candidate.get('degree_bachelor', 'B.Sc. in Artificial Intelligence')}",
             f"Target: {', '.join(p.get('target_roles', {}).get('primary', ['AI Engineer']))}",
-            f"Languages: Arabic (Native), English (C2), German (C1)",
-            f"Available locations: {', '.join(prefs.get('locations', ['Oman', 'Muscat', 'Remote']))}",
-            f"Technical skills: {', '.join(skills.get('technical', []))}",
-            f"Non-technical skills: {', '.join(skills.get('non_technical', []))}",
         ]
+
+        # Languages: read from profile; unconfirmed levels marked as such.
+        langs = candidate.get("languages")
+        if langs and isinstance(langs, list):
+            lang_parts = []
+            for l in langs:
+                name = l.get("name", "unknown language")
+                level = l.get("level")
+                if level:
+                    lang_parts.append(f"{name} ({level})")
+                else:
+                    lang_parts.append(f"{name} (level unconfirmed)")
+            lines.append(f"Languages: {', '.join(lang_parts)}")
+        else:
+            lines.append("Languages: (none configured in profile; levels unconfirmed)")
+
+        lines.append(f"Available locations: {', '.join(prefs.get('locations', ['Oman', 'Muscat', 'Remote']))}")
+        lines.append(f"Technical skills: {', '.join(skills.get('technical', []))}")
+        lines.append(f"Non-technical skills: {', '.join(skills.get('non_technical', []))}")
         return "\n".join(lines)
+
+    def _make_language_rules(self) -> str:
+        """Build the LANGUAGE RULES section from profile data.
+
+        Confirmed levels come from candidate.languages; any language without a
+        confirmed level is marked 'unconfirmed'.
+        """
+        langs = self.profile.get("candidate", {}).get("languages")
+        if langs and isinstance(langs, list):
+            known = []
+            unconfirmed = []
+            for l in langs:
+                name = l.get("name", "unknown language")
+                level = l.get("level")
+                if level:
+                    known.append(f"- The candidate speaks {name} ({level}).")
+                else:
+                    unconfirmed.append(f"- The candidate speaks {name} (level unconfirmed).")
+            rules = "\n".join(known + unconfirmed)
+        else:
+            rules = "- No languages configured in profile.yml; all language levels are unconfirmed."
+
+        rules += (
+            "\n- Never reject or lower the score for a language the candidate knows, "
+            "as the candidate possesses professional fluency in configured languages."
+        )
+        rules += (
+            "\n- Classify german_level_required as one of: \"none\", \"A1-A2\", \"B1\", \"B2+\". "
+            "Mark german_required=false when the candidate qualifies."
+        )
+        return rules
+
+    def _make_languages_list(self) -> str:
+        """Build the Language dimension description line."""
+        langs = self.profile.get("candidate", {}).get("languages")
+        if langs and isinstance(langs, list):
+            names = [l.get("name", "unknown") for l in langs]
+            return f"The candidate knows: {', '.join(names)}."
+        return "No languages configured in profile.yml."
 
     def evaluate(self, job: dict) -> dict:
         """Evaluate a single job posting.
@@ -153,6 +205,8 @@ class Evaluator:
             profile_summary=self._make_profile_summary(),
             cv_content=self.cv_content,
             target_locations=target_locations,
+            languages_list=self._make_languages_list(),
+            language_rules=self._make_language_rules(),
         )
         user = f"Evaluate this job posting:\n\n{description}"
 
