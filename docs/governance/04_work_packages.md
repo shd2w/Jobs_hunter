@@ -1,6 +1,6 @@
 # 04 — Work Packages
 
-Status: **binding implementation plan**. 73 work packages in 17 phases. Release mapping follows DEC-043 (R1 usable discovery, R2 personal workbench, R3 breadth and operations, R4 hosted platform). Controlling documents: GOV-02 (decisions), GOV-01 (invariants), GOV-05 (evidence).
+Status: **binding implementation plan**. 74 work packages in 17 phases. Release mapping follows DEC-043 (R1 usable discovery, R2 personal workbench, R3 breadth and operations, R4 hosted platform). Controlling documents: GOV-02 (decisions), GOV-01 (invariants), GOV-05 (evidence).
 
 ## 1. Phases
 

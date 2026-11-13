@@ -98,7 +98,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "f2ce066cff75877bcf420e347293f4297db0e2d95f05c0926d545340358faf7c"
+    entry_sha256: "0cdc5afc8d9ea32abf0f6480a9cc0ffd2326f1407ff04f90d0842df8a8dd580d"
     untrusted_input: false
   - path: ".ai-engineering/CONFIG/project_profile.yml"
     type: "yml"
@@ -269,7 +269,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "78b2327bea1780a4657216f4ec42e753ac466a52067f2142eb0bea17d9b1f3ea"
+    entry_sha256: "ee0d42800237455558a97b9c493af1d52b970e47d27ab3883798940030321654"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/KNOWN_ISSUES.md"
     type: "md"
@@ -278,7 +278,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "628a42a70cd25fb3c037c7d4bc22dadb8487204bdc272b8c4cb4d80bde3d1d7a"
+    entry_sha256: "4370f6707759fcd4fe3d731324d77af32a87e1d49ae6615381eaf383d02d7d53"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/PROJECT_STATE.yml"
     type: "yml"
@@ -287,7 +287,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "c7773a6314517a11535286074513942354cc34e78cb5121d99546c170c5d060d"
+    entry_sha256: "054f97e52f9170b50ad0a0b6799890ef175b098972294dc9071804e2880b2038"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/RECENT_FAILURES.md"
     type: "md"
@@ -600,7 +600,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "de781b0a5b553473d609753045ac81692dcec14a94bfacd7972d09355530b277"
+    entry_sha256: "1afbd9a4817c0a79b25201da5965cedf293a0dab22771478de48c7794755d791"
     untrusted_input: false
   - path: "agents/__init__.py"
     type: "py"
@@ -908,7 +908,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "3a87917b2e67a219042fbe2b991f88a78dae6c8eb58a7f23c05b3bcba94cfadc"
+    entry_sha256: "690b448bb395463402d9aadd57329018902edd0dec0150b8e1519eb17bf9eeff"
     untrusted_input: false
   - path: "docs/governance/05_validation_matrix.md"
     type: "md"

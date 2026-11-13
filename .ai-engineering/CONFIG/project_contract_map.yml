@@ -13,9 +13,12 @@ documents_read:
   - {id: GOV-02, path: docs/governance/02_decision_log_and_scope.md,   role: decision_authority,     sha256: 0e4b53dbc607891a152a5f6fa12b1b0a053f86dd747d7e14ce7452e3c0d12446}
   - {id: GOV-03, path: docs/governance/03_security_and_credentials.md, role: security,               sha256: d9cba6aba41db6327f71f32b24eb1df40a09dd78c748a07969f38f21e397eba8}
   # GOV-04 re-hashed 2026-11-13: owner-authorized WP-00-01 scope update (dev lock) and
-  # new framework WP-00-05 (run_gates manifest_names fix; owner instruction 2026-11-13).
-  # See .ai-engineering/MEMORY/decisions/WP-00-01_owner_decision_record_2026-11-13.md.
-  - {id: GOV-04, path: docs/governance/04_work_packages.md,            role: task_source,            sha256: 3a87917b2e67a219042fbe2b991f88a78dae6c8eb58a7f23c05b3bcba94cfadc}
+  # new framework WP-00-05 (run_gates manifest_names fix; owner instruction 2026-11-13);
+  # re-hashed again 2026-11-13 after the owner-authorized review correction (header work
+  # package count 73 -> 74; owner acknowledgment message 2026-11-13).
+  # See .ai-engineering/MEMORY/decisions/WP-00-01_owner_decision_record_2026-11-13.md and
+  # .ai-engineering/EVIDENCE/WP-00-01/review/REVIEW_WP-00-01_20261113-124154.md.
+  - {id: GOV-04, path: docs/governance/04_work_packages.md,            role: task_source,            sha256: 690b448bb395463402d9aadd57329018902edd0dec0150b8e1519eb17bf9eeff}
   - {id: GOV-05, path: docs/governance/05_validation_matrix.md,        role: validation_gates,       sha256: 5bf0fcb06b531096a38def6bc950b535bf7913f75e23d659c94a2fb68a811a69}
   - {id: GOV-06, path: docs/governance/06_execution_plan.md,           role: execution_procedure,    sha256: 0b79bfc89774a675664c2d717d26a332c186538aec4685cfd83b974ba2651502}
   - {id: GOV-07, path: docs/governance/07_demo_track.md,               role: demo_pilot_labels,      sha256: 305dfffa303d0e06131c84c48067b48b3e0fe365a0d96e6cceca5d35ff6a9343}

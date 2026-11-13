@@ -56,6 +56,12 @@ Confirmed defects, limitations, unresolved root causes. Format per entry: id, st
 - Mitigation until fixed: every pyproject.toml dependency change requires explicit human review (owner decision 2026-11-13; also recorded in CONFIG/project_profile.yml dependency_policy).
 - Tracked: WP-00-05 (framework work item created 2026-11-13 per owner instruction; regression tests required).
 
+## KI-015 - install_from_lock gate can false-pass on a pre-populated venv
+- Status: open, classification: framework hardening (observed 2026-11-13 in the WP-00-01 review)
+- The configured command (`python -m pip install --require-hashes -r requirements.txt`) proves little when the target venv already contains the pins: the gate record of 2026-11-13 13:29:25 shows every line "Requirement already satisfied", so that record alone does not demonstrate a hash-checked install.
+- Mitigations in place: the real fresh-install proof lives in `EVIDENCE/WP-00-01/proof_venv/` (exit-0 logs), and the independent review re-executed a true fresh install (`--require-hashes --no-cache-dir`, exit 0) whose freeze exactly equals the lock union; a corrected negative test (all hashes of one pin flipped) confirmed pip refuses mismatches.
+- Owner decision 2026-11-13: track as future hardening - consider a fresh-venv-per-run or `--no-cache-dir` variant of the gate command (framework item; not WP-00-01 scope).
+
 ## KI-008 - parts of the adapter facts come from third parties or are version-dependent
 - Status: open, classification: unknown
 - Official documentation verified 2026-11-11: Kiro steering page (updated 2026-10-21), Gemini CLI GEMINI.md page, OpenCode rules page. Unverified: whether `file://AGENTS.md` works in a Kiro custom agent's `resources`; the reported Kiro symlink limitation (user-filed GitHub issue); exact CLI versions; Gemini CLI `/memory reload` versus `/memory refresh` and the `context.fileName` versus legacy `contextFileName` key differ between documentation versions.
