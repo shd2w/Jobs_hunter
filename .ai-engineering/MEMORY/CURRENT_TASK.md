@@ -1,9 +1,9 @@
 # Current Task
 
 **Task:** WP-00-04 - Baseline live source probe (informational)
-**Status:** in_progress
-**Branch / base:** wp/WP-00-04-baseline-live-source-probe from phase/00-foundations
-**Last updated:** 2026-11-13T16:1xZ
+**Status:** merged
+**Branch / base:** wp/WP-00-04-baseline-live-source-probe from phase/00-foundations (merged into phase/00)
+**Last updated:** 2026-11-13T16:2xZ
 **Agent:** OpenCode CLI / glm-5.3-flash-free (implementer)
 
 ## Scope (copied from GOV-04, not reworded)
@@ -41,6 +41,8 @@ Must not change scope or policy
 - 2026-11-13T16:1xZ Branch wp/WP-00-04-baseline-live-source-probe created from phase/00-foundations
 - 2026-11-13T16:1xZ Run `python run_check_sources.py`: 464 jobs, 0 errors; 4 feeds OK (arbeitnow 300, jobicy 50, remoteok 98, remotive 16); ATS boards empty (ats: [])
 - 2026-11-13T16:1xZ Write docs/SOURCE_VERIFICATION.md with dated results and link fields per provider
+- 2026-11-13T16:2xZ WP-00-04 merged into phase/00, tagged phase-00-merged. WP-00-04 status: merged.
+- 2026-11-13T16:2xZ WP-00-03 merged into phase/00 (CI config, verify_windows.ps1). WP-00-03 status: merged.
 
 ## Results (baseline, after, gates)
 - Baseline: python -m pytest -q → 288 passed (14.92s)
@@ -48,10 +50,10 @@ Must not change scope or policy
 - G9: dated live run cited (2026-11-13, Windows, no proxy); results are live evidence, not mocked
 
 ## Blockers and open questions
-- PCD-020 pending decision for WP-00-04
+- PCD-020 pending decision for WP-00-04 (does not block merge)
 - No other blockers
 
 ## Next actions
-- Commit docs/SOURCE_VERIFICATION.md and state sync
-- Merge WP-00-03 and WP-00-04 into phase/00
-- Tag phase-00-merged
+- WP-00-03 and WP-00-04 are merged. Phase 00 complete (all 4 WPs merged, tagged phase-00-merged).
+- Phase 00 exit condition per GOV-06 §10 holds: all packages merged, all gates green.
+- Awaiting owner authorization for Phase 01 (WP-01-01 through WP-01-07).

@@ -269,7 +269,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "fe650543304aa99f980ef6882c0cc485bc0d6669138ccc48049ab559ee4225cd"
+    entry_sha256: "439566246a0e80ef7aa9407f3696977e7ea305b5c06ff3b220b17511e5464112"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/KNOWN_ISSUES.md"
     type: "md"
@@ -287,7 +287,7 @@ files:
     classification: "S0"
     status: "active"
     provenance: "generated-unreviewed"
-    entry_sha256: "54ecb083661f026aa5245d73f5a37fad77608f1115382446940d969518e0ab63"
+    entry_sha256: "65327763b3b17db6474f34cb5539012b02fc92b95e4983260035f026f1e78a2a"
     untrusted_input: false
   - path: ".ai-engineering/MEMORY/RECENT_FAILURES.md"
     type: "md"
@@ -553,6 +553,15 @@ files:
     status: "active"
     provenance: "generated-unreviewed"
     entry_sha256: "ad8d29078ef70955decb6377c80b2e39dd3daec9041cd70c4230bcc0970f9a3c"
+    untrusted_input: false
+  - path: ".github/workflows/ci.yml"
+    type: "yml"
+    purpose: "CI workflow: matrix on ubuntu-latest and windows-latest, Python 3.12, hash-locked install, pip check, WeasyPrint importability check, full test suite (G1/G7/G9)"
+    component: "repository-root"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "a9fc0192fdf3189f3167b499585fb83d07613c2ed7c9952cc8b663438eb9c80a"
     untrusted_input: false
   - path: ".gitignore"
     type: ".gitignore"
@@ -1369,6 +1378,15 @@ files:
     interfaces: ["APIEndpoint", "DirectAPIScanner"]
     side_effects: ["network"]
     features: ["F-01"]
+  - path: "scripts/verify_windows.ps1"
+    type: "ps1"
+    purpose: "Windows verification script (G7, PCD-011): checks Windows OS, Python 3.12-3.14, WeasyPrint importable, GTK/Pango runtime DLLs, data/ writable, port availability"
+    component: "repository-root"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "81672ba79b3d6fa04d68bbbeca92752d3357f82a7f76cea3be0799f8249c4666"
+    untrusted_input: false
   - path: "tests/__init__.py"
     type: "py"
     purpose: "Package marker"
