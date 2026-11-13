@@ -1,8 +1,8 @@
 # Current Task
 
 **Task:** WP-00-02 - Policy, secret and PII gates
-**Status:** in_progress
-**Branch / base:** wp/WP-00-02-policy-secret-pii-gates from phase/00-foundations
+**Status:** merged
+**Branch / base:** wp/WP-00-02-policy-secret-pii-gates from phase/00-foundations (merged into phase/00)
 **Last updated:** 2026-11-13T15:5xZ
 **Agent:** OpenCode CLI / glm-5.3-flash-free (implementer)
 
@@ -54,6 +54,7 @@ No runtime change
 - 2026-11-13T15:5xZ Updated .gitignore: added config/profile.yml and CV_Example.py (S4 owner files, untracked by design)
 - 2026-11-13T15:5xZ Updated command_profiles.yml: policy_test and secret_pii_scan flipped to status: exists
 - 2026-11-13T15:5xZ G3: 2 passed; G12: PASS; G1: 288 passed
+- 2026-11-13T15:5xZ WP-00-02 merged into phase/00, tagged phase-00-merged. WP-00-02 status: merged.
 
 ## Results (baseline, after, gates)
 - Baseline: python -m pytest -q → 286 passed (13.13s)
@@ -66,7 +67,5 @@ No runtime change
 - No other blockers
 
 ## Next actions
-- State sync (CURRENT_TASK.md, PROJECT_STATE.yml, KNOWN_ISSUES.md)
-- Registry refresh (FILE_REGISTRY.yml)
-- Commit WP-00-02 changes
-- Merge to phase/00
+- WP-00-02 is merged. Phase 00 remaining: WP-00-03 (CI with Windows + WeasyPrint), WP-00-04 (baseline live source probe).
+- Awaiting owner authorization for the next work package.

@@ -3,15 +3,14 @@
 state_version: 1
 project: JobHunter
 last_updated: "2026-11-13T15:5xZ"
-last_updated_by: "OpenCode CLI / glm-5.3-flash-free (WP-00-02: implementer)"
-active_task: WP-00-02           # task open: policy, secret and PII gates (phase 00)
-task_status: in_progress        # GOV-05 section 10; WP-00-01 merged and tagged phase-00-merged; WP-00-02 in progress
-phase: "00"                     # JobHunter phase of the active task
+last_updated_by: "OpenCode CLI / glm-5.3-flash-free (WP-00-02: implementer, merged)"
+active_task: null           # WP-00-02 merged into phase/00; no active task pending owner authorization
+task_status: merged         # GOV-05 section 10; WP-00-01 and WP-00-02 both merged, tagged phase-00-merged
+phase: "00"
 release: null
-branch: wp/WP-00-02-policy-secret-pii-gates
-base_branch: pending_owner     # PCD-001. De-facto base for gate --base comparisons: bootstrap snapshot 83c423f on docs/governance-suite.
-head_commit: d4ae61e
-working_tree: "HEAD d4ae61e on phase/00-foundations (WP-00-01 merged, tagged phase-00-merged). WP-00-02 branch wp/WP-00-02-policy-secret-pii-gates created. G3 (test_policy_blocked.py) PASSED: 2 passed. G12 (scan_secrets_pii.py) PASSED: no findings. G1: 288 passed (286 original + 2 new policy tests). .gitignore updated: config/profile.yml and CV_Example.py now ignored (S4, KI-004). config/profile.example.yml tracked as template. command_profiles.yml: policy_test and secret_pii_scan set to exists."
+branch: phase/00-foundations
+head_commit: 909c04d55709f211b7934a3c321e1c2bf76b4501
+working_tree: "HEAD 909c04d on phase/00-foundations (WP-00-01 and WP-00-02 both merged, tagged phase-00-merged). G3 (test_policy_blocked.py) PASSED: 2 passed. G12 (scan_secrets_pii.py) PASSED: no findings. G1: 288 passed. .gitignore: config/profile.yml and CV_Example.py ignored (S4, KI-004). config/profile.example.yml tracked. command_profiles.yml: policy_test + secret_pii_scan = exists. KI-017 recorded for test_queue_exporter.py pre-existing owner PII. Ready for next WP (WP-00-03, WP-00-04) pending owner authorization."
 last_verified_checkpoint:
   commit: d4ae61e
   what_was_verified: "WP-00-01 merged into phase/00 and tagged phase-00-merged. WP-00-02 implementation complete: tests/test_policy_blocked.py (G3, 2 passed), scan_secrets_pii.py (G12, PASS), config/profile.example.yml (tracked template), .gitignore (config/profile.yml + CV_Example.py ignored), command_profiles.yml (policy_test + secret_pii_scan = exists). G1: 288 passed after changes."
