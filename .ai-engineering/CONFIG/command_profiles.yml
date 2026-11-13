@@ -31,12 +31,13 @@ commands:
   policy_test:
     purpose: blocked-dependency policy (G3)
     run: "python -m pytest tests/test_policy_blocked.py -q"
-    status: "unavailable_until:WP-00-02"
+    status: exists
+    source: GOV-05 section 8; configured by WP-00-02
   secret_pii_scan:
     purpose: secret and PII scan (G12)
-    run: null
-    status: "unavailable_until:WP-00-02"
-    source: GOV-05 section 8 (placeholder <scan-command>)
+    run: "python scan_secrets_pii.py"
+    status: exists
+    source: GOV-05 section 8; configured by WP-00-02
   layer_lint:
     purpose: layer rules (G4)
     run: "python -m pytest tests/test_layers.py -q"

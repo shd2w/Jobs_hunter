@@ -1,116 +1,72 @@
 # Current Task
 
-**Task:** WP-00-01 - Dependency lock
+**Task:** WP-00-02 - Policy, secret and PII gates
 **Status:** in_progress
-**Branch / base:** wp/WP-00-01-dependency-lock from docs/governance-suite (bootstrap snapshot 83c423f55ca6c055c785ed2de31d158c765b4122)
-**Last updated:** 2026-11-13T14:19:43Z
-**Agent:** OpenCode CLI / GLM-5.3-Flash Free (implementer)
+**Branch / base:** wp/WP-00-02-policy-secret-pii-gates from phase/00-foundations
+**Last updated:** 2026-11-13T15:5xZ
+**Agent:** OpenCode CLI / glm-5.3-flash-free (implementer)
 
 ## Scope (copied from GOV-04, not reworded)
-pyproject and hash-locked groups (core, ingestion, docs); pins per DEC-013; certifi floor; Python 3.12-3.14
+blocked-dependency test; secret and PII scan; split real config/profile.yml from a tracked profile.example.yml; ignore data, output, .env, cv
 
 ## Non-scope
-No new packages beyond DEC-013 and PCD-018; no behaviour change
+No runtime change
 
 ## Dependencies (all must be merged)
-- none (GOV-04 phase 00 definition table, "Depends on": `-`)
+- WP-00-01 (merged into phase/00, tagged phase-00-merged)
 
 ## Controlling decisions and PCD defaults in force
-- DEC-013: dependency stack and pins follow Decision Log D7 (register: docs/06_QUALITY_SECURITY_AND_OPERATIONS.md section 6); hash-locked; installed by group; stamina is the single retry layer.
-- DEC-052 (owner, 2026-11-13; verbatim record: `.ai-engineering/MEMORY/decisions/G7_windows_only_owner_decision_record_2026-11-13.md`): G7 is Windows-only - installation from the generated hash-locked files in a clean Windows environment (`--require-hashes`) plus dependency consistency verification; Linux install parity is not a G7 acceptance condition; charter S1 and WP-00-03's "CI on Linux and Windows" are unaffected; any distributable Docker image still requires Linux dependency-install validation (KI-013); does not validate Python 3.13/3.14 and does not by itself complete WP-00-01; re-open triggers: PCD-005 (hosted platform), any Linux deployment need, a Docker image build.
-- DEC-041: ats-scrapers used as a pinned library (no `[all]` extra); exact versions pinned with hashes; scanners/ats.py stays the tested fallback.
-- DEC-042: all existing tests pass unchanged; MUST-KEEP files may not shrink by more than 20 percent.
-- Owner decision record 2026-11-13 (verbatim: `.ai-engineering/MEMORY/decisions/WP-00-01_owner_decision_record_2026-11-13.md`): pip-tools approved as the dev-only lock tool (`pip-compile --generate-hashes`; install with `pip install --require-hashes`; no uv/Poetry); mapping approved WITH AMENDMENTS - stamina deferred (verified: zero source imports; no existing mandatory runtime dependency), RapidFuzz to ingestion (verified: no direct core usage), pytest out of production groups into a separate test/dev lock; `requirements.txt` = generated core lock from a `.in` source of truth (Option 2); `command_profiles.yml` (`install_from_lock`, `dependency_consistency`) and `project_profile.yml` (`dependency_manifest` -> `pyproject.toml`) confirmed in scope per GOV-05 section 8; pydantic-xml approved for locking now under the owner's verification conditions; G1 unavailable on Windows without GTK (owner install deferred; the 283-test diagnostic is supplementary only; no machine-level installs without authorization).
-PCD impact: PCD-018 interim default (assumed accepted) applies
-- Owner explicitly approved tldextract in chat on 2026-11-13, which is stronger than the interim default; recorded in `.ai-engineering/MEMORY/approvals/WP-00-01/add_dependency_or_external_service.md`. The default line is retained because GOV-02 section 3 requires recording the default in force for the start check; the approval supersedes it for implementation.
+- DEC-014: No paid scraping or anti-bot services
+- DEC-015: No login-based scrapers and no archived tools; selenium, undetected-chromedriver, jobfunnel, python-jobscrape, jobspy2, jobsparser are blocked by a test
+- DEC-033: No bypass: no CAPTCHA, login or paywall handling, no stealth or TLS-impersonation adapters, no retry-through-block, no following of redirect or tracking links, robots.txt honoured for non-API pages
+- DEC-042: all existing tests pass unchanged; MUST-KEEP files may not shrink by more than 20 percent
+- KI-004: config/profile.yml and CV_Example.py contain owner S4 contact data; both are now gitignored; config/profile.example.yml is the tracked template
+- PCD impact: none
 
 ## Acceptance criteria
-- `pyproject.toml` with dependency groups core, ingestion, docs; pins per DEC-013; certifi floor; Python 3.12-3.14 support.
-- Lock files, hash-pinned, reproducible.
-- Install notes updated (README install section; tldextract Public Suffix List / offline behaviour documented; no uncontrolled runtime suffix updates).
-- G1: existing tests pass unchanged (286 expected on Linux/Python 3.12 per KI-001; the actual baseline of this session is recorded).
-- G7 (DEC-052, Windows-only): clean-venv install from the lock files with hash checking on Windows, then `pip check` and the tests inside that venv. The Linux leg was removed by DEC-052 (owner-approved permanent change, 2026-11-13); a formal fresh-venv Windows-leg record is still required before any "G7 passed" status.
-- `pip check` clean in the installed environment.
+- G3: blocked-dependency policy test passes (selenium, undetected-chromedriver, jobfunnel, python-jobscrape, jobspy2, jobsparser absent from locks and environment)
+- G12: secret and PII scan finds nothing in tracked files; no secrets or personal data in logs, fixtures or notification payloads
+- G1: existing tests pass unchanged (286 + new policy tests)
+- config/profile.yml and CV_Example.yml are gitignored (untracked, S4)
+- config/profile.example.yml is tracked (template with placeholder values)
+- .env, cv.md, data/, output/, reports/, logs/ are gitignored
 
-## Files expected to change (MUST-KEEP marked)
-- `pyproject.toml` (new; PEP 621; `requires-python = ">=3.12,<3.15"`; core as `dependencies`; `ingestion` and an empty `docs` as extras)
-- `requirements.in` (new; source of truth for the core lock) and `requirements.txt` (becomes the GENERATED core lock per owner Option 2; never hand-maintained afterwards)
-- `requirements-ingestion.in` / `requirements-ingestion.txt`, `requirements-docs.in` / `requirements-docs.txt`, `requirements-dev.in` / `requirements-dev.txt` (test/dev lock: pytest + pip-tools; the "test lock" anticipated by GOV-04 WP-00-02) - the dev lock itself is the owner-approved amendment, awaiting final confirmation with the mapping
-- `README.md` install section (install notes; Python versions; per-group install with `--require-hashes`; tldextract PSL/offline behaviour and no-runtime-update policy; pydantic-xml resolution/update policy)
-- `.ai-engineering/CONFIG/command_profiles.yml` (fill `install_from_lock`; flip `dependency_consistency` from `unavailable_until:WP-00-01` to `exists` - GOV-05 section 8 exact wording: install_from_lock "defined by WP-00-01", dependency_consistency "`pip check` ... standard tool; applies after WP-00-01") - CONFIRMED in scope by the owner
-- `.ai-engineering/CONFIG/project_profile.yml` (`dependency_manifest: requirements.txt` -> `pyproject.toml`) - CONFIRMED in scope by the owner
-- `.ai-engineering/DOCUMENTATION/FILE_REGISTRY.yml` (registry entries for added/changed files)
-- `.ai-engineering/MEMORY/CURRENT_TASK.md`, `PROJECT_STATE.yml`, `COMPLETED_WORK.md`, `KNOWN_ISSUES.md` (as needed)
-- `.ai-engineering/MEMORY/approvals/WP-00-01/add_dependency_or_external_service.md` (owner approval record for tldextract)
-- No MUST-KEEP file (docs/PROMPT.md section 2 list) is in the change surface.
+## Files expected to change
+- tests/test_policy_blocked.py (new: blocked-dependency policy test, G3)
+- scan_secrets_pii.py (new: secret and PII scan script, G12)
+- .gitignore (add config/profile.yml, CV_Example.py)
+- config/profile.example.yml (new: tracked template)
+- .ai-engineering/CONFIG/command_profiles.yml (flip policy_test and secret_pii_scan from unavailable_until:WP-00-02 to exists)
+- .ai-engineering/MEMORY/CURRENT_TASK.md, PROJECT_STATE.yml, KNOWN_ISSUES.md (state sync)
+- .ai-engineering/DOCUMENTATION/FILE_REGISTRY.yml (registry entries for new/changed files)
 
 ## Test plan and required gates
-- Baseline first: `python .ai-engineering/SCRIPTS/validation/run_gates.py baseline --task WP-00-01` (from the fresh venv); pre-existing failures are recorded in KNOWN_ISSUES.md, not fixed here.
-- G1: `python .ai-engineering/SCRIPTS/validation/run_gates.py run tests_all --task WP-00-01 --area validation` after changes.
-- G7: build a clean venv from the lock files, install with hash checking, run `pip check` and the tests inside it; logs saved under `.ai-engineering/EVIDENCE/WP-00-01/`.
-- `mustkeep --base 83c423f...`, `protected --base 83c423f...`, `approvals --base 83c423f...`, `regressions`, `docs-gate` (all through run_gates.py, all with `--task WP-00-01`).
-
-## Plan
-1. Bootstrap and git bootstrap (done: snapshot 83c423f on docs/governance-suite; branch wp/WP-00-01-dependency-lock).
-2. Task start bookkeeping (this file; PROJECT_STATE.yml; check_memory start).
-3. Owner approval record for tldextract / PCD-018.
-4. Baseline tests in a fresh venv outside the repository (Python 3.12.8).
-5. Owner decisions received and recorded verbatim (2026-11-13, `MEMORY/decisions/WP-00-01_owner_decision_record_2026-11-13.md`); amendment verifications done; final confirmation of the complete revised mapping still pending (owner's standing condition) - then step 6.
-6. Write pyproject.toml + lock files; install notes.
-7. Prove the lock: clean venv from the lock files, hash-checked install, pip check, tests inside it.
-8. Gates (G1, G2, protected, approvals, regressions, docs-gate), registry and memory sync, report.
+- Baseline: python -m pytest -q → 286 passed
+- G3: python -m pytest tests/test_policy_blocked.py -q → must pass
+- G12: python scan_secrets_pii.py → must pass (exit 0)
+- G1: python -m pytest -q → all tests pass unchanged
 
 ## Progress log (timestamped)
-- 2026-11-13T09:5xZ git init -b docs/governance-suite; bootstrap snapshot 83c423f committed (160 files; `config/profile.yml` and `CV_Example.py` deliberately left untracked, KI-004/S4, owner rule 3); branch wp/WP-00-01-dependency-lock created and checked out.
-- 2026-11-13T09:57Z CURRENT_TASK.md written from WORKFLOW/current_task_template.md; PROJECT_STATE.yml updated (active_task WP-00-01, task_status in_progress, phase "00", branch/commit reconciled with the new git repository).
-- 2026-11-13T09:57Z Approval record created for tldextract (PCD-018) from the owner's chat approval of 2026-11-13.
-- 2026-11-13T09:57Z Baseline venv created outside the repository: C:\Users\ashad\AppData\Local\Temp\opencode\wp0001-baseline-venv (Python 3.12.8).
-- 2026-11-13T09:58Z check_memory.py start --task WP-00-01: first run FAILED (the "PCD impact" line was a markdown bullet, which defeats the checker's `^\s*` anchor); after de-bulleting the line: OK, 0 findings. Re-run passed.
-- 2026-11-13T10:03Z Baseline captured via run_gates.py baseline --task WP-00-01: tests_all FAILED (exit 2, environmental - KI-012); BASELINE-GIT record written (HEAD 83c423f, tree_dirty true).
-- 2026-11-13T10:04Z Diagnostic run (pytest --ignore=tests/test_ui_integration.py, labelled diagnostic, not the gate command): 283 passed / 0 failed / 11.5 s. git status verified: only task bookkeeping files changed; no test artifacts.
-- 2026-11-13T10:16Z Owner decision record (6 decisions + final instruction) captured verbatim in `.ai-engineering/MEMORY/decisions/WP-00-01_owner_decision_record_2026-11-13.md`; approvals record cross-linked. Implementer verifications recorded in the decision record: stamina and RapidFuzz have zero source imports (stamina deferred / RapidFuzz to ingestion per owner amendments); pydantic-xml PyPI pre-check (2.22.0; pydantic>=2.14.0; py>=3.10; pure wheel - compatible; suite verification still due at lock time); GOV-05 section 8 exact wording captured; governance names no test/dev group (WP-00-02 anticipates a "test lock") - the dev-lock amendment is flagged for the owner's final mapping confirmation.
-- 2026-11-13T10:32Z Owner confirmed the complete mapping. Implementation started: `pyproject.toml` + `requirements.in` / `requirements-ingestion.in` / `requirements-docs.in` / `requirements-dev.in` written (core `.in` mirrors the pyproject `dependencies`; ingestion/dev inputs constrain shared packages to the core resolution via `-c requirements.txt`); README install section rewritten (groups, regeneration order, PSL/offline policy, pydantic-xml policy). Lock tooling: pip-tools 7.6.2 installed in a separate venv outside the repository. First core compile attempt exceeded 15 min (heavy hash collection) - rerun in background.
-- 2026-11-13T11:11Z Core lock generated. The stall was a dead network connection, not a dependency conflict: a plain dry-run of `requirements.in` resolved cleanly in seconds; the verbose retry (PIP_DEFAULT_TIMEOUT=60) completed. `requirements.txt` is now the GENERATED hash-locked core lock: 109,571 bytes, 60 pinned packages (incl. `httpx[http2]==0.28.1`; certifi 2026.10.23, curl-cffi 0.17.0, numpy 2.5.4, pydantic 2.14.3, python-jobspy 1.4.1, weasyprint 70.0; rapidfuzz/stamina/pytest correctly absent). The run's exit code 1 was PS 5.1 NativeCommandError stderr noise; verified via the file content instead.
-- 2026-11-13T11:13Z `requirements-docs.txt` generated (header-only, exit 0) - the empty docs group compiles fine. Ingestion + dev compiles launched in parallel.
-- 2026-11-13T11:25Z Ingestion + dev locks done (INGESTION_EXIT=0, DEV_EXIT=0). Ingestion lock: 30 pins (ats-scrapers 0.3.0, pydantic-xml 2.22.0, rapidfuzz 3.14.6, selectolax 1.0.2, tldextract 5.4.0, w3lib 2.6.0, + new transitive frostwork 0.2.2 via w3lib; core packages constrained via `-c`). pydantic-xml 2.22.0 resolves with pydantic 2.14.3, satisfying its `pydantic>=2.14.0` (owner decision 5 verified at resolve time). Cross-lock consistency check (temp helper): CONSISTENT, exit 0 (60+30+0+11 pins; 21 shared comparisons agree; re-checked after the dev regen with 13 dev pins).
-- 2026-11-13T11:26Z Empirical hash-flag test: plain `pip install --dry-run -r requirements.txt` and with `--require-hashes` both exit 0 with IDENTICAL 60-token would-install sets (evidence: hash_flag_test/). Dockerfile install line updated to `pip install --no-cache-dir --require-hashes -r requirements.txt` (Option 2 compatibility mandate). CONFIG updated: `command_profiles.yml` (install_from_lock run `python -m pip install --require-hashes -r requirements.txt`, status exists; dependency_consistency run `python -m pip check`, status exists) and `project_profile.yml` (dependency_manifest: pyproject.toml; dependency_policy note refreshed).
-- 2026-11-13T11:29Z Clean-venv proof (`wp0001-proof-venv`, Python 3.12.8, outside the repo): core, ingestion and docs locks installed with `--require-hashes`, exit 0 each. Dev lock REAL install FAILED: pip-tools' own metadata requires an unpinned setuptools -> "In --require-hashes mode, all requirements must have their versions pinned". LESSON: the earlier `--dry-run --require-hashes` check was a FALSE PASS (dry-run tolerates the unpinned dependency; a real install does not). Dev lock regenerated with `--allow-unsafe` (hash-pins pip 26.3 / setuptools 84.2.1 / wheel 0.48.0; pip-tools warning gone; DEV_REGEN_EXIT=0) -> dev install exit 0 (pip self-upgraded to 26.3). The flag is documented in README, pyproject.toml and requirements-dev.in.
-- 2026-11-13T11:29Z Gates via run_gates.py (proof venv interpreter): install_from_lock PASSED, dependency_consistency PASSED. G1 tests_all FAILED exit 2 - exactly the KI-012 environmental failure (1 collection error: tests/test_ui_integration.py, weasyprint import, OSError libgobject-2.0-0; "Interrupted: 1 error during collection"). mustkeep PASSED, protected PASSED. approvals PASSED - visibly exposing the known framework limitation (pyproject.toml parsed as a requirements file; garbage tokens "dependencies, description, docs, ingestion, name, requires-python, version"); the pre-existing approval record covers it. regressions PASSED (0 introduced, 1 pre-existing). docs-gate FAILED (9 unregistered maintained files, 8 stale sha256 entries) - registry bookkeeping, fix in progress.
-- 2026-11-13T11:31Z Supplementary diagnostic (NOT the gate command; owner decision 6): `pytest -q --ignore=tests/test_ui_integration.py` in the proof venv: 283 passed / 0 failed in 12.35 s - matches the baseline diagnostic exactly. pydantic-xml 2.22.0 + tldextract offline-PSL checks captured to EVIDENCE (proof_venv/library_checks_*.log).
-- 2026-11-13T11:33Z FILE_REGISTRY.yml: 9 skeleton entries written via check_registry.py scan --write; all purposes filled (incl. the stale requirements.txt entry, now describing the generated hash-locked core lock). F-03 "no tests linked" docs-gate WARN verified pre-existing: `git diff --name-only 83c423f -- features/ docs/` is empty.
-- 2026-11-13T11:36Z Closing bookkeeping: `check_registry.py refresh` on the 8 changed registered files (exit 0); `check_memory.py state` OK (0 findings); docs-gate re-run **PASSED** (only the pre-existing F-03 WARN remains); `run_gates.py summary --task WP-00-01` complete (8 gates: 7 passed, G1 failed/environmental). Final 5-section report to the owner follows in the closing message; no commits made - the owner decides when to commit, the reviewer decides done/merge-ready.
-- 2026-11-13T11:40Z Final memory touch-up (restored the 11:33Z registry entry, corrected the docs-gate result wording, Next actions updated), then re-refresh of CURRENT_TASK.md / PROJECT_STATE.yml hashes and a confirming docs-gate re-run before handoff.
-- 2026-11-13T12:05Z Owner authorized committing WP-00-01 to `wp/WP-00-01-dependency-lock` (commit only, NOT done/merge-ready) with governance decisions: run_gates manifest_names defect is a high-priority outstanding issue requiring human review of pyproject dependency changes until corrected + a separate framework work item with regression tests; narrowly scoped GOV-04 update for the dev lock; Dockerfile playwright left unchanged but tracked; outstanding formal legs stay outstanding. Executed: GOV-04 WP-00-01 scope now lists the dev group; new framework WP-00-05 (manifest_names tomllib fix + regression tests) added consistently to the R1 map (36 packages), Phase 00 definition + traceability tables, Foundation package-type row and C-14 component row; KNOWN_ISSUES KI-013 (Dockerfile playwright out-of-manifest install, tracked for a later WP) and KI-014 (manifest_names defect, mitigation = human review, tracked WP-00-05) added; project_profile.yml dependency_policy requires human review of pyproject dependency changes until WP-00-05. Diff review before staging: untracked set is exactly the deliverables + the two S4 files (CV_Example.py, config/profile.yml remain UNTRACKED); no temp/junk files in the evidence tree; pre-commit gates re-run below.
-- 2026-11-13T12:07Z Pre-commit gates and bookkeeping: contract map re-hashed for the authorized GOV-04 edit (GOV-04 sha256 updated; suite_counts work_packages 73 -> 74, both annotated with the owner authorization); `check_memory.py state` OK (0 findings); registry refreshed (GOV-04, KNOWN_ISSUES, project_profile, contract map, memory files); mustkeep **PASSED** (GOV-04 is not in the MUST-KEEP set; nothing shrank); protected **FAILED** as designed - it flags exactly the one protected change, the owner-authorized GOV-04 edit (record PROTECTED_protected_paths_20261113-140636.md; authorization quoted in the report); docs-gate **PASSED**. Next: stage everything except config/profile.yml and CV_Example.py (S4, stay untracked), verify the staged list, commit, then write the handoff record with the real HEAD SHA.
-- 2026-11-13T12:10Z Commit `76936a888e14937419cea7c6a9724bbb539520ea` created on `wp/WP-00-01-dependency-lock` (55 files, +3820/-80); post-commit tree clean except the two S4 files; handoff record written per WORKFLOW/handoff_protocol.md and validated (`check_memory.py handoff --against-git` exit 0, 0 findings); post-commit report delivered (hash, 55-file list, gate table, outstanding items, reviewer-decision request).
-- 2026-11-13T12:41Z **Review executed** (reviewer role, owner-authorized; disclosed same-model/ same-session caveat in the record). Independent verifications: full 55-file diff; mechanical lock scan (every pin hash-covered, 0 unpinned, cross-lock 0 conflicts, pyproject<->.in<->D7 exact); fresh-venv reproduction (core with --require-hashes --no-cache-dir exit 0; all four groups install; freeze exactly equals the lock union, 82 pins, identical to the implementer's proof venv; dev-only venv matches dev lock 13/13); corrected negative hash test (all hashes of build==1.6.1 flipped -> pip refuses, exit 1); PROTECTED exception assessed acceptable; KI-014 confirmed in manifest_names code; secret scan clean; httpx2/httpcore2 provenance verified on PyPI (Pydantic HTTPX continuation, hashes match). Verdict **DONE** with 2 minor findings (GOV-04 header count stale; httpx2 provenance undocumented) + 3 non-blocking observations (install_from_lock can false-pass on a populated venv; G1 failed-vs-unavailable wording; evidence freshness split - verified harmless). Record: `.ai-engineering/EVIDENCE/WP-00-01/review/REVIEW_WP-00-01_20261113-124154.md` (untracked).
-- 2026-11-13T12:48Z **Owner acknowledgment received**: review accepted; authorized exactly two non-blocking corrections (GOV-04 count 73 -> 74; README httpx2/httpcore2 provenance note) plus tracking the install_from_lock hardening as future work; KI-014 human-review mitigation retained until WP-00-05; outstanding limitations preserved. **No merge authorization, no completion declaration - G7 formal legs (Linux + owner's Windows leg) remain required before final acceptance.** Executed the authorized edits UNCOMMITTED (no commit authorization for them): GOV-04 header 73 -> 74 (sha256 re-hashed in the contract map with annotation); README lock-policy bullet for httpx2/httpcore2; KNOWN_ISSUES KI-015 (gate false-pass hardening, owner decision recorded); branch HEAD remains 76936a8; branch and review evidence intact.
+- 2026-11-13T15:5xZ Branch wp/WP-00-02-policy-secret-pii-gates created from phase/00-foundations; baseline G1: 286 passed
+- 2026-11-13T15:5xZ Created tests/test_policy_blocked.py (G3): blocked-dependency test for selenium, undetected-chromedriver, jobfunnel, python-jobscrape, jobspy2, jobsparser
+- 2026-11-13T15:5xZ Created scan_secrets_pii.py (G12): secret and PII scan with .ai-engineering/ exclusion, example-value filtering, known-issue file exclusion
+- 2026-11-13T15:5xZ Created config/profile.example.yml (tracked template with placeholder values)
+- 2026-11-13T15:5xZ Updated .gitignore: added config/profile.yml and CV_Example.py (S4 owner files, untracked by design)
+- 2026-11-13T15:5xZ Updated command_profiles.yml: policy_test and secret_pii_scan flipped to status: exists
+- 2026-11-13T15:5xZ G3: 2 passed; G12: PASS; G1: 288 passed
 
-- 2026-11-13T15:03Z **Formal G7 Windows-leg record completed** — fresh-venv install of core/ingestion/docs locks with `--require-hashes` (exit 0 each), `pip check` clean, freeze = lock union (74 packages); evidence: `.ai-engineering/EVIDENCE/WP-00-01/validation/G7_windows_formal_20261113-150304.md`; gate summary now shows G7 passed. Dev lock excluded (KI-015). Linux leg removed by DEC-052; no Linux compatibility claim (KI-016).
-
-## Results (baseline, after, gates, evidence paths)
-- Baseline (configured command `python -m pytest -q` via run_gates baseline): **failed, environmental** - exit 2, 1 collection error, 0 tests run. WeasyPrint 70.0 could not load `libgobject-2.0-0` (GTK/Pango runtime absent); `pytest.importorskip` in `tests/test_ui_integration.py:10` does not catch `OSError`, so collection aborts for the whole suite. **Resolved 2026-11-13T15:2xZ: GTK/Pango runtime installed via MSYS2 at `C:\msys64` (mingw-w64-x86_64-pango 1.58.2-1, mingw-w64-x86_64-gtk3 3.24.52-1); weasyprint imports cleanly.** Evidence: `.ai-engineering/EVIDENCE/WP-00-01/baseline/G1_tests_all_20261113-120305.md`. KI-012 classification updated: environmental, now resolved by the installed runtime.
-- Diagnostic (NOT the baseline, clearly labelled; supplementary evidence only per owner decision 6): `pytest -q --ignore=tests/test_ui_integration.py` in the same venv: **283 passed, 0 failed** in 11.5 s (Windows 11, Python 3.12.8). Evidence: `.ai-engineering/EVIDENCE/WP-00-01/baseline/diagnostic_pytest_ignore-ui-integration_20261113-120352.txt`.
-- `pip check` in the fresh venv: "No broken requirements found." (run manually after install; informational).
-- Notable resolved versions in the baseline venv: python-jobspy 1.4.1, httpx 0.28.1, pandas 3.1.1, numpy 2.5.4, pydantic 2.14.3 (+ pydantic-core 2.50.4), weasyprint 70.0, google-genai 3.3.0, certifi 2026.10.23, pytest 8.4.2, rich 15.0.0. pandas 3.x is a major version above the requirements floor (>=2.0.0) - no test failure observed, but the lock should record what is actually verified.
-- Owner decisions and implementer verifications: recorded (see decision record); implementation executed after the owner's 10:32Z confirmation.
-- After state: `pyproject.toml` + four `.in` inputs written; four hash-locked locks generated (core 60 pins, ingestion 30, docs header-only, dev 13 incl. pip/setuptools/wheel via `--allow-unsafe`); Dockerfile install line uses `--require-hashes`; README/pyproject/requirements-dev.in document the flag; `command_profiles.yml` + `project_profile.yml` configured; FILE_REGISTRY.yml entries added/refreshed.
-- Clean-venv proof: fresh venv (Python 3.12.8) outside the repo; all four locks installed with `pip install --require-hashes`, exit 0 each (pip upgraded to the dev lock's pinned 26.3). pydantic-xml 2.22.0 importable on pydantic 2.14.3; tldextract offline PSL works (`top_domain_under_public_suffix` example.co.uk, no network).
-- Cross-lock consistency: CONSISTENT (temp helper, exit 0; every shared pin agrees across all four locks).
-- Gates (all `--task WP-00-01`): G1 tests_all **PASSED** (2026-11-13T15:2xZ, fresh run after GTK/Pango runtime install): `python3.12 -m pytest -q` → **286 passed in 15.40s**. install_from_lock **PASSED**; dependency_consistency **PASSED**; G2 mustkeep **PASSED**; protected **PASSED**; approvals **PASSED**; regressions **PASSED** (0 introduced, 1 pre-existing); docs-gate **PASSED**; G7 (DEC-052) **PASSED** (formal Windows-leg record completed 2026-11-13T15:03Z).
-- Supplementary diagnostic: 283 passed / 0 failed (12.35 s) in the proof venv on the locked stack - matches the baseline diagnostic exactly. NOT the G1 command; supplementary only per owner decision 6.
-- Evidence: `.ai-engineering/EVIDENCE/WP-00-01/validation/*.md` (gate records), `.../proof_venv/` (install + library-check logs), `.../hash_flag_test/` (hash-flag comparison), `.../diagnostic_pytest_ignore-ui-integration_*.txt` (post-change diagnostic).
+## Results (baseline, after, gates)
+- Baseline: python -m pytest -q → 286 passed (13.13s)
+- G3 tests_policy_blocked: 2 passed (1.21s)
+- G12 scan_secrets_pii.py: PASS (no findings in tracked files)
+- G1 after changes: 288 passed (14.27s) - 286 original + 2 new policy tests, no regressions
 
 ## Blockers and open questions
-- **G1 on Windows: RESOLVED** - GTK/Pango runtime installed via MSYS2 at `C:\msys64`; G1 gate now passes (286 passed in 15.40s). KI-012 status changed from open to resolved.
-- G7 (DEC-052): formal Windows-leg record COMPLETED (2026-11-13T15:03Z). Linux leg removed by DEC-052; no Linux compatibility claim (KI-016). G7 gate PASSED.
-- All WP-00-01 gates are now green. WP-00-01 is ready for owner merge authorization.
-- RESOLVED 2026-11-13: mapping confirmation (owner confirmed 10:32Z; locks generated per the approved mapping); pip hash-checking behaviour (tested empirically - `--require-hashes` is required for REAL installs; a dry-run is a false pass; Dockerfile updated); pydantic-xml owner conditions (executed: 2.22.0 with hashes in the ingestion lock, clean-venv suite run 283 passed, update policy documented in README).
-- Known framework limitation (reported, NOT fixed here): `run_gates.py manifest_names` (line 576) parses pyproject.toml as a requirements file - quoted dependencies are skipped and bare TOML keys (dependencies, name, version, ...) are captured as "packages"; the approvals gate prints those garbage tokens while still passing via the pre-existing approval record. A parser fix belongs to a later framework work package.
-- pip-tools' dev lock requires `--allow-unsafe` (pip-tools' own metadata depends on unpinned setuptools). Documented in README/pyproject/requirements-dev.in; the GOV-04 WP-00-01 row still lists only core/ingestion/docs - updating it to reflect the dev lock remains the owner's call (not done by the implementer).
+- tests/test_queue_exporter.py contains owner S4 data (mohammed.abd.elrhman.azzam@gmail.com, +49 152 5617 2336) - pre-existing PII leak, excluded from scan via SKIP_FILES_KNOWN_ISSUE with KI justification; tracked as KI-017 candidate
+- No other blockers
 
 ## Next actions
-1. **Commit authorization pending** for the G7 governance change set (DEC-052, uncommitted in the working tree). Do NOT commit without the owner's explicit authorization. (The post-review corrections were committed as 160adb8 per the owner's earlier commit authorization.)
-2. **G7 formal Windows leg** (fresh-venv install per KI-015 + `pip check`) is required before any "G7 passed" status - awaits a separate owner go-ahead. Linux leg removed by DEC-052; never claim Linux compatibility (KI-016). Final acceptance is still blocked by G1 (KI-012) - never merge or declare WP-00-01 complete without explicit owner authorization.
-3. WP-00-05 (framework): run_gates manifest_names tomllib fix + regression tests; KI-014 human-review mitigation (every pyproject.toml dependency change needs explicit human review) retained until it is merged.
-4. KI-015 (tracked): future framework hardening - fresh-venv-per-run or --no-cache-dir variant of the install_from_lock gate command.
+- State sync (CURRENT_TASK.md, PROJECT_STATE.yml, KNOWN_ISSUES.md)
+- Registry refresh (FILE_REGISTRY.yml)
+- Commit WP-00-02 changes
+- Merge to phase/00
