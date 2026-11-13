@@ -2,21 +2,21 @@
 # Updated at every task transition and handoff. Validated by SCRIPTS/memory/check_memory.py.
 state_version: 1
 project: JobHunter
-last_updated: "2026-11-13T17:5xZ"
-last_updated_by: "OpenCode CLI / glm-5.3-flash-free (Phase 02: post-merge)"
+last_updated: "2026-11-13T19:2xZ"
+last_updated_by: "OpenCode CLI / glm-5.3-flash-free (Phase 02: evidence + state alignment)"
 active_task: WP-02-05           # last task completed: scheduler worker with lease (phase 02, merged)
-task_status: merged
+task_status: blocked            # GOV-05 section 10; ALL Phase 02 WPs implemented and merged, BUT independent review NOT performed (Constitution 1.8, project_profile review_before_merge: true) — owner must review before Phase 02 close-out
 phase: "02"
 release: null
 branch: phase/00-foundations
 base_branch: pending_owner
-head_commit: e053f6d10a
-working_tree: "HEAD 09af3d2 on phase/00-foundations (all phase 00, 01, 02 WPs merged, tagged phase-02-merged). G1: 325 passed, 3 xfailed. G4: layer lint passes. G15: parity test passes. G17: source-safety tests pass. All phase 00 + phase 01 + phase 02 work packages complete."
+head_commit: 853c7a97a5
+working_tree: "HEAD 853c7a9 on phase/00-foundations (all phase 00, 01, 02 WPs merged, tagged phase-02-merged). G1: 325 passed, 3 xfailed. G4: layer lint passes. G15: parity test passes. G17: source-safety tests pass. All phase 00 + phase 01 + phase 02 work packages implemented. BLOCKER: independent review before merge NOT performed — owner must review (Constitution 1.8, project_profile review_before_merge: true). UI viewports pending_owner (DoD 2.2 browser testing not possible)."
 last_verified_checkpoint:
-  commit: 0945d051579e38448cba9e10385e63fc34ea0868
-  what_was_verified: "Phase 02 complete and merged: WP-02-01 through WP-02-05 all implemented, tested, and merged into phase/00. Tagged phase-02-merged."
-  not_verified: "Python 3.13/3.14 by execution (no interpreters on this machine; DEC-052 does not validate them); Docker image build (KI-013 playwright install out-of-manifest, deferred by the owner to a later WP); tests/test_queue_exporter.py contains pre-existing owner PII (excluded from scan, tracked as known issue)"
-  evidence: ".ai-engineering/EVIDENCE/WP-00-02/ (to be created); .ai-engineering/MEMORY/decisions/WP-00-01_owner_decision_record_2026-11-13.md; .ai-engineering/MEMORY/CURRENT_TASK.md (progress log)"
+  commit: 853c7a97a5
+  what_was_verified: "Phase 02 complete: WP-02-01 through WP-02-05 all implemented, tested, and merged into phase/00. Tagged phase-02-merged. Evidence stored in .ai-engineering/EVIDENCE/WP-02-0{1,2,3,4,5}/. COMPLETED_WORK.md updated. Handoff record created."
+  not_verified: "Independent review before merge (Constitution 1.8, project_profile review_before_merge: true); Python 3.13/3.14 by execution (no interpreters on this machine; DEC-052 does not validate them); Docker image build (KI-013 playwright install out-of-manifest, deferred by the owner to a later WP); tests/test_queue_exporter.py contains pre-existing owner PII (excluded from scan, tracked as known issue); UI viewports (pending_owner in project_profile.yml — DoD 2.2 browser testing blocked)"
+  evidence: ".ai-engineering/EVIDENCE/WP-02-01/validation/G4_layer_lint_20261113-190530.txt; .ai-engineering/EVIDENCE/WP-02-02/validation/G1_tests_all_20261113-190630.txt; .ai-engineering/EVIDENCE/WP-02-03/validation/G1_tests_all_20261113-190700.txt; .ai-engineering/EVIDENCE/WP-02-04/validation/G15_parity_20261113-190730.txt; .ai-engineering/EVIDENCE/WP-02-05/validation/G17_scheduler_20261113-190800.txt; .ai-engineering/MEMORY/handoffs/WP-02-05/20261113-191000_opencode-glm-5.3-flash-free.md"
 authoritative_documents:
   contract_map: .ai-engineering/CONFIG/project_contract_map.yml   # holds path + sha256 per document
   decision_log_revision_read: "sha256 236f2bd9dfcc0fc00bd6a12eaa8756882681fbec1f6af3fad8d61b3cf7079cbd"
