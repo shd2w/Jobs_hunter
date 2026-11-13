@@ -1,6 +1,6 @@
 # 04 — Work Packages
 
-Status: **binding implementation plan**. 73 work packages in 17 phases. Release mapping follows DEC-043 (R1 usable discovery, R2 personal workbench, R3 breadth and operations, R4 hosted platform). Controlling documents: GOV-02 (decisions), GOV-01 (invariants), GOV-05 (evidence).
+Status: **binding implementation plan**. 74 work packages in 17 phases. Release mapping follows DEC-043 (R1 usable discovery, R2 personal workbench, R3 breadth and operations, R4 hosted platform). Controlling documents: GOV-02 (decisions), GOV-01 (invariants), GOV-05 (evidence).
 
 ## 1. Phases
 
@@ -28,7 +28,7 @@ Status: **binding implementation plan**. 73 work packages in 17 phases. Release 
 
 | Release | Phases | Work packages |
 | ------- | ------ | ------------- |
-| R1 | 00 01 02 03 04 05 06 (+ 08 lite: WP-08-01, WP-08-02) | 35: WP-00-01, WP-00-02, WP-00-03, WP-00-04, WP-01-01, WP-01-02, WP-01-03, WP-01-04, WP-01-05, WP-01-06, WP-01-07, WP-02-01, WP-02-02, WP-02-03, WP-02-04, WP-02-05, WP-03-01, WP-03-02, WP-03-03, WP-03-04, WP-04-01, WP-04-02, WP-04-03, WP-04-04, WP-04-05, WP-05-01, WP-05-02, WP-05-03, WP-05-04, WP-05-05, WP-05-06, WP-06-01, WP-06-02, WP-08-01, WP-08-02 |
+| R1 | 00 01 02 03 04 05 06 (+ 08 lite: WP-08-01, WP-08-02) | 36: WP-00-01, WP-00-02, WP-00-03, WP-00-04, WP-00-05, WP-01-01, WP-01-02, WP-01-03, WP-01-04, WP-01-05, WP-01-06, WP-01-07, WP-02-01, WP-02-02, WP-02-03, WP-02-04, WP-02-05, WP-03-01, WP-03-02, WP-03-03, WP-03-04, WP-04-01, WP-04-02, WP-04-03, WP-04-04, WP-04-05, WP-05-01, WP-05-02, WP-05-03, WP-05-04, WP-05-05, WP-05-06, WP-06-01, WP-06-02, WP-08-01, WP-08-02 |
 | R2 | 07 08 (rest) 09 10 | 15: WP-07-01, WP-07-02, WP-07-03, WP-07-04, WP-08-03, WP-08-04, WP-08-05, WP-08-06, WP-09-01, WP-09-02, WP-10-01, WP-10-02, WP-10-03, WP-10-04, WP-10-05 |
 | R3 | 11 12 | 13: WP-11-01, WP-11-02, WP-11-03, WP-11-04, WP-11-05, WP-11-06, WP-11-07, WP-11-08, WP-11-09, WP-12-01, WP-12-02, WP-12-03, WP-12-04 |
 | R4 | 13 14 15 16 | 10: WP-13-01, WP-13-02, WP-13-03, WP-14-01, WP-14-02, WP-14-03, WP-15-01, WP-15-02, WP-16-01, WP-16-02 |
@@ -53,7 +53,7 @@ Transition rules are in GOV-05 §10. A package is never `ready_for_review` while
 
 | Package type | Meaning | Work packages |
 | ------------ | ------- | ------------- |
-| Foundation | Build, tooling, CI, packaging | WP-00-01, WP-00-02, WP-00-03, WP-02-05, WP-12-03, WP-12-04, WP-14-01 |
+| Foundation | Build, tooling, CI, packaging | WP-00-01, WP-00-02, WP-00-03, WP-00-05, WP-02-05, WP-12-03, WP-12-04, WP-14-01 |
 | Behaviour fix | Corrects an existing defect | WP-01-01, WP-01-02, WP-01-03, WP-01-04, WP-01-05, WP-01-07 |
 | Refactor | Moves or consolidates existing behaviour without changing it | WP-02-01, WP-02-02, WP-02-03, WP-02-04 |
 | Data | Schema, migration, importers, exporters | WP-03-01, WP-03-02, WP-03-03, WP-03-04, WP-10-02, WP-13-03 |
@@ -78,10 +78,11 @@ Each phase has two tables: the definition (scope, non-scope, dependencies, outpu
 
 | WP | Name — purpose | Scope | Non-scope | Depends on | Outputs | Tests / evidence | Exit criteria | Initial status |
 | -- | -------------- | ----- | --------- | ---------- | ------- | ---------------- | ------------- | -------------- |
-| WP-00-01 | **Dependency lock** — Reproducible installs | pyproject and hash-locked groups (core, ingestion, docs); pins per DEC-013; certifi floor; Python 3.12-3.14 | No new packages beyond DEC-013 and PCD-018; no behaviour change | - | pyproject.toml, lock files, install notes | T: clean-venv install Linux and Windows. E: install logs, pip check output | G7 green on both OS; lock reproducible | ready_for_implementation |
+| WP-00-01 | **Dependency lock** — Reproducible installs | pyproject and hash-locked groups (core, ingestion, docs, dev); pins per DEC-013; certifi floor; Python 3.12-3.14 | No new packages beyond DEC-013 and PCD-018; no behaviour change | - | pyproject.toml, lock files, install notes | T: clean-venv install on Windows (G7 per amended GOV-05 §3; Linux leg removed by DEC-052). E: install logs, pip check output | G7 green (Windows-only per DEC-052); lock reproducible | ready_for_implementation |
 | WP-00-02 | **Policy, secret and PII gates** — Make forbidden things fail in CI | blocked-dependency test; secret and PII scan; split real config/profile.yml from a tracked profile.example.yml; ignore data, output, .env, cv | No runtime change | WP-00-01 | tests/test_policy_blocked.py, scan script, example profile | T: test fails when selenium is added to a test lock; scan finds nothing. E: CI output | G3 and G12 green; no personal data tracked | blocked (dependencies) |
-| WP-00-03 | **CI with Windows and WeasyPrint** — Stop silent skips; prove the platform | CI on Linux and Windows; WeasyPrint present; missing WeasyPrint fails instead of skipping; verify_windows script | No feature change | WP-00-01 | CI config, scripts/verify_windows.ps1 | T: 286 pass, 0 skipped on both OS. E: CI runs | G1 and G7 green on both OS | blocked (dependencies) |
+| WP-00-03 | **CI with Windows and WeasyPrint** — Stop silent skips; prove the platform | CI on Linux and Windows; WeasyPrint present; missing WeasyPrint fails instead of skipping; verify_windows script | No feature change | WP-00-01 | CI config, scripts/verify_windows.ps1 | T: 286 pass, 0 skipped on both OS. E: CI runs | G1 green on both OS (Linux CI per scope); G7 green (Windows-only per DEC-052) | blocked (dependencies) |
 | WP-00-04 | **Baseline live source probe (informational)** — Record what actually works from the owner's network | run run_check_sources on the owner's machine; record dated OK or FAIL per source and which link fields each aggregator provider populates | Must not change scope or policy | WP-00-01 | docs/SOURCE_VERIFICATION.md | E: dated table with machine and network | Every source marked verified, failed or unreachable | blocked (dependencies) |
+| WP-00-05 | **Fix run_gates manifest_names TOML parsing** — Restore the approvals gate's dependency detection | Rewrite manifest_names in SCRIPTS/validation/run_gates.py to parse pyproject.toml with tomllib (detect quoted PEP 508 dependencies, ignore bare TOML keys); regression tests in SCRIPTS/validation/test_run_gates.py; until merged, every pyproject.toml dependency change requires explicit human review (owner decision 2026-11-13) | No project code or behaviour change; no change to gate pass/fail semantics beyond correct parsing | - | run_gates.py fix, regression tests | T: regression tests fail before the fix and pass after (TOML fixture with an injected new dependency). E: test output | Approvals gate flags a new quoted dependency added to pyproject.toml and no longer reports TOML keys as packages | ready_for_implementation |
 
 | WP | Type | Components | DEC | Pending decisions | Gates |
 | -- | ---- | ---------- | --- | ----------------- | ----- |
@@ -89,6 +90,7 @@ Each phase has two tables: the definition (scope, non-scope, dependencies, outpu
 | WP-00-02 | Foundation | C-14 | DEC-014, DEC-015, DEC-033, DEC-045 | - | G3, G12 |
 | WP-00-03 | Foundation | C-14 | DEC-042, DEC-047 | PCD-011 | G1, G7, G9 |
 | WP-00-04 | Pilot | C-15 | DEC-044, DEC-047 | PCD-020 | G20, G9 |
+| WP-00-05 | Foundation | C-14 | - | - | approvals |
 
 ### Phase 01 — Stabilise existing behaviour  (release R1)
 
@@ -405,7 +407,7 @@ Each phase has two tables: the definition (scope, non-scope, dependencies, outpu
 | C-11 | AI routing | Provider interface, model registry, error taxonomy, key pool, cache, cost log | WP-01-06, WP-08-05 |
 | C-12 | Documents | Explicit per-job CV and cover-letter drafts, review, versioning, export, PDF | WP-01-01, WP-09-01, WP-09-02 |
 | C-13 | Applications, notifications, feedback | Status machine, events, queue export, notification rules, feedback loop | WP-03-03, WP-10-01, WP-10-02, WP-10-03, WP-10-04 |
-| C-14 | Store, migrations, exports | SQLite store, migrations, importers, compat exports, backups, verification | WP-00-01, WP-00-02, WP-00-03, WP-01-04, WP-03-01, WP-03-02, WP-03-03, WP-03-04, WP-10-02, WP-12-03, WP-13-02, WP-13-03 |
+| C-14 | Store, migrations, exports | SQLite store, migrations, importers, compat exports, backups, verification | WP-00-01, WP-00-02, WP-00-03, WP-00-05, WP-01-04, WP-03-01, WP-03-02, WP-03-03, WP-03-04, WP-10-02, WP-12-03, WP-13-02, WP-13-03 |
 | C-15 | Health and monitoring | Run records, metrics, guards reporting, drift detection, diagnostics | WP-00-04, WP-04-04, WP-04-05, WP-12-01, WP-12-03, WP-12-04 |
 | C-16 | Hosted platform layer | Accounts, sessions, tenant isolation, workers, object storage, compliance flows (staged) | WP-13-01, WP-13-02, WP-13-03, WP-14-01, WP-14-02, WP-14-03, WP-15-01, WP-15-02, WP-16-01, WP-16-02 |
 | C-17 | Imports | Paste, .eml/.mbox, Telegram forward, CSV into the canonical job model | WP-05-04, WP-14-03 |

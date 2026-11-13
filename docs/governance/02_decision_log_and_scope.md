@@ -21,7 +21,7 @@ Status values for decisions: **Final-Owner** (stated by the owner in the Decisio
 
 ## 2. Final decisions
 
-This table contains 51 decisions. Assumptions are never listed here (see §8).
+This table contains 52 decisions. Assumptions are never listed here (see §8).
 
 | ID | Decision | Source basis | Status |
 | -- | -------- | ------------ | ------ |
@@ -76,6 +76,7 @@ This table contains 51 decisions. Assumptions are never listed here (see §8).
 | DEC-049 | Onboarding has two entry paths, manual and CV-assisted, that lead to the same profile structure; extracted data is reviewable and correctable before it counts as verified | SRC brief s5.2; doc 05 s2 | Final-Constraint |
 | DEC-050 | Application states and events: saved, preparing, ready_to_apply, applied, interview, offer, accepted or declined, rejected, withdrawn, archived; ready_to_apply is the only state eligible for queue export; every change is an event with undo | SRC doc 03 s10 | Final-Baseline |
 | DEC-051 | Feedback loop is per user only: events and ignore reasons; suggestions never auto-hide; soft ranking adjustment capped at plus or minus 10, inactive below 10 events, switchable off | SRC owner instruction doc 08 A13, s4.7 | Final-Baseline |
+| DEC-052 | G7 is Windows-only: installation from the generated hash-locked dependency files succeeds in a clean Windows environment using pip install --require-hashes, followed by successful dependency consistency verification (GOV-05 §3 amended in the same change set). Linux install parity is not a G7 acceptance condition. Rationale: local mode targets Windows (ASM-006); the Linux leg was never operationalized (no Linux command in GOV-05 §8) and never executed in any session; the Windows leg is evidenced and independently reviewed. Risks accepted: Linux wheel availability, glibc and architecture for the compiled pins stay unverified; Docker (Linux container) and any future hosted-mode installs are not covered by G7. Compensating controls: fail-closed hash checking; charter S1 test parity and WP-00-03 CI on Linux and Windows are unaffected; any Docker image intended for distribution still requires Linux dependency-install validation (KI-013); the residual risk is tracked as KI-016. This decision does not validate Python 3.13/3.14 (unverified on any OS), does not rewrite existing validation records, and does not by itself complete WP-00-01 (G1 and all remaining exit criteria still apply). Re-open trigger: the hosted-platform decision (PCD-005), any Linux deployment need, or a Docker image build (KI-013) | SRC owner instruction 2026-11-13; ASM-006 | Final-Owner |
 
 ## 3. Pending choices and blockers
 
@@ -239,6 +240,7 @@ Generated from the work-package definitions in GOV-04; a decision with no work p
 | DEC-049 | C-09 C-01 | WP-07-01, WP-07-04 | G1 G13 G15 |
 | DEC-050 | C-13 | WP-10-01 | G1 |
 | DEC-051 | C-13 | WP-10-04 | G1 |
+| DEC-052 | C-14 C-15 | WP-00-01, WP-00-03, WP-12-04 | G7 |
 
 ## 6. Requirement-to-decision chain
 

@@ -56,7 +56,7 @@ A release containing a package is blocked while any gate that package requires i
 | G4 | Layer-lint test passes: interfaces import only application services and domain models; domain imports no I/O | WP-02-01, WP-02-02, WP-02-04 |
 | G5 | No-automatic-document test passes: call-graph test plus the database constraint (DEC-019) | WP-01-01, WP-07-03, WP-09-01, WP-09-02 |
 | G6 | UAA queue export is byte-identical to the golden file (DEC-035, DEC-046) | WP-01-03, WP-03-03, WP-03-04, WP-10-02 |
-| G7 | Install from the hash-locked files succeeds on clean Windows and Linux environments | WP-00-01, WP-00-03, WP-12-04 |
+| G7 | Installation from the generated hash-locked dependency files succeeds in a clean Windows environment using `pip install --require-hashes`, followed by successful dependency consistency verification | WP-00-01, WP-00-03, WP-12-04 |
 | G8 | Adapter contract suite passes: fixtures normalise to valid Job, deterministic global_id, error classification | WP-04-01, WP-04-02, WP-04-03, WP-04-04, WP-05-01, WP-05-02, WP-05-03, WP-05-05, WP-11-01, WP-11-02, WP-11-03, WP-11-04, WP-11-05, WP-11-07 |
 | G9 | Mocked, simulated and designer-written results are labelled as such; verified claims cite a dated real run (DEC-047) | WP-00-03, WP-00-04, WP-01-02, WP-08-01, WP-08-02, WP-08-03, WP-08-06, WP-11-08, WP-12-02, WP-16-02 |
 | G10 | Simulation regression passes: real 60 percent drop re-baselines in 3 stable runs; stable zero outage never re-baselines; floored detector false alarms under 1 percent on small boards | WP-04-04, WP-06-02, WP-12-01 |
@@ -130,6 +130,8 @@ Breaker opens on the first 401/403/429 and no further request reaches that host 
 | Windows verification | `<windows-verify-command>` | created by WP-00-03 |
 
 A placeholder in angle brackets means **unavailable until the named package is merged**; a report must say "unavailable", never "passed".
+
+G7 evidence: a fresh-venv Windows install (KI-015: never a pre-populated venv) plus `pip check`; the Linux leg was removed by DEC-052 and the required-gate evidence rules of §1–§3 are unchanged.
 
 ## 9. Reviewer checklist
 

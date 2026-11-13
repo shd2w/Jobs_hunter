@@ -1,0 +1,33 @@
+# JobHunter - core dependency group (source of truth for the generated core lock).
+# Mirrors [project].dependencies in pyproject.toml (the authoritative manifest).
+#
+# Regenerate:  pip-compile --generate-hashes requirements.in   -> requirements.txt
+# Install:     pip install --require-hashes -r requirements.txt
+#
+# Generated lock files are never hand-maintained (owner decision 2026-11-13, Option 2).
+
+# Scanner (python-jobspy first; numpy floor after it, kept from the legacy file for provenance.
+# The hash-locked resolution pins one consistent numpy, so the old install-order workaround is moot.)
+python-jobspy>=1.4.1
+pandas>=2.0.0
+numpy>=2.0.0
+
+# HTTP + API (httpx extra [http2] per the D7 register; curl_cffi/pydantic floors per D7)
+httpx[http2]>=0.28.1
+curl_cffi>=0.17.0
+pydantic>=2.14.2
+certifi>=2026.10.19
+
+# Config
+pyyaml>=6.0.1
+python-dotenv>=1.0.1
+
+# AI providers
+google-genai>=1.0.0
+
+# Documents / exports
+weasyprint>=60.0
+openpyxl>=3.1.0
+
+# Logging
+rich>=13.7.0

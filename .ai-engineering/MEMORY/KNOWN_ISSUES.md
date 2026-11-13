@@ -35,6 +35,42 @@ Confirmed defects, limitations, unresolved root causes. Format per entry: id, st
 - `SCRIPTS/adapters/check_adapters.py` and its 46 tests show the entry files are well formed. They cannot show that a CLI loads or follows them. Live tests C1-C6 (`QUALITY/adapter_conformance.md`) are `not_run` for all three CLIs; spec 18 criteria 1-3 are therefore unmet.
 - Next step: the owner runs C1-C6 per CLI in a disposable clone and records `EVIDENCE/FW-E/conformance/<cli>_<date>.md`.
 
+## KI-012 - Windows: missing GTK/Pango runtime aborts the whole test suite at collection
+- Status: open, classification: environmental (pre-existing)
+- Observed 2026-11-13, WP-00-01 baseline (Windows 11, fresh Python 3.12.8 venv with `requirements.txt` installed, `pip check` clean): the configured baseline command `python -m pytest -q` exits 2 with **1 collection error and zero tests run**. `tests/test_ui_integration.py:10` calls `pytest.importorskip("weasyprint")`; WeasyPrint 70.0 raises `OSError: cannot load library 'libgobject-2.0-0'` because the GTK/Pango runtime is absent on the machine. `importorskip` catches only `ImportError`, so the `OSError` aborts collection for the entire suite.
+- Evidence: baseline record `.ai-engineering/EVIDENCE/WP-00-01/baseline/G1_tests_all_20261113-120305.md` (status failed, exit 2); diagnostic run excluding only that module: **283 passed, 0 failed** in 11.5 s (`.ai-engineering/EVIDENCE/WP-00-01/baseline/diagnostic_pytest_ignore-ui-integration_20261113-*.txt`). The Linux reference is unchanged: 286 passed (KI-001, 2026-11-12).
+- Workaround: install the GTK runtime on Windows (owner decision, PCD-011), or run pytest with `--ignore=tests/test_ui_integration.py` (diagnostic only; it is not the configured gate command).
+- Related: PCD-011; WP-00-03 ("missing WeasyPrint fails instead of skipping" is the designed behaviour per docs/06 section 1; making the skip robust against `OSError` would be a test change needing a written reason per G1).
+- Not fixed in WP-00-01 (scope is the dependency lock; G1 requires tests unchanged).
+
+## KI-013 - Dockerfile installs playwright outside the dependency manifest
+- Status: open, classification: manifest inconsistency (pre-existing)
+- The Dockerfile build stage runs `pip install playwright && playwright install --with-deps chromium` after installing the hash-locked core lock; `playwright` is declared in neither `pyproject.toml` nor any `requirements*.in`, so a container build's Python environment is not fully described by the manifest and that install bypasses hash-locked installation.
+- Owner decision 2026-11-13: leave unchanged in WP-00-01; track for a later work package (container/CI scope, cf. WP-00-03).
+- DEC-052 (2026-11-13): G7 became Windows-only, so a container build's dependency install is no longer covered by G7. Any Docker image intended for distribution still requires Linux dependency-install validation (fresh-venv install from the locks with `--require-hashes` plus `pip check` on Linux); this requirement is retained by DEC-052 and tracked here.
+- Related: DEC-052 (Linux install validation for distributable images retained here); WP-00-01 (the core-lock install line itself now uses `--require-hashes`).
+
+## KI-014 - run_gates.py manifest_names parses pyproject.toml as a requirements file
+- Status: open, classification: framework defect (pre-existing; first observed 2026-11-13 in WP-00-01)
+- `manifest_names` (SCRIPTS/validation/run_gates.py) extracts the leading bare token of any non-comment line, so pyproject.toml is parsed like a requirements file: quoted dependencies are skipped and bare TOML keys (dependencies, description, docs, ingestion, name, requires-python, version) are reported as if they were packages.
+- Effect: the approvals gate can miss a genuinely new quoted dependency; in WP-00-01 it passed only via the pre-existing approval record (`.ai-engineering/MEMORY/approvals/WP-00-01/add_dependency_or_external_service.md`).
+- Mitigation until fixed: every pyproject.toml dependency change requires explicit human review (owner decision 2026-11-13; also recorded in CONFIG/project_profile.yml dependency_policy).
+- Tracked: WP-00-05 (framework work item created 2026-11-13 per owner instruction; regression tests required).
+
+## KI-015 - install_from_lock gate can false-pass on a pre-populated venv
+- Status: open, classification: framework hardening (observed 2026-11-13 in the WP-00-01 review)
+- The configured command (`python -m pip install --require-hashes -r requirements.txt`) proves little when the target venv already contains the pins: the gate record of 2026-11-13 13:29:25 shows every line "Requirement already satisfied", so that record alone does not demonstrate a hash-checked install.
+- Mitigations in place: the real fresh-install proof lives in `EVIDENCE/WP-00-01/proof_venv/` (exit-0 logs), and the independent review re-executed a true fresh install (`--require-hashes --no-cache-dir`, exit 0) whose freeze exactly equals the lock union; a corrected negative test (all hashes of one pin flipped) confirmed pip refuses mismatches.
+- Owner decision 2026-11-13: track as future hardening - consider a fresh-venv-per-run or `--no-cache-dir` variant of the gate command (framework item; not WP-00-01 scope).
+
+## KI-016 - G7 is Windows-only (DEC-052): Linux install parity of the lock is unverified
+- Status: open, classification: accepted risk (owner decision DEC-052, 2026-11-13)
+- The owner permanently amended G7 (GOV-05 §3) to require installation from the hash-locked files in a clean Windows environment only, for every referencing work package (WP-00-01, WP-00-03, WP-12-04). The Linux leg was never operationalized (GOV-05 §8 never had a Linux command) and never executed; no Linux install of the four locks has ever been run.
+- Residual unverified: Linux wheel availability for the compiled pins (numpy 2.5.4, pandas 3.1.1, curl-cffi 0.17.0, cryptography, brotli, pillow, pydantic-core, cffi and the other compiled pins); glibc/manylinux-tag compatibility of any future Linux environment; non-x86-64 architectures; Python 3.13/3.14 on any OS (unchanged limitation, untouched by DEC-052).
+- Compensating controls: `--require-hashes` fails closed on any artifact mismatch (a wrong-platform artifact cannot install silently); charter S1 test parity and WP-00-03's "CI on Linux and Windows" are unaffected; KI-013 retains Linux dependency-install validation for any Docker image intended for distribution.
+- Re-open triggers: the hosted-platform decision (PCD-005), any Linux deployment need, or a Docker image build (KI-013).
+- No Linux compatibility claim may be made under DEC-052 (DEC-047 unchanged).
+
 ## KI-008 - parts of the adapter facts come from third parties or are version-dependent
 - Status: open, classification: unknown
 - Official documentation verified 2026-11-11: Kiro steering page (updated 2026-10-21), Gemini CLI GEMINI.md page, OpenCode rules page. Unverified: whether `file://AGENTS.md` works in a Kiro custom agent's `resources`; the reported Kiro symlink limitation (user-filed GitHub issue); exact CLI versions; Gemini CLI `/memory reload` versus `/memory refresh` and the `context.fileName` versus legacy `contextFileName` key differ between documentation versions.

@@ -19,14 +19,15 @@ commands:
       (dependencies not installed there), not a code defect; classify per task baseline.
   dependency_consistency:
     purpose: dependency check
-    run: "pip check"
-    status: "unavailable_until:WP-00-01"
-    source: GOV-05 section 8
+    run: "python -m pip check"   # GOV-05's `pip check`, via the invoking interpreter (run_gates substitutes sys.executable)
+    status: exists
+    source: GOV-05 section 8; configured by WP-00-01 (2026-11-13)
   install_from_lock:
     purpose: hash-locked install (G7)
-    run: null
-    status: "unavailable_until:WP-00-01"
-    source: GOV-05 section 8 (placeholder <install-from-lock-command>)
+    run: "python -m pip install --require-hashes -r requirements.txt"
+    status: exists
+    source: GOV-05 section 8 (placeholder <install-from-lock-command> resolved by WP-00-01, owner decision 2026-11-13)
+    note: "core lock first; group locks install after it with the same flag (README: core -> ingestion -> docs -> dev)"
   policy_test:
     purpose: blocked-dependency policy (G3)
     run: "python -m pytest tests/test_policy_blocked.py -q"

@@ -1,0 +1,7 @@
+# JobHunter - docs dependency group.
+# Declared EMPTY until a documentation toolchain is approved (GOV-04 WP-00-01;
+# owner decision 2026-11-13 confirms the empty group).
+# Mirrors [project.optional-dependencies].docs = [] in pyproject.toml.
+#
+# Regenerate:  pip-compile --generate-hashes requirements-docs.in   -> requirements-docs.txt
+# Install:     pip install --require-hashes -r requirements-docs.txt   (currently a no-op)

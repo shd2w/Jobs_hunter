@@ -31,7 +31,7 @@ Rules: retries disabled in tests (`stamina` test mode, D7); no test touches the 
 | G4 | **layer test** green: `interfaces/*` imports only `app`/`domain.models`; `domain/*` imports no I/O |
 | G5 | **no-auto-document test** green (call-graph + DB constraint) |
 | G6 | queue export byte-identical to golden |
-| G7 | dependency install from the hash-locked file on clean Windows and Linux venvs |
+| G7 | dependency install from the generated hash-locked files in a clean Windows venv (pip install --require-hashes), then dependency consistency verification |
 | G8 | each new adapter: fixtures + contract tests + health canary before `shadow` |
 | G9 | mocked vs real: tests using fakes are labelled *mocked* in reports; "verified" requires a run that touched the real thing, named with date and machine |
 | G10 | **simulation regression**: `docs/feasibility/exp3_guard_sim.py` rules are ported to tests — real 60 % drop re-baselines within 3 stable runs; **stable zero outage never re-baselines**; floored detector false-alarm rate < 1 % on small boards |

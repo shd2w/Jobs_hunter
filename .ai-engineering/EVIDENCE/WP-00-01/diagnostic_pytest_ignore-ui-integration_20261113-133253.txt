@@ -1,0 +1,14 @@
+﻿# WP-00-01 supplementary diagnostic (NOT the G1 gate command)
+# Configured G1 (python -m pytest -q) fails environmentally on this machine: KI-012 (no GTK/Pango -> WeasyPrint import fails at collection, tests/test_ui_integration.py).
+# This run excludes tests/test_ui_integration.py to verify everything else on the locked stack. Interpreter: C:\Users\ashad\AppData\Local\Temp\opencode\wp0001-proof-venv (python 3.12.8, installed from the four hash-locked locks).
+# exit code: 0
+# local timestamp: 20261113-133253
+
+........................................................................ [ 25%]
+........................................................................ [ 50%]
+........................................................................ [ 76%]
+...................................................................      [100%]
+283 passed in 12.35s
+
+[stderr]
+
