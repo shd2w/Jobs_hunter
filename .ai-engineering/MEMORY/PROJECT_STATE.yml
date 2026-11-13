@@ -2,16 +2,16 @@
 # Updated at every task transition and handoff. Validated by SCRIPTS/memory/check_memory.py.
 state_version: 1
 project: JobHunter
-last_updated: "2026-11-13T15:5xZ"
-last_updated_by: "OpenCode CLI / glm-5.3-flash-free (WP-00-02: implementer, merged)"
-active_task: WP-00-02           # last task: policy, secret and PII gates (phase 00, merged)
-task_status: merged             # GOV-05 section 10; WP-00-01 and WP-00-02 both merged, tagged phase-00-merged
+last_updated: "2026-11-13T16:1xZ"
+last_updated_by: "OpenCode CLI / glm-5.3-flash-free (WP-00-04: implementer)"
+active_task: WP-00-04           # task open: baseline live source probe (phase 00)
+task_status: in_progress        # GOV-05 section 10; WP-00-01 merged, WP-00-02 merged, WP-00-03 complete (committed, awaiting merge), WP-00-04 in progress
 phase: "00"
 release: null
-branch: phase/00-foundations
-base_branch: pending_owner     # PCD-001. De-facto base for gate --base comparisons: bootstrap snapshot 83c423f on docs/governance-suite.
+branch: wp/WP-00-04-baseline-live-source-probe
+base_branch: pending_owner
 head_commit: cdec1b2aab
-working_tree: "HEAD 909c04d on phase/00-foundations (WP-00-01 and WP-00-02 both merged, tagged phase-00-merged). G3 (test_policy_blocked.py) PASSED: 2 passed. G12 (scan_secrets_pii.py) PASSED: no findings. G1: 288 passed. .gitignore: config/profile.yml and CV_Example.py ignored (S4, KI-004). config/profile.example.yml tracked. command_profiles.yml: policy_test + secret_pii_scan = exists. KI-017 recorded for test_queue_exporter.py pre-existing owner PII. Ready for next WP (WP-00-03, WP-00-04) pending owner authorization."
+working_tree: "HEAD cdec1b2 on phase/00-foundations (WP-00-01 + WP-00-02 merged, tagged phase-00-merged). WP-00-03 complete on wp/WP-00-03-ci-windows-weasyprint (CI config, verify_windows.ps1, command_profiles.yml; G1/G7/G9 green). WP-00-04 in progress: run_check_sources.py executed (464 jobs, 0 errors across 4 feeds), docs/SOURCE_VERIFICATION.md written. G20: dated live record. G9: dated real run cited."
 last_verified_checkpoint:
   commit: d4ae61e
   what_was_verified: "WP-00-01 merged into phase/00 and tagged phase-00-merged. WP-00-02 implementation complete: tests/test_policy_blocked.py (G3, 2 passed), scan_secrets_pii.py (G12, PASS), config/profile.example.yml (tracked template), .gitignore (config/profile.yml + CV_Example.py ignored), command_profiles.yml (policy_test + secret_pii_scan = exists). G1: 288 passed after changes."

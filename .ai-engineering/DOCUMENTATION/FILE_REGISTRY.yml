@@ -851,6 +851,15 @@ files:
     provenance: "generated-unreviewed"
     entry_sha256: "b86f0b8964f4e3924cc26a89e9f7545335ab2bebea76da51bf63061a8f3268b8"
     untrusted_input: false
+  - path: "docs/SOURCE_VERIFICATION.md"
+    type: "md"
+    purpose: "SOURCE_VERIFICATION.md — Baseline live source probe (WP-00-04)"
+    component: "project-docs"
+    classification: "S0"
+    status: "active"
+    provenance: "generated-unreviewed"
+    entry_sha256: "bbaaf22550327b02566969d383db403892022341673dcb4e7d480c00ce82a587"
+    untrusted_input: false
   - path: "docs/feasibility/exp1_resolver.py"
     type: "py"
     purpose: "Experiment 1: does ats_scrapers.resolve.resolve_careers_url recognise realistic URLs? Run: pip install ats-scrapers==0.3.0 beautifulsoup4 html2text ; python exp1_resolver.py URLs are hand-written in the shapes these providers use; they are NOT real tenants."
