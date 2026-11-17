@@ -10,10 +10,10 @@ phase: "03"
 release: null
 branch: wp/WP-03-01-schema-v1-migration-runner
 base_branch: phase/00-foundations   # owner-confirmed merge target 2026-11-17 (PCD-001 interim default)
-head_commit: 2306d9d4ad66109a2e39d75669e3d9a23cd16aa5
+head_commit: 2306d9ddbbac06c2fcaaac28782223d88bc77383
 working_tree: "HEAD 2306d9d on wp/WP-03-01-schema-v1-migration-runner (from phase/00-foundations). WP-03-01 implemented: R1 schema migration 0001 (docs/04 s4+s10+s11) with user_id tenancy (DEC-036), additive runner with PRAGMA user_version, atomic automatic backup (DEC-046), StoreService over Result[T]. 12 new tests. G1: 337 passed / 3 xfailed (baseline 325 unchanged). G2/G3/G12 passed. G13 recorded unavailable per owner instruction (owner decision record 2026-11-17). Phase 02 accepted by owner in lieu of independent review (same record). Status ready_for_review; awaiting independent review (Stage 8)."
 last_verified_checkpoint:
-  commit: 2306d9d4ad66109a2e39d75669e3d9a23cd16aa5
+  commit: 2306d9ddbbac06c2fcaaac28782223d88bc77383
   what_was_verified: "WP-03-01 scope code-complete: post-change G1 337 passed / 3 xfailed; G2 PASSED; G3 2 passed; G12 PASS; G13 unavailable (owner instruction, fixture evidence attached as package proof). Registry entries added for the 4 new files (3 files + owner decision record). Completion report filed at .ai-engineering/EVIDENCE/WP-03-01/report/REPORT_WP-03-01_20261117.md. check_memory.py state OK at write time."
   not_verified: "Independent review of WP-03-01 (Stage 8, next); G13 migration_verify command (unavailable_until:WP-03-04); Python 3.13/3.14 by execution; Linux install parity (KI-016); Docker image build (KI-013); UI viewports (pending_owner); hosted engine (PCD-005 blocking, out of scope)"
   evidence: ".ai-engineering/EVIDENCE/WP-03-01/ (baseline, validation, report); .ai-engineering/MEMORY/decisions/phase02_approval_wp0301_start_2026-11-17.md"
