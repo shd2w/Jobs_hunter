@@ -307,6 +307,15 @@ files:
     provenance: "generated-unreviewed"
     entry_sha256: "02aac4548518b0858f4cc835c1a7b91b25620807c8fc5f240328afd831e3193b"
     untrusted_input: false
+  - path: ".ai-engineering/MEMORY/decisions/phase02_approval_wp0301_start_2026-11-17.md"
+    type: "md"
+    purpose: "Decision record — owner 2026-11-17: Phase 02 accepted (missing independent review acknowledged in lieu of review), WP-03-01 start authorized, G13 recorded unavailable for WP-03-01, merge target phase/00-foundations confirmed"
+    component: "framework"
+    classification: "S0"
+    status: "active"
+    provenance: "reviewed"
+    entry_sha256: "aec359edd631c7da89cdb6a1e841ff1e92973d74bbf97fdceceb899cd677b7a1"
+    untrusted_input: false
   - path: ".ai-engineering/MEMORY/decisions/WP-00-01_owner_decision_record_2026-11-13.md"
     type: "md"
     purpose: "Decision record — WP-00-01 (owner, 2026-11-13)"
@@ -973,6 +982,29 @@ files:
     provenance: "generated-unreviewed"
     entry_sha256: "305dfffa303d0e06131c84c48067b48b3e0fe365a0d96e6cceca5d35ff6a9343"
     untrusted_input: false
+  - path: "jobhunter/adapters/store.py"
+    type: "py"
+    purpose: "SQLite store adapter (WP-03-01): R1 schema migration 0001 per docs/04 s4/s10/s11, additive migration runner with PRAGMA user_version tracking, atomic pre-migration backups (DEC-046), per-user tenancy columns (DEC-036)."
+    component: "jobhunter-core"
+    classification: "S0"
+    status: "active"
+    provenance: "reviewed"
+    entry_sha256: "c75aa6b81ada3456d9fe187a0eabc307b5f4deaac175f84e975a6a400b692710"
+    untrusted_input: false
+    interfaces: ["Migration", "MIGRATIONS", "MIGRATION_0001_R1_SCHEMA", "PER_USER_TABLES", "GLOBAL_TABLES", "connect", "schema_version", "pending_migrations", "apply_migrations", "backup_database", "LATEST_SCHEMA_VERSION", "DEFAULT_DB_PATH", "DEFAULT_BACKUPS_DIR"]
+    side_effects: ["filesystem-write"]
+  - path: "jobhunter/app/services/store.py"
+    type: "py"
+    purpose: "Store service (WP-03-01): applies additive schema migrations with automatic backups and returns Result[T]; Err on database or backup failures with the failed migration rolled back."
+    component: "jobhunter-core"
+    classification: "S0"
+    status: "active"
+    provenance: "reviewed"
+    entry_sha256: "31eeac418b521449dbe2c3c025068e2aa6f42c492ed6949c5bfca7139895b255"
+    untrusted_input: false
+    interfaces: ["StoreService.apply_migrations", "StoreService.schema_version"]
+    internal_imports: ["jobhunter.adapters.store", "jobhunter.app.result"]
+    side_effects: ["filesystem-write"]
   - path: "jobhunter_ui/__init__.py"
     type: "py"
     purpose: "User-friendly local interface for JobHunter. Wraps the original pipeline; never replaces it."
@@ -1563,6 +1595,18 @@ files:
     interfaces: ["uaa_canonical_url", "uaa_application_id", "exported_rows", "TestUaaContract"]
     internal_imports: ["utils.queue_exporter"]
     side_effects: ["network", "filesystem-write"]
+  - path: "tests/test_store_migrations.py"
+    type: "py"
+    purpose: "Tests for the SQLite store and migration runner (WP-03-01): empty and legacy fixtures, idempotence, backup creation and validity, user_id tenancy (DEC-036), failure rollback, atomic backup writes."
+    component: "tests"
+    classification: "S0"
+    status: "active"
+    provenance: "reviewed"
+    entry_sha256: "88f3c7037651a3e79d31ce91098be1497074e28a40061658a9ff11a78943ecc6"
+    untrusted_input: false
+    interfaces: ["test_schema_applies_on_empty_fixture", "test_all_expected_tables_created", "test_user_id_on_per_user_tables", "test_no_user_id_on_global_tables", "test_migration_idempotence_on_empty_fixture", "test_schema_applies_on_legacy_fixture", "test_backup_file_created_and_valid", "test_no_backup_on_first_creation", "test_failed_migration_rolls_back", "test_service_schema_version_before_any_migration", "test_runner_reports_pending_migrations", "test_backup_write_is_atomic_no_temp_leftover"]
+    internal_imports: ["jobhunter.adapters.store", "jobhunter.app.result", "jobhunter.app.services.store"]
+    side_effects: ["filesystem-write"]
   - path: "tests/test_ui_integration.py"
     type: "py"
     purpose: "REAL original CVTailor, CoverLetterWriter and WeasyPrint PDF code; only the AI network call (SmartRouter) is faked."

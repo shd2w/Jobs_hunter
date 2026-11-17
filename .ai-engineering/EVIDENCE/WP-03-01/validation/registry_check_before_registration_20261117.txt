@@ -1,0 +1,26 @@
+﻿
+ERROR unregistered maintained file: .ai-engineering/MEMORY/decisions/phase02_approval_wp0301_start_2026-11-17.md
+ERROR unregistered maintained file: jobhunter/__init__.py
+ERROR unregistered maintained file: jobhunter/adapters/__init__.py
+ERROR unregistered maintained file: jobhunter/adapters/scheduling.py
+ERROR unregistered maintained file: jobhunter/adapters/store.py
+ERROR unregistered maintained file: jobhunter/app/__init__.py
+ERROR unregistered maintained file: jobhunter/app/result.py
+ERROR unregistered maintained file: jobhunter/app/services/__init__.py
+ERROR unregistered maintained file: jobhunter/app/services/applications.py
+ERROR unregistered maintained file: jobhunter/app/services/evaluation.py
+ERROR unregistered maintained file: jobhunter/app/services/health.py
+ERROR unregistered maintained file: jobhunter/app/services/jobs.py
+ERROR unregistered maintained file: jobhunter/app/services/scheduler.py
+ERROR unregistered maintained file: jobhunter/app/services/store.py
+ERROR unregistered maintained file: jobhunter/domain/__init__.py
+ERROR unregistered maintained file: jobhunter/domain/filters.py
+ERROR unregistered maintained file: jobhunter/domain/scoring.py
+ERROR unregistered maintained file: jobhunter/interfaces/__init__.py
+ERROR unregistered maintained file: tests/test_layers.py
+ERROR unregistered maintained file: tests/test_parity.py
+ERROR unregistered maintained file: tests/test_scheduler.py
+ERROR unregistered maintained file: tests/test_services.py
+ERROR unregistered maintained file: tests/test_store_migrations.py
+
+

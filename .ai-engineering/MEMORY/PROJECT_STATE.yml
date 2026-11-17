@@ -2,21 +2,21 @@
 # Updated at every task transition and handoff. Validated by SCRIPTS/memory/check_memory.py.
 state_version: 1
 project: JobHunter
-last_updated: "2026-11-13T19:2xZ"
-last_updated_by: "OpenCode CLI / glm-5.3-flash-free (Phase 02: evidence + state alignment)"
-active_task: WP-02-05           # last task completed: scheduler worker with lease (phase 02, merged)
-task_status: blocked            # GOV-05 section 10; ALL Phase 02 WPs implemented and merged, BUT independent review NOT performed (Constitution 1.8, project_profile review_before_merge: true) — owner must review before Phase 02 close-out
-phase: "02"
+last_updated: "2026-11-17"
+last_updated_by: "OpenCode CLI / glm-5.3-flash-free (WP-03-01 start: state reconciliation)"
+active_task: WP-03-01           # Phase 03, first package: schema v1 and migration runner
+task_status: ready_for_review   # implementation complete, all gates run, report filed (GOV-06 section 7)
+phase: "03"
 release: null
-branch: phase/00-foundations
-base_branch: pending_owner
-head_commit: 853c7a97a5
-working_tree: "HEAD 853c7a9 on phase/00-foundations (all phase 00, 01, 02 WPs merged, tagged phase-02-merged). G1: 325 passed, 3 xfailed. G4: layer lint passes. G15: parity test passes. G17: source-safety tests pass. All phase 00 + phase 01 + phase 02 work packages implemented. BLOCKER: independent review before merge NOT performed — owner must review (Constitution 1.8, project_profile review_before_merge: true). UI viewports pending_owner (DoD 2.2 browser testing not possible)."
+branch: wp/WP-03-01-schema-v1-migration-runner
+base_branch: phase/00-foundations   # owner-confirmed merge target 2026-11-17 (PCD-001 interim default)
+head_commit: 2306d9ddbbac06c2fcaaac28782223d88bc77383
+working_tree: "HEAD 2306d9d on wp/WP-03-01-schema-v1-migration-runner (from phase/00-foundations). WP-03-01 implemented: R1 schema migration 0001 (docs/04 s4+s10+s11) with user_id tenancy (DEC-036), additive runner with PRAGMA user_version, atomic automatic backup (DEC-046), StoreService over Result[T]. 12 new tests. G1: 337 passed / 3 xfailed (baseline 325 unchanged). G2/G3/G12 passed. G13 recorded unavailable per owner instruction (owner decision record 2026-11-17). Phase 02 accepted by owner in lieu of independent review (same record). Status ready_for_review; awaiting independent review (Stage 8)."
 last_verified_checkpoint:
-  commit: 853c7a97a5
-  what_was_verified: "Phase 02 complete: WP-02-01 through WP-02-05 all implemented, tested, and merged into phase/00. Tagged phase-02-merged. Evidence stored in .ai-engineering/EVIDENCE/WP-02-0{1,2,3,4,5}/. COMPLETED_WORK.md updated. Handoff record created."
-  not_verified: "Independent review before merge (Constitution 1.8, project_profile review_before_merge: true); Python 3.13/3.14 by execution (no interpreters on this machine; DEC-052 does not validate them); Docker image build (KI-013 playwright install out-of-manifest, deferred by the owner to a later WP); tests/test_queue_exporter.py contains pre-existing owner PII (excluded from scan, tracked as known issue); UI viewports (pending_owner in project_profile.yml — DoD 2.2 browser testing blocked)"
-  evidence: ".ai-engineering/EVIDENCE/WP-02-01/validation/G4_layer_lint_20261113-190530.txt; .ai-engineering/EVIDENCE/WP-02-02/validation/G1_tests_all_20261113-190630.txt; .ai-engineering/EVIDENCE/WP-02-03/validation/G1_tests_all_20261113-190700.txt; .ai-engineering/EVIDENCE/WP-02-04/validation/G15_parity_20261113-190730.txt; .ai-engineering/EVIDENCE/WP-02-05/validation/G17_scheduler_20261113-190800.txt; .ai-engineering/MEMORY/handoffs/WP-02-05/20261113-191000_opencode-glm-5.3-flash-free.md"
+  commit: 2306d9ddbbac06c2fcaaac28782223d88bc77383
+  what_was_verified: "WP-03-01 scope code-complete: post-change G1 337 passed / 3 xfailed; G2 PASSED; G3 2 passed; G12 PASS; G13 unavailable (owner instruction, fixture evidence attached as package proof). Registry entries added for the 4 new files (3 files + owner decision record). Completion report filed at .ai-engineering/EVIDENCE/WP-03-01/report/REPORT_WP-03-01_20261117.md. check_memory.py state OK at write time."
+  not_verified: "Independent review of WP-03-01 (Stage 8, next); G13 migration_verify command (unavailable_until:WP-03-04); Python 3.13/3.14 by execution; Linux install parity (KI-016); Docker image build (KI-013); UI viewports (pending_owner); hosted engine (PCD-005 blocking, out of scope)"
+  evidence: ".ai-engineering/EVIDENCE/WP-03-01/ (baseline, validation, report); .ai-engineering/MEMORY/decisions/phase02_approval_wp0301_start_2026-11-17.md"
 authoritative_documents:
   contract_map: .ai-engineering/CONFIG/project_contract_map.yml   # holds path + sha256 per document
   decision_log_revision_read: "sha256 236f2bd9dfcc0fc00bd6a12eaa8756882681fbec1f6af3fad8d61b3cf7079cbd"

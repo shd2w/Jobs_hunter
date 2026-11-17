@@ -1,0 +1,5 @@
+date: 2026-11-17T12:37:47.0700999+02:00; agent: OpenCode CLI / glm-5.3-flash-free; env: Windows 11, Python 3.12.8, hash-locked venv jobhunter_venv (core+dev locks, installs exit 0, pip check clean); HEAD: 2cd53f1e5c524cd9c0d4b9d5ad698924bbeee89b; stage: baseline before any WP-03-01 code change
+command: jobhunter_venv/Scripts/python.exe -m pytest tests/test_policy_blocked.py -q
+..                                                                       [100%]
+2 passed in 0.87s
+exit_code: 0

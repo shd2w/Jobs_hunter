@@ -97,3 +97,21 @@ Confirmed defects, limitations, unresolved root causes. Format per entry: id, st
 - Excluded from the G12 secret/PII scan via SKIP_FILES_KNOWN_ISSUE with recorded justification.
 - Workaround: excluded from scan; real fix requires replacing with fixture data without changing test behavior (G1/DEC-042 requires existing tests pass unchanged).
 - Related: KI-004 (config/profile.yml and CV_Example.py S4 data, fixed in WP-00-02 via gitignore + profile.example.yml).
+
+## KI-018 - FILE_REGISTRY is missing all Phase 02 jobhunter package entries
+- Status: open, classification: introduced (Phase 02, pre-existing for WP-03-01)
+- First observed 2026-11-17 (WP-03-01): `check_registry.py check` reports 33 findings. 19 errors are
+  Phase 02 files never registered: the entire `jobhunter/` package (`__init__`, `adapters/*`,
+  `app/*`, `domain/*`, `interfaces/*`) and `tests/test_layers.py`, `test_parity.py`,
+  `test_scheduler.py`, `test_services.py`. 5 warnings: stale feature docs F-02, F-03, F-08, F-09,
+  F-10 (files changed since registered; F-03 has no tests linked).
+- WP-03-01 registered only its own new files (`jobhunter/adapters/store.py`,
+  `jobhunter/app/services/store.py`, `tests/test_store_migrations.py`, and the 2026-11-17 owner
+  decision record). The pre-existing gaps are out of WP-03-01 scope and were left unchanged per
+  scope discipline (constitution 2.1).
+- Effect: the documentation-consistency check fails until the Phase 02 entries are added. Suggested
+  fix: a registry backfill task (owner-authorized; `check_registry.py refresh` can generate
+  scanner-derived entries for review).
+- Evidence: `.ai-engineering/EVIDENCE/WP-03-01/validation/registry_check_before_registration_20261117.txt`
+  (26 errors before WP-03-01 registration, including the 4 WP-03-01 files); post-registration run
+  shows the same list minus the 4 WP-03-01 files.
