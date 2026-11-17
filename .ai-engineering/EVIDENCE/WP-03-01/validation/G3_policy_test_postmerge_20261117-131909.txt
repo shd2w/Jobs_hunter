@@ -1,0 +1,5 @@
+date: 2026-11-17T13:19:09.2954667+02:00; agent: OpenCode CLI / glm-5.3-flash-free (implementer); env: Windows 11, Python 3.12.8, hash-locked venv; HEAD: a165a242327f170beeb629142c0fa0a642f6f940; stage: post-merge default gate on phase/00-foundations (merge commit a165a24)
+command: jobhunter_venv/Scripts/python.exe -m pytest tests/test_policy_blocked.py -q
+..                                                                       [100%]
+2 passed in 0.89s
+exit_code: 0

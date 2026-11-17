@@ -1,7 +1,7 @@
 # Current Task
 
 **Task:** WP-03-01
-**Status:** ready_for_merge
+**Status:** merged
 **Branch / base:** wp/WP-03-01-schema-v1-migration-runner from phase/00-foundations
 **Merge target (owner-confirmed 2026-11-17):** phase/00-foundations
 **Last updated:** 2026-11-17
@@ -79,12 +79,20 @@
 - 2026-11-17 Completion report filed (EVIDENCE/WP-03-01/report/); status ready_for_review
 - 2026-11-17 Owner review performed (verdict: merge; review record
   EVIDENCE/WP-03-01/review/REVIEW_WP-03-01_owner_20261117.md); status ready_for_merge
+- 2026-11-17 Reviewer report verified: EVIDENCE/WP-03-01/review/review_20261117-110600.md —
+  "Kilo / reviewer role", verdict approved, independent re-runs of G1/G3/G12 + approvals gate,
+  one minor pre-existing finding (KI-018, non-blocking); status ready_for_merge confirmed
+- 2026-11-17 Merged into phase/00-foundations with --no-ff (merge commit a165a24, no squash per
+  project_profile.yml merge_to_phase_branch_without_squash)
+- 2026-11-17 Post-merge default gate re-run green: G1 337 passed / 3 xfailed; G2 PASSED; G3 2 passed;
+  G12 PASS (evidence: validation/*_postmerge_20261117-131909 records)
+- 2026-11-17 Status merged; wp branch pushed to origin as backup
 
 ## Blockers and open questions
 - G13 recorded `unavailable` for WP-03-01 per owner instruction (command unavailable_until:WP-03-04);
   fixture-test evidence attached as package proof. Never counted as passed.
 - check_registry.py check still FAILs (33 findings) due to pre-existing Phase 02 registry gaps (KI-018)
-- Independent review (Stage 8) pending — next step after this report
 
 ## Next actions
-- Independent review of WP-03-01 (reviewer role, separate context); then merge to phase/00-foundations
+- Owner authorization for WP-03-02 (Importers — fill the database from existing files; depends on
+  WP-03-01, merged)

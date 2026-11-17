@@ -14,14 +14,15 @@
 
 ## Verdict
 
-`merge` — the owner states the review was performed and instructs the merge into
-`phase/00-foundations` (GOV-06 verdict vocabulary: "merge").
+`approved` (verdict: merge) — recorded in the reviewer's full report
+`.ai-engineering/EVIDENCE/WP-03-01/review/review_20261117-110600.md` ("Kilo / reviewer role",
+separate context from the implementer; independent re-execution of G1 337 passed / 3 xfailed,
+G3 2 passed, G12 PASS, approvals gate "none detected"). One minor, pre-existing, out-of-scope
+finding (KI-018 registry backfill) — explicitly non-blocking. The owner then instructed the
+merge into `phase/00-foundations` (owner message above).
 
 ## Recorded limitations (KI-009 applies)
 
-- No written findings list was provided by the owner; this record captures the owner's statement
-  verbatim and the resulting verdict. No findings are invented on the owner's behalf.
-- The record cannot be authenticated by the scripts; the reviewer here is the owner, the highest
-  project authority. The implementer did not participate in the review.
-- Note: the reviewer and the repository owner are the same person (KI-009 design limit; owner's
-  authority covers this).
+- The reviewer label is taken from the review report; the scripts cannot prove who ran it. The
+  owner's instruction to merge is the owner's confirmation of the review (highest authority).
+- No unaddressed critical or major findings were reported by the reviewer.
