@@ -1,7 +1,7 @@
 # Current Task
 
 **Task:** WP-03-01
-**Status:** ready_for_review
+**Status:** ready_for_merge
 **Branch / base:** wp/WP-03-01-schema-v1-migration-runner from phase/00-foundations
 **Merge target (owner-confirmed 2026-11-17):** phase/00-foundations
 **Last updated:** 2026-11-17
@@ -77,6 +77,8 @@
 - 2026-11-17 Post-change G2 PASSED; G3 2 passed; G12 PASS; commit 2717301
 - 2026-11-17 Registry: 4 entries added (pre-existing Phase 02 gap recorded as KI-018, 19 errors remain)
 - 2026-11-17 Completion report filed (EVIDENCE/WP-03-01/report/); status ready_for_review
+- 2026-11-17 Owner review performed (verdict: merge; review record
+  EVIDENCE/WP-03-01/review/REVIEW_WP-03-01_owner_20261117.md); status ready_for_merge
 
 ## Blockers and open questions
 - G13 recorded `unavailable` for WP-03-01 per owner instruction (command unavailable_until:WP-03-04);
