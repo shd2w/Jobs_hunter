@@ -1,0 +1,34 @@
+date: 2026-11-17T12:37:14.1221065+02:00; agent: OpenCode CLI / glm-5.3-flash-free; stage: WP-03-01 baseline env setup (dev lock)
+command: jobhunter_venv/Scripts/python.exe -m pip install --require-hashes -r requirements-dev.txt
+Collecting build==1.6.1 (from -r requirements-dev.txt (line 7))
+  Using cached build-1.6.1-py3-none-any.whl (31 kB)
+Collecting click==8.5.1 (from -r requirements-dev.txt (line 11))
+  Using cached click-8.5.1-py3-none-any.whl (126 kB)
+Collecting colorama==0.4.6 (from -r requirements-dev.txt (line 15))
+  Using cached colorama-0.4.6-py2.py3-none-any.whl (25 kB)
+Collecting iniconfig==2.3.1 (from -r requirements-dev.txt (line 21))
+  Using cached iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+Collecting packaging==26.3 (from -r requirements-dev.txt (line 25))
+  Using cached packaging-26.3-py3-none-any.whl (129 kB)
+Collecting pip-tools==7.6.2 (from -r requirements-dev.txt (line 32))
+  Using cached pip_tools-7.6.2-py3-none-any.whl (76 kB)
+Collecting pluggy==1.7.0 (from -r requirements-dev.txt (line 36))
+  Using cached pluggy-1.7.0-py3-none-any.whl (27 kB)
+Requirement already satisfied: pygments==2.21.0 in c:\users\ashad\downloads\new folder (4)\jobhunter-friendly\jobhunter_venv\lib\site-packages (from -r requirements-dev.txt (line 40)) (2.21.0)
+Collecting pyproject-hooks==1.3.3 (from -r requirements-dev.txt (line 46))
+  Using cached pyproject_hooks-1.3.3-py3-none-any.whl (10 kB)
+Collecting pytest==8.4.2 (from -r requirements-dev.txt (line 52))
+  Using cached pytest-8.4.2-py3-none-any.whl (365 kB)
+Collecting wheel==0.48.0 (from -r requirements-dev.txt (line 56))
+  Using cached wheel-0.48.0-py3-none-any.whl (33 kB)
+Collecting pip==26.3 (from -r requirements-dev.txt (line 62))
+  Using cached pip-26.3-py3-none-any.whl (2.0 MB)
+Collecting setuptools==84.2.1 (from -r requirements-dev.txt (line 66))
+  Using cached setuptools-84.2.1-py3-none-any.whl (876 kB)
+Installing collected packages: setuptools, pyproject-hooks, pluggy, pip, packaging, iniconfig, colorama, click, wheel, pytest, build, pip-tools
+  Attempting uninstall: pip
+    Found existing installation: pip 24.3.1
+    Uninstalling pip-24.3.1:
+      Successfully uninstalled pip-24.3.1
+Successfully installed build-1.6.1 click-8.5.1 colorama-0.4.6 iniconfig-2.3.1 packaging-26.3 pip-26.3 pip-tools-7.6.2 pluggy-1.7.0 pyproject-hooks-1.3.3 pytest-8.4.2 setuptools-84.2.1 wheel-0.48.0
+exit_code: 0

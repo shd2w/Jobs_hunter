@@ -1,0 +1,18 @@
+date: 2026-11-17T12:33:48.7433187+02:00; agent: OpenCode CLI / glm-5.3-flash-free; env: Windows 11, Python 3.10.0; HEAD: 2cd53f1e5c524cd9c0d4b9d5ad698924bbeee89b; stage: baseline before any WP-03-01 code change
+command: python -m pytest -q
+
+=================================== ERRORS ====================================
+________________ ERROR collecting tests/test_extra_sources.py _________________
+ImportError while importing test module 'C:\Users\ashad\Downloads\New folder (4)\JobHunter-friendly\tests\test_extra_sources.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Program Files\Python310\lib\importlib\__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests\test_extra_sources.py:14: in <module>
+    import pandas as pd
+E   ModuleNotFoundError: No module named 'pandas'
+=========================== short test summary info ===========================
+ERROR tests/test_extra_sources.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 skipped, 1 error in 1.11s
+exit_code: 2

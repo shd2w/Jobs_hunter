@@ -1,0 +1,16 @@
+date: 2026-11-17T12:33:48.7433187+02:00; agent: OpenCode CLI / glm-5.3-flash-free; env: Windows 11, Python 3.10.0; HEAD: 2cd53f1e5c524cd9c0d4b9d5ad698924bbeee89b; stage: baseline before any WP-03-01 code change
+command: python .ai-engineering/SCRIPTS/validation/run_gates.py mustkeep --base a1812f0485df1ef62f597a290620e88329c4e884 --task WP-03-01
+MUST-KEEP check against `a1812f0485df1ef62f597a290620e88329c4e884` (limit 20% shrink; any change needs a recorded reason, docs/PROMPT.md section 2)
+
+| file | before | after | flag |
+|---|---|---|---|
+| run_evaluate.py | 472 | 472 | changed |
+| run_export_queue.py | 92 | 92 | changed |
+| run_health.py | 198 | 198 | changed |
+| scanners/ats.py | 238 | 238 | changed |
+| scanners/bridge.py | 218 | 218 | changed |
+| agents/evaluator.py | 374 | 374 | changed |
+| agents/smart_router.py | 383 | 383 | changed |
+
+PASSED G2 -> .ai-engineering\EVIDENCE\WP-03-01\validation\G2_must_keep_line_count_20261117-123359.md
+exit_code: 0
